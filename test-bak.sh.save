@@ -1,0 +1,33 @@
+^#!/bin/bash
+
+#----------------------------------------
+#DATETIME
+#----------------------------------------
+YEAR=$(date +%Y) 
+MONTH=$(date +%m) 
+DAY=$(date +%d) 
+HOUR=$(date +%H) 
+MIN=$(date +%M) 
+SEC=$(date +%S)
+FILE_NAME="$YEAR$MONTH$DAY"
+#----------------------------------------
+# LOCAL CONFIG
+#----------------------------------------
+DB_ADDRESS='rapidx'
+DB_USER='rapidx'       # MySQL User
+DB_PASSWORD='Ne0nFutur3*' # MySQL Password
+#----------------------------------------
+# OTHER LOCATION CONFIG
+#----------------------------------------
+ADDRESS='//pmips02/PMIDatabase_Backup'
+DOMAIN='PRICON'
+USER='iss.software'       # Computer Username
+PASSWORD='S0ftw@r32023*' # Computer Password
+PATH_BACKUP='/rapidx/PM'
+AM_PATH_BACKUP='/rapidx/HELLO
+
+#Create Folder to Other location
+smbclient $ADDRESS -U $DOMAIN/$USER%$PASSWORD -c "$AM_PATH_BACKUP; xcopy * /rapidx/TEST"
+
+#Remove the AM Directory
+
