@@ -1,4 +1,4 @@
-# Docu App in Laravel Vue
+# Laravel 8 Vue 3
 
 Laravel 8, Vue 3, Vue Router 4, Pinia, Webpack Mix
 
