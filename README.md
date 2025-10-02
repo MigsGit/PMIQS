@@ -19,19 +19,23 @@ Laravel 8, Vue 3, Vue Router 4, Pinia, Webpack Mix
 * [Font Awesome 4](https://fontawesome.com/)
 * [Multiple Select](https://github.com/vueform/multiselect)
 ## Installation
-
+* Run the entrypoint script
+* Run the clear cache script
 ```
-npm i 
-
-composer i
-
-php artisan key:generate 
-
-php artisan migrate  
-
-php artisan migrate:status
+sudo bash entrypoint.sh
+sudo bash clear-cache.sh
+```
+* RUN the command to RAPIDV
+```
+composer install
+```
+* RUN the command to RAPIDX
+```
+composer install --ignore-platform-reqs
 ```
 
+
+* Node Modules Dependencies
 ```
 npm i @fortawesome/fontawesome-svg-core
 npm i @fortawesome/vue-fontawesome
@@ -40,5 +44,4 @@ npm i @vueform/multiselect
 
 #if the npm error with permission
 sudo chown -R 1000:1000 "/home/administrator/.npm"
-
 ```
