@@ -316,4 +316,23 @@ class SettingsController extends Controller
             return response()->json(['is_success' => 'false', 'exceptionError' => $e->getMessage()]);
         }
     }
+    public function getNoModuleRapidxUserByIdOpt(Request $request){
+        try {
+            $rapidxUserById = DB::connection('mysql_rapidx')->select('SELECT users.id,users.name
+                FROM  users users
+                LEFT JOIN user_accesses user_accesses ON user_accesses.user_id = users.id
+                WHERE 1=1
+                AND user_stat = 1
+                -- AND user_accesses.user != users.id
+                GROUP BY users.id,users.name
+                '
+            );
+            if(count ($rapidxUserById) > 0){
+                return response()->json(['isSuccess' => 'true','rapidxUserById'=>$rapidxUserById]);
+            }
+            return response()->json(['isSuccess' => 'false','rapidxUserById'=>[],'msg' => 'User Not Found !',],500);
+        } catch (Exception $e) {
+            return response()->json(['isSuccess' => 'false', 'exceptionError' => $e->getMessage()]);
+        }
+    }
 }
