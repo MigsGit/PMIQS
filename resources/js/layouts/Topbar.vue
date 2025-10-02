@@ -24,7 +24,7 @@ const logoutSession = async () => {
 <template>
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
-        <span class="navbar-brand ps-2" >4M CMS</span>
+        <span class="navbar-brand ps-2" >PMI Quatation System</span>
         <!-- Sidebar Toggle-->
         <a id="sidebarToggle" style="cursor: pointer;"><i class="fas fa-bars"></i></a>
         <!-- Navbar Search-->

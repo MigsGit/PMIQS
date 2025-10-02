@@ -112,25 +112,7 @@ class SettingsController extends Controller
             throw $e;
         }
     }
-    public function saveEcrRequirementDetails(ClassificationRequirementRequest $classificationRequirementRequest){
-        try {
-            DB::beginTransaction();
-            date_default_timezone_set('Asia/Manila');
-            $classificationRequirementRequestValidated = $classificationRequirementRequest->validated();
-            $classificationRequirementRequestValidated['created_at'] = now();
 
-            if(blank($classificationRequirementRequest->ecr_requirement_details_id)){
-                $this->resourceInterface->create(ClassificationRequirement::class, $classificationRequirementRequestValidated);
-            }else{
-                $this->resourceInterface->updateConditions(ClassificationRequirement::class,['id' => $classificationRequirementRequest->ecr_requirement_details_id], $classificationRequirementRequest->validated());
-            }
-            DB::commit();
-            return response()->json(['isSuccess' => 'true']);
-        } catch (Exception $e) {
-            DB::rollback();
-            throw $e;
-        }
-    }
     public function delClassificationRequirements(Request $request){
         try {
             date_default_timezone_set('Asia/Manila');
@@ -320,7 +302,7 @@ class SettingsController extends Controller
             throw $e;
         }
     }
-    public function getDropdownMasterDetailsId(Request $request){
+    public function getDropdownMasterDetailsId(Request $request){ //
         try {
             $conditions = [
                 'id' => $request->dropdownMasterDetailsId
@@ -334,33 +316,4 @@ class SettingsController extends Controller
             return response()->json(['is_success' => 'false', 'exceptionError' => $e->getMessage()]);
         }
     }
-    public function getEcrRequirementMasterCategory(Request $request){
-        try {
-            $dropdownMaster =  $this->resourceInterface->readCustomEloquent(Classification::class,['category','id'],[],[]);
-           $dropdownMaster->whereNull('deleted_at');
-           $dropdownMaster= $dropdownMaster
-           ->get();
-            return response()->json([
-                'is_success' => 'true',
-                'dropdownMaster' => $dropdownMaster
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['is_success' => 'false', 'exceptionError' => $e->getMessage()]);
-        }
-    }
-    public function getEcrRequirementDetailsById(Request $request){
-        try {
-           $classificationRequirement =  $this->resourceInterface->readCustomEloquent(ClassificationRequirement::class,[],[],['id'=>$request->dropdownMasterDetailsId]);
-           $classificationRequirement->whereNull('deleted_at');
-           $classificationRequirement = $classificationRequirement
-           ->first();
-            return response()->json([
-                'is_success' => 'true',
-                'classificationRequirement' => $classificationRequirement
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['is_success' => 'false', 'exceptionError' => $e->getMessage()]);
-        }
-    }
-
 }
