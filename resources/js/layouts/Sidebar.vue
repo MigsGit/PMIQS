@@ -29,13 +29,14 @@
 </template>
 <script setup>
     import {ref , onMounted,reactive, toRef} from 'vue';
-    import useEcr from '../../js/composables/ecr.js';
-
     import { useAuthStore } from '../stores';
     const useAuth = useAuthStore();
+    import useFetchAxios from "../composables/utils/useFetch";
+
     const {
-        axiosFetchData
-    } = useEcr();
+        axiosFetchData,
+    } = useFetchAxios();
+
 
     const userFullName = ref(null);
     const departmentGroup = ref(null);

@@ -1,5 +1,6 @@
 import IndexComponent from '../../js/pages/IndexComponent.vue'
 import Dashboard from '../pages/Dashboard.vue'
+import ProductMaterial from '../pages/ProductMaterial.vue'
 import UserMaster from '../../js/pages/UserMaster.vue'
 import DropdownMaster from '../../js/pages/DropdownMaster.vue'
 import useFetch from '../../js/composables/utils/useFetch';
@@ -34,6 +35,13 @@ export default [
                 name: 'dashboard',
                 beforeEnter: checkIfSessionExist,
                 component: Dashboard,
+
+            },
+            {
+                path: 'product_material',
+                name: 'product_material',
+                beforeEnter: checkIfSessionExist,
+                component: ProductMaterial,
 
             },
             {

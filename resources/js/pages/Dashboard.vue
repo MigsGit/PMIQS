@@ -43,11 +43,11 @@
 
 <script setup>
     import {ref , onMounted,reactive, toRef} from 'vue';
-    import useEcr from '../composables/ecr.js';
+    import useFetch from '../composables/utils/useFetch';
 
     const {
         axiosFetchData
-    } = useEcr();
+    } = useFetch();
 
     //ref state
     const departmentGroup = ref(0);
