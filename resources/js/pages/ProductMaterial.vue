@@ -12,6 +12,32 @@
                             </button>
                         </div>
                     </div>
+                    <!-- :columns="productMaterialColumns" -->
+                    <DataTable
+                        width="100%" cellspacing="0"
+                        class="table mt-2"
+                        ref="tblUserMaster"
+                        ajax="api/load_product_material"
+                        :options="{
+                            serverSide: true, //Serverside true will load the network
+                            columnDefs:[
+                                // {orderable:false,target:[0]}
+                            ]
+                        }"
+                    >
+                        <thead>
+                            <tr>
+                                <th>
+                                    <font-awesome-icon class="nav-icon" icon="fa-cogs" />
+                                </th>
+                                <th>Item</th>
+                                <th>Control Number</th>
+                                <th>Category</th>
+                                <th>Created By</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                    </DataTable>
                 </div>
             </div>
         </div>
@@ -52,6 +78,14 @@
 
     DataTable.use(DataTablesCore);
 
+    // const productMaterialColumns = [
+    //     {data : item_no},
+    //     {data : control_number},
+    //     {data : type},
+    //     {data : category},
+    //     {data : created_by},
+    //     {data : remarks},
+    // ];
 
     onMounted ( async () =>{
 

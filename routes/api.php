@@ -12,6 +12,7 @@ use App\Http\Controllers\MachineController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\EnvironmentController;
+use App\Http\Controllers\ProductMaterialController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,10 @@ Route::middleware('auth')->group(function(){
         Route::get('get_admin_access_opt', 'getAdminAccessOpt')->name('get_admin_access_opt');
         Route::get('get_dropdown_master_category', 'getDropdownMasterCategory')->name('get_dropdown_master_category');
         Route::get('get_no_module_rapidx_user_by_id_opt', 'getNoModuleRapidxUserByIdOpt')->name('get_no_module_rapidx_user_by_id_opt');
+    });
+
+    Route::controller(ProductMaterialController::class)->group(function (): void{
+        Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');
     });
 
 });

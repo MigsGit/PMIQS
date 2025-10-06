@@ -17,6 +17,7 @@ class CreatePmItemsTable extends Migration
             $table->bigIncrements('pm_items_id');
             $table->string('status')->default('FORUP')->comment('FORUP-For Update | FORAPP-For Approval | DIS- Disapproved | CAN- Cancelled');
             $table->string('approval_status')->default('PREPBY')->comment('PREPBY-Preparedby |CHCKBY-Checkedby | NOTEDBY-Notedby |  APPBY - Approvedby');
+            $table->string('control_no');
             $table->string('item_no');
             $table->string('type');
             $table->string('category');

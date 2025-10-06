@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MaterialFileRequest extends FormRequest
+class PmDescriptionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +24,7 @@ class MaterialFileRequest extends FormRequest
     public function rules()
     {
         return [
-
-            'material_ref.*' => 'required|file|mimes:pdf|max:2048',
-            'ecrsId' => 'required',
+            //
         ];
     }
 }

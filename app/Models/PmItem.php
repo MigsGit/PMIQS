@@ -2,10 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\PmDescription;
 use Illuminate\Database\Eloquent\Model;
 
 class PmItem extends Model
 {
-    use HasFactory;
+    /**
+     * Get all of the comments for the PmItem
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function descriptions()
+    {
+        return $this->hasMany(PmDescription::class, 'pm_items_id', 'pm_items_id');
+    }
 }

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\PmClassification;
 use Illuminate\Database\Eloquent\Model;
 
 class PmDescription extends Model
 {
-    use HasFactory;
+    public function classifications()
+    {
+        return $this->hasMany(PmClassification::class, 'pm_classifications_id', 'pm_classifications_id');
+    }
 }
