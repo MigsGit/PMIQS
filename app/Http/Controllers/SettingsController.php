@@ -85,14 +85,14 @@ class SettingsController extends Controller
             ->select('*')
             ->from('user_accesses')
             ->where('user_id',$request->rapidxUser)
-            ->where('module_id',46)
+            ->where('module_id',50)
             ->count();
             if($isModuleAccess > 0){
                 return response()->json(['is_success' => 'false', 'msg' => 'User already has access to this module.'],409);
             }
             $requestValidated = [
                 'user_level_id' => 5,
-                'module_id' => 46,
+                'module_id' => 50,
                 'user_id' => $request->rapidxUser,
                 'user_access_stat' => 1,
                 'update_version' => 1,
@@ -136,7 +136,7 @@ class SettingsController extends Controller
                 AND users.id = '.session('rapidx_user_id').'
                 AND user_accesses.user_access_stat = 1
                 AND users.user_stat = 1
-                AND user_accesses.module_id = 46
+                AND user_accesses.module_id = 50
                 '
             );
             return response()->json([
@@ -159,7 +159,7 @@ class SettingsController extends Controller
                 WHERE 1=1
                 AND user_accesses.user_access_stat = 1
                 AND users.user_stat = 1
-                AND user_accesses.module_id = 46
+                AND user_accesses.module_id = 50
                 '
             );
             return DataTables::of($user)

@@ -13,16 +13,12 @@ class CreateEcrApprovalsTable extends Migration
      */
     public function up()
     {
-        Schema::create('ecr_approvals', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('ecrs_id')->references('id')->on('ecrs')->comment ='Ecr Id';
-            //manually inject relationship in MYSQL relation view
+        Schema::create('pm_approvals', function (Blueprint $table) {
+            $table->bigIncrements('pm_approvals_id')->primary();
+            $table->foreignId('pm_items_id')->references('pm_items_id')->on('pm_items')->comment ='Ecr Id';
             $table->unsignedBigInteger('rapidx_user_id')->comment('Rapidx User Id');
-            //MYSQL restrict this function if different database
-            // $table->foreignId('rapidx_users_id')->references('id')->on('rapidx.users')->comment ='Rapidx User Id';
             $table->string('status')->default('-')->comment('PEN-Pending | APP-Approved | DIS-Disapproved');
-            $table->string('approval_status')->default('RB');
-            $table->bigInteger('counter');
+            $table->string('approval_status')->default('PREPBY')->comment('PREPBY-Preparedby |CHCKBY-Checkedby | NOTEDBY-Notedby |  APPBY - Approvedby');
             $table->longText('remarks')->nullable();
             $table->timestamps();
             $table->softDeletes();

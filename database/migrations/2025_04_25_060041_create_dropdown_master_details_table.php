@@ -19,8 +19,8 @@ class CreateDropdownMasterDetailsTable extends Migration
             $table->foreignId('dropdown_masters_id')->references('id')->on('dropdown_masters')->comment ='id from dropdown_masters';
             $table->string('dropdown_masters_details')->nullable();
             $table->string('remarks')->nullable();
-            $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
+            $table->unsignedBigInteger('created_by')->comment('Rapidx User Id');
+            $table->unsignedBigInteger('updated_by')->comment('Rapidx User Id');
             $table->softDeletes();
             $table->timestamps();
         });

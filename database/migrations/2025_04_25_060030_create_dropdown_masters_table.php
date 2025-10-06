@@ -17,9 +17,11 @@ class CreateDropdownMastersTable extends Migration
             $table->id();
             $table->tinyInteger('status')->nullable();
             $table->string('dropdown_masters')->nullable();
+            $table->string('category')->nullable();
+            $table->string('table_reference')->nullable();
             $table->string('remarks')->nullable();
-            $table->integer('created_by')->nullable();
-            $table->integer('updated_by')->nullable();
+            $table->unsignedBigInteger('created_by')->comment('Rapidx User Id');
+            $table->unsignedBigInteger('updated_by')->comment('Rapidx User Id');
             $table->softDeletes();
             $table->timestamps();
         });
