@@ -37,7 +37,6 @@ Route::get('check_session', function (Request $request) {
 //session_start in Authenticate Middleware, then passed it to the queries to get session
 Route::middleware('auth')->group(function(){
 
-
     Route::controller(SettingsController::class)->group(function () {
         Route::post('save_dropdown_master_details', 'saveDropdownMasterDetails')->name('save_dropdown_master_details');
         Route::post('save_user_approver', 'saveUserApprover')->name('save_user_approver');
@@ -55,6 +54,7 @@ Route::middleware('auth')->group(function(){
 
     Route::controller(ProductMaterialController::class)->group(function (): void{
         Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');
+        Route::get('get_items_by_id', 'getItemsById')->name('pm.get_items_by_id');
     });
 
 });

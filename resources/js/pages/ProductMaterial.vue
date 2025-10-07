@@ -12,12 +12,12 @@
                             </button>
                         </div>
                     </div>
-                    <!-- :columns="productMaterialColumns" -->
                     <DataTable
                         width="100%" cellspacing="0"
                         class="table mt-2"
                         ref="tblUserMaster"
                         ajax="api/load_product_material"
+                        :columns="productMaterialColumns"
                         :options="{
                             serverSide: true, //Serverside true will load the network
                             columnDefs:[
@@ -30,8 +30,9 @@
                                 <th>
                                     <font-awesome-icon class="nav-icon" icon="fa-cogs" />
                                 </th>
-                                <th>Item</th>
+                                <th>Item No</th>
                                 <th>Control Number</th>
+                                <th>Type</th>
                                 <th>Category</th>
                                 <th>Created By</th>
                                 <th>Remarks</th>
@@ -74,22 +75,53 @@
     import Swal from 'sweetalert2';
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
+    import useFetch from '../composables/utils/useFetch';
     import ModalComponent from '../components/ModalComponent.vue';
+
+    const {
+        axiosFetchData
+    } = useFetch();
 
     DataTable.use(DataTablesCore);
 
-    // const productMaterialColumns = [
-    //     {data : item_no},
-    //     {data : control_number},
-    //     {data : type},
-    //     {data : category},
-    //     {data : created_by},
-    //     {data : remarks},
-    // ];
+    const productMaterialColumns = [
+        {   data : 'getActions',
+             orderable: false,
+            searchable: false,
+            createdCell(cell){
+                let btnGetMaterialById = cell.querySelector('#btnGetMaterialById');
+                if(btnGetMaterialById !=null){
+                    btnGetMaterialById.addEventListener('click',function(){
+                        let itemsId = this.getAttribute('items-id')
+                        let itemParams = {
+                            itemsId : itemsId
+                        }
+                        getItemsById(itemParams);
+
+                    });
+                }
+            }
+        },
+        { data : 'itemNo' },
+        { data : 'controlNo' },
+        { data : 'type' },
+        { data : 'category' },
+        { data : 'createdBy' },
+        { data : 'remarks' },
+    ];
 
     onMounted ( async () =>{
 
     })
+
+    const  getItemsById = (params) => {
+        let apiParams = {
+            itemsId : params.itemsId
+        }
+        axiosFetchData(apiParams,'api/get_items_by_id',function(response){
+            console.log(response);
+        });
+    }
 
 </script>
 <style lang="scss" scoped>
