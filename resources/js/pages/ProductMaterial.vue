@@ -64,7 +64,7 @@
             <button type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
         </template>
     </ModalComponent>
-    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-xl" title="Quotations" ref="modalQuotations">
+    <ModalComponent @add-event="formSaveItem" icon="fa-download" modalDialog="modal-dialog modal-xl" title="Quotations" ref="modalQuotations">
         <template #body>
             <div class="row mt-3">
                 <div class="row">
@@ -72,55 +72,54 @@
                         <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
                         <br><br>
                     </div>
-                    <!-- Item -->
-                    <div class="row mt-3 item" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
-                        <div class="card mb-2">
-                                <h5 class="mb-0">
-                                    <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
-                                        Item No. {{ rowSaveItem.itemNo}}
+                    <div class="col-12">
+                         <!-- Item -->
+                        <div class="row mt-3 itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
+                            <div class="card mb-2">
+                                    <h5 class="mb-0">
+                                        <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
+                                            Item No. {{ rowSaveItem.itemNo }}
 
-                                    </button>
-                                </h5>
-                            <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-12">
+                                        </button>
+                                    </h5>
+                                <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
+                                    <div class="card-body">
+                                        <div class="row">
                                             <div class="col-12">
-                                                <button @click="addRowSaveDescription(indexItem)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
-                                                <br><br>
+                                                <div class="col-12">
+                                                    <button @click="addRowSaveDescription(indexItem)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
+                                                    <br><br>
+                                                </div>
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                        <th scope="col">#</th>
+                                                        <th scope="col" style="width: 30%;">PartCode/Type</th>
+                                                        <th scope="col">Description/ItemName</th>
+                                                        <th scope="col">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
+                                                            <td>
+                                                                <span>{{ indexDescription+1 }}</span>
+                                                                <input :value="rowSaveItem.itemNo" v-model="rowSaveDescription.itemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
+                                                            </td>
+                                                            <td>
+                                                                <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
+                                                            </td>
+                                                            <td>
+                                                                <input v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                            </td>
+                                                            <td>
+                                                                <button @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
+                                                                    <li class="fa fa-trash"></li>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                    <th scope="col">#</th>
-                                                    <th scope="col" style="width: 30%;">PartCode/Type</th>
-                                                    <th scope="col">Description/ItemName</th>
-                                                    <th scope="col">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
-                                                        <td>
-                                                            <span>{{ indexDescription+1 }}</span>
-                                                            <input :value="rowSaveItem.itemNo" v-model="rowSaveItem.itemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
-                                                        </td>
-                                                        <td>
-                                                            <input v-model="rowSaveDescription.itemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="itemNo">
-                                                        </td>
-                                                        <td>
-                                                            <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
-                                                        </td>
-                                                        <td>
-                                                            <input v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
-                                                        </td>
-                                                        <td>
-                                                            <button @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
-                                                                <li class="fa fa-trash"></li>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -148,6 +147,7 @@
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
     import useFetch from '../composables/utils/useFetch';
+    import useForm from '../composables/utils/useForm';
     import useCommon from '../composables/common';
     import useProductMaterial from '../composables/productmaterial';
     import ModalComponent from '../components/ModalComponent.vue';
@@ -156,9 +156,14 @@
         axiosFetchData,
     } = useFetch();
     const {
+        axiosSaveData,
+    } = useForm();
+    const {
         modalCommon,
     } = useCommon();
     const {
+        cardSaveClassifications,
+        rowSaveClassifications,
         rowSaveDescriptions,
         rowSaveItems,
     } = useProductMaterial();
@@ -197,8 +202,6 @@
     onMounted ( async () =>{
         modalCommon.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         modalCommon.Quotations.show();
-
-        rowSaveItems.value = [];
     })
 
     const addRowSaveItem = () => {
@@ -208,6 +211,38 @@
             rows : [{partcodeType: 'N/A',
             descriptionItemName: "N/A"}]
         })
+    }
+    const addRowSaveClassification = () => {
+        console.log();
+
+        const newClassificationNo = cardSaveClassifications.value.length + 1;
+        cardSaveClassifications.value.push( {
+            newClassificationNo: newClassificationNo,
+            rows: [
+                {   classification: 'N/A',
+                    qty: 0,
+                    qty: "pcs",
+                    unitPrice: "pcs",
+                    remarks: "",
+                }
+            ]
+        });
+    }
+    const addClassification = () => {
+        const newClassificationNo = cardSaveClassifications.value.length + 1;
+        cardSaveClassifications.value.push( {
+            newClassificationNo: newClassificationNo,
+            rows: [
+                {   classification: 'N/A',
+                    qty: 0,
+                    qty: "pcs",
+                    unitPrice: "pcs",
+                    remarks: "",
+                }
+            ]
+        });
+        console.log(cardSaveClassifications);
+
     }
     const addRowSaveDescription = (itemNoIndex) => {
         rowSaveItems.value[itemNoIndex].rows.push( {
@@ -226,6 +261,43 @@
         axiosFetchData(apiParams,'api/get_items_by_id',function(response){
             console.log(response);
             modalCommon.Quotations.show();
+        });
+    }
+
+    const formSaveItem = async () => {
+        console.log('asdasdasda');
+        let formData =  new FormData();
+
+        // const {
+        //     documentId,documentName,
+        // } =  formSaveDocument.value;
+
+        // [
+        //     ["document_id", documentId], ["document_name", documentName]
+        // ].forEach(([key, value]) =>
+        //     formData.append(key, value)
+        // );
+
+        for (let index = 0; index < rowSaveItems.value.length; index++) {
+            const elementRowSaveItems = rowSaveItems.value[index];
+            // console.log(elementRowSaveItems);
+            for (let index = 0; index < elementRowSaveItems.rows.length; index++) {
+                const elementRowSaveDescription = elementRowSaveItems.rows[index];
+                const itemNo = rowSaveItems.value[index].itemNo;
+                const partcodeType = elementRowSaveDescription.partcodeType;
+                const descriptionItemName = elementRowSaveDescription.descriptionItemName;
+                [
+                    ["itemNo[]", itemNo],
+                    ["partcodeType[]", partcodeType],
+                    ["descriptionItemName[]", descriptionItemName]
+                ].forEach(([key, value]) =>
+                    formData.append(key, value)
+                );
+            }
+        }
+
+        axiosSaveData(formData,'api/save_item', (response) =>{
+            console.log(response);
         });
     }
 

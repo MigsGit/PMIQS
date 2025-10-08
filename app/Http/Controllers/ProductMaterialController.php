@@ -16,6 +16,19 @@ class ProductMaterialController extends Controller
     public function __construct(ResourceInterface $resourceInterface){
         $this->resourceInterface = $resourceInterface;
     }
+
+    public function saveItem(Request $request){
+        try {
+            date_default_timezone_set('Asia/Manila');
+            return $request->all();
+            DB::beginTransaction();
+            DB::commit();
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
     public function loadProductMaterial(Request $request){
         try {
             $data = $this->resourceInterface->readCustomEloquent(
@@ -65,7 +78,7 @@ class ProductMaterialController extends Controller
             $itemResource = ItemResource::collection($pmItems)->resolve();
             return response()->json(['isSuccess' => 'true','itemResource' => $itemResource]);
         } catch (Exception $e) {
-            throw $e;   
+            throw $e;
         }
     }
 }
