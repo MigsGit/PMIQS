@@ -4,7 +4,7 @@ import useForm from "./utils/useForm";
 export default function useCommon(){
     const { axiosFetchData } = useFetch(); // Call  the useFetch function
     const  { axiosSaveData } = useForm();
-    const modal ={}
+    const modalCommon ={}
 
     //Ref State
     const rapidxUserDeptGroup = ref([]);
@@ -234,7 +234,7 @@ export default function useCommon(){
 
     return {
         rapidxUserDeptGroup,
-        modal,
+        modalCommon,
         commonVar,
         externalDisposition,
         tblSpecialInspection,

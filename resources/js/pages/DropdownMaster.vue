@@ -110,13 +110,13 @@
 
     //Constant Object
     const {
-        modal,
+        modalCommon,
         frmDropdownMasterDetails,
         axiosFetchData,
         getDropdownMasterByOpt
     } = useSettings();
 
-    
+
     const {
         resetEcrForm,
     } = useCommon();

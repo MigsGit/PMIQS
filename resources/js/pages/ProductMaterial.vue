@@ -43,7 +43,8 @@
             </div>
         </div>
     </div>
-    <ModalComponent @add-event="formProductMaterial" icon="fa-download" modalDialog="modal-dialog modal-md" title="Add User" ref="modalAddUser">
+    <!-- @add-event="formProductMaterial" -->
+    <ModalComponent icon="fa-file" modalDialog="modal-dialog modal-md" title="Add User" ref="modalAddUser">
         <template #body>
             <div class="row mt-3">
                 <div class="row">
@@ -54,6 +55,77 @@
                             :searchable="true"
                             :close-on-select="true"
                         />
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template #footer>
+            <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
+        </template>
+    </ModalComponent>
+    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-xl" title="Quotations" ref="modalQuotations">
+        <template #body>
+            <div class="row mt-3">
+                <div class="row">
+                    <div class="col-12">
+                        <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
+                        <br><br>
+                    </div>
+                    <!-- Item -->
+                    <div class="row mt-3 item" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
+                        <div class="card mb-2">
+                                <h5 class="mb-0">
+                                    <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
+                                        Item No. {{ rowSaveItem.itemNo}}
+
+                                    </button>
+                                </h5>
+                            <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="col-12">
+                                                <button @click="addRowSaveDescription(indexItem)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
+                                                <br><br>
+                                            </div>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col" style="width: 30%;">PartCode/Type</th>
+                                                    <th scope="col">Description/ItemName</th>
+                                                    <th scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
+                                                        <td>
+                                                            <span>{{ indexDescription+1 }}</span>
+                                                            <input :value="rowSaveItem.itemNo" v-model="rowSaveItem.itemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
+                                                        </td>
+                                                        <td>
+                                                            <input v-model="rowSaveDescription.itemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="itemNo">
+                                                        </td>
+                                                        <td>
+                                                            <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
+                                                        </td>
+                                                        <td>
+                                                            <input v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                        </td>
+                                                        <td>
+                                                            <button @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
+                                                                <li class="fa fa-trash"></li>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -76,14 +148,26 @@
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
     import useFetch from '../composables/utils/useFetch';
+    import useCommon from '../composables/common';
+    import useProductMaterial from '../composables/productmaterial';
     import ModalComponent from '../components/ModalComponent.vue';
 
     const {
-        axiosFetchData
+        axiosFetchData,
     } = useFetch();
+    const {
+        modalCommon,
+    } = useCommon();
+    const {
+        rowSaveDescriptions,
+        rowSaveItems,
+    } = useProductMaterial();
 
     DataTable.use(DataTablesCore);
 
+    const modalQuotations = ref(null);
+    const itemNoIndex = ref(1);
+    // const newItemNo = reactive(rowSaveItems.length + 1);
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -111,8 +195,29 @@
     ];
 
     onMounted ( async () =>{
+        modalCommon.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
+        modalCommon.Quotations.show();
 
+        rowSaveItems.value = [];
     })
+
+    const addRowSaveItem = () => {
+        const newItemNo = rowSaveItems.value.length + 1;
+        rowSaveItems.value.push( {
+            itemNo: newItemNo,
+            rows : [{partcodeType: 'N/A',
+            descriptionItemName: "N/A"}]
+        })
+    }
+    const addRowSaveDescription = (itemNoIndex) => {
+        rowSaveItems.value[itemNoIndex].rows.push( {
+            partcodeType: 'N/A',
+            descriptionItemName: "N/A",
+        })
+    }
+    const removeRowSaveDescription =   (indexItem, indexDescription) => {
+        rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
+    }
 
     const  getItemsById = (params) => {
         let apiParams = {
@@ -120,6 +225,7 @@
         }
         axiosFetchData(apiParams,'api/get_items_by_id',function(response){
             console.log(response);
+            modalCommon.Quotations.show();
         });
     }
 
