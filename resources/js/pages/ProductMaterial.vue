@@ -73,6 +73,7 @@
                         <br><br>
                     </div>
                     <div class="col-12">
+                        <!-- <input :value="selectedItemsId" v-model="pmItemsId" type="text" class="form-control" id="inlineFormInputGroup"> -->
                          <!-- Item -->
                         <div class="row mt-3 itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
                             <div class="card mb-2">
@@ -87,8 +88,9 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="col-12">
-                                                    <button @click="addRowSaveDescription(indexItem)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
+                                                    <button @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
                                                     <br><br>
+
                                                 </div>
                                                 <table class="table table-striped">
                                                     <thead>
@@ -103,7 +105,7 @@
                                                         <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
                                                             <td>
                                                                 <span>{{ indexDescription+1 }}</span>
-                                                                <input :value="rowSaveItem.itemNo" v-model="rowSaveDescription.itemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
+                                                                <input v-model="rowSaveDescription.descItemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
                                                             </td>
                                                             <td>
                                                                 <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
@@ -143,7 +145,6 @@
         reactive,
         toRef,
     } from 'vue'
-    import Swal from 'sweetalert2';
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
     import useFetch from '../composables/utils/useFetch';
@@ -170,6 +171,7 @@
 
     DataTable.use(DataTablesCore);
 
+    const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
     const itemNoIndex = ref(1);
     // const newItemNo = reactive(rowSaveItems.length + 1);
@@ -186,7 +188,7 @@
                             itemsId : itemsId
                         }
                         getItemsById(itemParams);
-
+                        selectedItemsId.value = itemsId;
                     });
                 }
             }
@@ -206,10 +208,14 @@
 
     const addRowSaveItem = () => {
         const newItemNo = rowSaveItems.value.length + 1;
+
         rowSaveItems.value.push( {
             itemNo: newItemNo,
-            rows : [{partcodeType: 'N/A',
-            descriptionItemName: "N/A"}]
+            rows : [{
+                descItemNo: newItemNo,
+                partcodeType: 'N/A',
+                descriptionItemName: "N/A"
+            }]
         })
     }
     const addRowSaveClassification = () => {
@@ -244,8 +250,9 @@
         console.log(cardSaveClassifications);
 
     }
-    const addRowSaveDescription = (itemNoIndex) => {
+    const addRowSaveDescription = (itemNoIndex,newItemNo) => {
         rowSaveItems.value[itemNoIndex].rows.push( {
+            descItemNo: newItemNo,
             partcodeType: 'N/A',
             descriptionItemName: "N/A",
         })
@@ -259,13 +266,12 @@
             itemsId : params.itemsId
         }
         axiosFetchData(apiParams,'api/get_items_by_id',function(response){
-            console.log(response);
+
             modalCommon.Quotations.show();
         });
     }
 
     const formSaveItem = async () => {
-        console.log('asdasdasda');
         let formData =  new FormData();
 
         // const {
@@ -273,21 +279,22 @@
         // } =  formSaveDocument.value;
 
         // [
-        //     ["document_id", documentId], ["document_name", documentName]
+        //     ["document_id", documentId]
         // ].forEach(([key, value]) =>
         //     formData.append(key, value)
         // );
 
+        formData.append('itemsId', selectedItemsId.value)
         for (let index = 0; index < rowSaveItems.value.length; index++) {
             const elementRowSaveItems = rowSaveItems.value[index];
-            // console.log(elementRowSaveItems);
+
             for (let index = 0; index < elementRowSaveItems.rows.length; index++) {
                 const elementRowSaveDescription = elementRowSaveItems.rows[index];
-                const itemNo = rowSaveItems.value[index].itemNo;
+                const descItemNo = elementRowSaveDescription.descItemNo;
                 const partcodeType = elementRowSaveDescription.partcodeType;
                 const descriptionItemName = elementRowSaveDescription.descriptionItemName;
                 [
-                    ["itemNo[]", itemNo],
+                    ["itemNo[]", descItemNo],
                     ["partcodeType[]", partcodeType],
                     ["descriptionItemName[]", descriptionItemName]
                 ].forEach(([key, value]) =>
@@ -295,7 +302,6 @@
                 );
             }
         }
-
         axiosSaveData(formData,'api/save_item', (response) =>{
             console.log(response);
         });

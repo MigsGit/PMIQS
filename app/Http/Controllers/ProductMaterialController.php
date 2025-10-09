@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use DataTables;
-use Illuminate\Http\Request;
-
 use App\Models\PmItem;
+
+use Illuminate\Http\Request;
+use App\Models\PmDescription;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ItemResource;
 use App\Interfaces\ResourceInterface;
@@ -20,8 +22,26 @@ class ProductMaterialController extends Controller
     public function saveItem(Request $request){
         try {
             date_default_timezone_set('Asia/Manila');
-            return $request->all();
             DB::beginTransaction();
+            $itemsId = decrypt($request->itemsId);
+            foreach ($request->itemNo as $key => $value) {
+                $request->partcodeType[$key];
+                $request->descriptionItemName[$key];
+            }
+            PmDescription::where('pm_items_id',$itemsId)->delete();
+            collect($request->itemNo)->map(function($item, $key) use ($request, $itemsId){
+               $data = [
+                    'pm_items_id' => $itemsId,
+                    'item_no' => $item,
+                    'part_code' => $request->partcodeType[$key],
+                    'description_part_name' => $request->descriptionItemName[$key],
+                    'created_at' => now(),
+                ];
+                $this->resourceInterface->create(
+                    PmDescription::class,
+                    $data
+                );
+            });
             DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {

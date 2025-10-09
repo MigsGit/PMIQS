@@ -24,11 +24,11 @@ export default function useProductMaterial()
     const rowSaveItems = ref([
         {
             itemNo: 1,
-            rows: [
-                {   partcodeType: 'N/A',
-                    descriptionItemName: "N/A"
-                }
-            ]
+            rows: [{
+                descItemNo: 1,
+                partcodeType: 'N/A',
+                descriptionItemName: "N/A"
+            }]
         }
     ]);
 
