@@ -10,6 +10,7 @@ class DescriptionResource extends BaseResource
     protected $aliases = [
         'pm_descriptions_id' => 'id',
         'pm_items_id' => 'itemsId',
+        'item_no' => 'itemNo',
         'part_code' => 'partCode',
         'description_part_name' => 'descriptionPartName',
         'mat_specs_length' => 'matSpecsLength',

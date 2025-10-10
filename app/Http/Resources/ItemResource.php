@@ -14,8 +14,6 @@ class ItemResource extends BaseResource
         'status' => 'status',
         'approval_status' => 'approvalStatus',
         'control_no' => 'controlNo',
-        'item_no' => 'itemNo',
-        'type' => 'type',
         'category' => 'category',
         'remarks' => 'remarks',
         'created_by' => 'createdBy',

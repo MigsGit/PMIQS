@@ -4,7 +4,6 @@
         <div class="card mt-3"  style="width: 100%;">
             <div class="card-body overflow-auto">
                 <div class="table-responsive">
-                    <!-- id="dataTable" -->
                     <div class="row">
                         <div class="col-6 mb-3">
                             <button @click="btnAddUser" type="button" ref= "btnAddUser" class="btn btn-primary btn-sm">
@@ -30,9 +29,7 @@
                                 <th>
                                     <font-awesome-icon class="nav-icon" icon="fa-cogs" />
                                 </th>
-                                <th>Item No</th>
                                 <th>Control Number</th>
-                                <th>Type</th>
                                 <th>Category</th>
                                 <th>Created By</th>
                                 <th>Remarks</th>
@@ -61,10 +58,10 @@
         </template>
         <template #footer>
             <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
+            <button type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;  Save</button>
         </template>
     </ModalComponent>
-    <ModalComponent @add-event="formSaveItem" icon="fa-download" modalDialog="modal-dialog modal-xl" title="Quotations" ref="modalQuotations">
+    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-xl" title="Quotations" ref="modalQuotations">
         <template #body>
             <div class="row mt-3">
                 <div class="row">
@@ -133,7 +130,7 @@
         </template>
         <template #footer>
             <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
+            <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
         </template>
     </ModalComponent>
 </template>
@@ -163,10 +160,13 @@
         modalCommon,
     } = useCommon();
     const {
+        modalPm,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
         rowSaveItems,
+        getDescriptionByItemsId,
+        getItemsById,
     } = useProductMaterial();
 
     DataTable.use(DataTablesCore);
@@ -174,7 +174,7 @@
     const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
     const itemNoIndex = ref(1);
-    // const newItemNo = reactive(rowSaveItems.length + 1);
+
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -193,22 +193,19 @@
                 }
             }
         },
-        { data : 'itemNo' },
         { data : 'controlNo' },
-        { data : 'type' },
         { data : 'category' },
         { data : 'createdBy' },
         { data : 'remarks' },
     ];
 
     onMounted ( async () =>{
-        modalCommon.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
-        modalCommon.Quotations.show();
+        modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
+        // modalPm.Quotations.show();
     })
 
     const addRowSaveItem = () => {
         const newItemNo = rowSaveItems.value.length + 1;
-
         rowSaveItems.value.push( {
             itemNo: newItemNo,
             rows : [{
@@ -251,39 +248,23 @@
 
     }
     const addRowSaveDescription = (itemNoIndex,newItemNo) => {
+        console.log('itemNoIndex',itemNoIndex);
+        // console.log('itemNoIndex',newItemNo);
+
         rowSaveItems.value[itemNoIndex].rows.push( {
             descItemNo: newItemNo,
             partcodeType: 'N/A',
             descriptionItemName: "N/A",
         })
+        console.log(rowSaveItems.value[itemNoIndex]);
+
     }
     const removeRowSaveDescription =   (indexItem, indexDescription) => {
         rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
     }
 
-    const  getItemsById = (params) => {
-        let apiParams = {
-            itemsId : params.itemsId
-        }
-        axiosFetchData(apiParams,'api/get_items_by_id',function(response){
-
-            modalCommon.Quotations.show();
-        });
-    }
-
     const formSaveItem = async () => {
         let formData =  new FormData();
-
-        // const {
-        //     documentId,documentName,
-        // } =  formSaveDocument.value;
-
-        // [
-        //     ["document_id", documentId]
-        // ].forEach(([key, value]) =>
-        //     formData.append(key, value)
-        // );
-
         formData.append('itemsId', selectedItemsId.value)
         for (let index = 0; index < rowSaveItems.value.length; index++) {
             const elementRowSaveItems = rowSaveItems.value[index];

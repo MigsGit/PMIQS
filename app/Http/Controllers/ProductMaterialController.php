@@ -95,8 +95,23 @@ class ProductMaterialController extends Controller
                 ['pm_items_id' => decrypt($request->itemsId)],
             );
             $pmItems =  $data->get();
-            $itemResource = ItemResource::collection($pmItems)->resolve();
-            return response()->json(['isSuccess' => 'true','itemResource' => $itemResource]);
+            $itemCollection = ItemResource::collection($pmItems)->resolve();
+            $description = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
+            return response()->json([
+                'isSuccess' => 'true',
+                'itemCollection' => $itemCollection,
+                'description' => $description,
+                'descriptionCount' => $description->count(),
+            ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getDescriptionByItemsId(Request $request){
+        return 'true' ;
+        try {
+            return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
             throw $e;
         }

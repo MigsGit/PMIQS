@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function(){
         Route::post('save_item', 'saveItem')->name('pm.save_item');
         Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');
         Route::get('get_items_by_id', 'getItemsById')->name('pm.get_items_by_id');
+        Route::get('get_description_by_items_id', 'getDescriptionByItemsId')->name('pm.get_description_by_items_id');
     });
 
 });
