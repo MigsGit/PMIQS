@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\PmDescription;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PmItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Interfaces\ResourceInterface;
 
@@ -19,18 +20,26 @@ class ProductMaterialController extends Controller
         $this->resourceInterface = $resourceInterface;
     }
 
-    public function saveItem(Request $request){
+    public function saveItem(Request $request, PmItemRequest $pmItemRequest){
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
-            $itemsId = decrypt($request->itemsId);
-            foreach ($request->itemNo as $key => $value) {
-                $request->partcodeType[$key];
-                $request->descriptionItemName[$key];
+            $pmItemRequestValidated = $pmItemRequest->validated();
+            if( $request->itemsId === "null" ){ //Add
+                $pmItemRequestValidated['control_no'] = $pmItemRequest->controlNo;
+                $pmItemRequestValidated['category'] = $pmItemRequest->category;
+                $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
+                $pmItemRequestValidated['created_by'] = session('rapidx_user_id');
+                // return $pmItemRequestValidated;
+                $pmItemsId = $this->resourceInterface->create(PmItem::class,$pmItemRequestValidated);
+                $itemsId = $pmItemsId['dataId'];
+            }else{ //Edit
+                $itemsId = decrypt($request->itemsId);
             }
+            //Save the Items & Descriptions
             PmDescription::where('pm_items_id',$itemsId)->delete();
             collect($request->itemNo)->map(function($item, $key) use ($request, $itemsId){
-               $data = [
+            $data = [
                     'pm_items_id' => $itemsId,
                     'item_no' => $item,
                     'part_code' => $request->partcodeType[$key],
@@ -42,7 +51,7 @@ class ProductMaterialController extends Controller
                     $data
                 );
             });
-            DB::commit();
+            // DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
             DB::rollback();

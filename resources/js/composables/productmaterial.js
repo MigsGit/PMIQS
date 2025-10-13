@@ -3,6 +3,11 @@ import useFetch from './utils/useFetch';
 export default function useProductMaterial()
 {
     const { axiosFetchData } = useFetch();
+    const frmItem = ref({
+        controlNo: '',
+        category: '',
+        remarks: '',
+    });
     const rowSaveClassifications = ref();
     const cardSaveClassifications = ref(
         [
@@ -49,12 +54,15 @@ export default function useProductMaterial()
         }
         axiosFetchData(apiParams,'api/get_items_by_id',function(response){
             let data = response.data;
-            modalPm.Quotations.show();
             if (data.descriptionCount > 0) {
+                let itemCollection = data.itemCollection[0];
+                frmItem.value.controlNo = itemCollection.controlNo;
+                frmItem.value.category = itemCollection.category;
+                frmItem.value.status = itemCollection.status;
+                frmItem.value.remarks = itemCollection.remarks;
                 for (let index = 1; index <= data.descriptionCount; index++) {
                     const elementDescription = data.description[index];
                     let rows = [];
-
                     // Populate rows for the current Item No
                     if (elementDescription) {
                         for (let indexRow = 0; indexRow < elementDescription.length; indexRow++) {
@@ -78,11 +86,13 @@ export default function useProductMaterial()
                     });
                 }
             }
+            modalPm.Quotations.show();
         });
     }
 
     return {
         modalPm,
+        frmItem,
         rowSaveDescriptions,
         rowSaveItems,
         rowSaveClassifications,

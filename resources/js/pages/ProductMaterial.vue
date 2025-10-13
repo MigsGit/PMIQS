@@ -65,14 +65,55 @@
         <template #body>
             <div class="row mt-3">
                 <div class="row">
-                    <div class="col-12">
+
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Control No. :</span>
+                                <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Status :</span>
+                                <span class="input-group-text" id="addon-wrapping">Status :</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Category. :</span>
+                                <input v-model="frmItem.category" type="text" class="form-control" id="inlineFormInputGroup">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Created by :</span>
+                                <span class="input-group-text" id="addon-wrapping">Created by :</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Remarks. :</span>
+                                <textarea v-model="frmItem.remarks" type="text" class="form-control" id="inlineFormInputGroup" rows="2"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-12 mt-2">
                         <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
                         <br><br>
                     </div>
                     <div class="col-12">
+                         <!-- <Multiselect
+                                placeholder="-Select an Option-"
+                            :close-on-select="true"
+                            :searchable="true"
+                            :options="commonVar.optAdminAccess"
+                            @change="onChangeAdminAccess($event)"
+                        /> -->
                         <!-- <input :value="selectedItemsId" v-model="pmItemsId" type="text" class="form-control" id="inlineFormInputGroup"> -->
-                         <!-- Item -->
-                        <div class="row mt-3 itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
+
+                        <div class="row itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
                             <div class="card mb-2">
                                     <h5 class="mb-0">
                                         <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
@@ -161,6 +202,7 @@
     } = useCommon();
     const {
         modalPm,
+        frmItem,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
@@ -201,7 +243,7 @@
 
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
-        // modalPm.Quotations.show();
+        modalPm.Quotations.show();
     })
 
     const addRowSaveItem = () => {
@@ -248,16 +290,11 @@
 
     }
     const addRowSaveDescription = (itemNoIndex,newItemNo) => {
-        console.log('itemNoIndex',itemNoIndex);
-        // console.log('itemNoIndex',newItemNo);
-
         rowSaveItems.value[itemNoIndex].rows.push( {
             descItemNo: newItemNo,
             partcodeType: 'N/A',
             descriptionItemName: "N/A",
         })
-        console.log(rowSaveItems.value[itemNoIndex]);
-
     }
     const removeRowSaveDescription =   (indexItem, indexDescription) => {
         rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
@@ -265,7 +302,11 @@
 
     const formSaveItem = async () => {
         let formData =  new FormData();
-        formData.append('itemsId', selectedItemsId.value)
+        formData.append('itemsId', selectedItemsId.value);
+        formData.append('controlNo', frmItem.value.controlNo);
+        formData.append('category', frmItem.value.category);
+        formData.append('remarks', frmItem.value.remarks);
+
         for (let index = 0; index < rowSaveItems.value.length; index++) {
             const elementRowSaveItems = rowSaveItems.value[index];
 

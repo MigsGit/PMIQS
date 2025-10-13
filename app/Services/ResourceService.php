@@ -103,7 +103,7 @@ class ResourceService implements ResourceInterface
         try {
             $data_id = $model::insertGetId($data);
             DB::commit();
-            return ['is_success' => 'true','data_id' => $data_id];
+            return ['isSuccess' => 'true','dataId' => $data_id];
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -121,7 +121,7 @@ class ResourceService implements ResourceInterface
             }
             $query->update($data);
             DB::commit();
-            return response()->json(['is_success' => 'true']);
+            return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -141,7 +141,7 @@ class ResourceService implements ResourceInterface
     //             $data_id = $insert_by_id;
     //         }
     //         DB::commit();
-    //         return response()->json(['is_success' => 'true','data_id'=>$data_id]);
+    //         return response()->json(['isSuccess' => 'true','data_id'=>$data_id]);
     //     } catch (Exception $e) {
     //         DB::rollback();
     //         throw $e;

@@ -20,7 +20,7 @@ class CreatePmItemsTable extends Migration
             $table->string('control_no');
             $table->string('category');
             $table->unsignedBigInteger('created_by')->comment('Rapidx User Id');
-            $table->unsignedBigInteger('updated_by')->comment('Rapidx User Id');
+            $table->unsignedBigInteger('updated_by')->nullable()->comment('Rapidx User Id');
             $table->longText('remarks')->nullable();
             $table->timestamps();
             $table->softDeletes();
