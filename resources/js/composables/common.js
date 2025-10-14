@@ -19,36 +19,18 @@ export default function useCommon(){
         rapidxUserDeptGroup : '',
         rapidxUserDeptId: '',
         isActiveTab : '',
-        optYesNo : [
+        division : [
             {"value":"","label":"-Select an option-"},
-            {"value":"N/A","label":"N/A"},
-            {"value":"YES","label":"YES"},
-            {"value":"NO","label":"NO"},
+            {"value":"TS","label":"TS"},
+            {"value":"CN","label":"CN"},
+            {"value":"PPD","label":"PPD"},
+            {"value":"YF","label":"YF"},
         ],
-        optResult : [
+        category : [
             {"value":"","label":"-Select an option-"},
-            {"value":"N/A","label":"N/A"},
-            {"value":"OK","label":"OK"},
-            {"value":"NG","label":"NG"},
+            {"value":"RM","label":"Raw Materials"},
+            {"value":"PRO","label":"Product"},
         ],
-        optJudgment : [
-            {"value":"","label":"-Select an option-"},
-            {"value":"N/A","label":"N/A"},
-            {"value":"PASSED","label":"PASSED"},
-            {"value":"FAILED","label":"FAILED"},
-        ],
-        optCheck : [
-            {"value":"","label":"-Select an option-"},
-            {"value":"N/A","label":"N/A"},
-            {"value":"C","label":"√"},
-            {"value":"X","label":"X"},
-        ],
-        optConditions : [
-            {"value":"","label":"-Select an option-"},
-            {"value":"N/A","label":"N/A"},
-            {"value":"R","label":"REQUIRED"},
-            {"value":"NR","label":"NOT REQUIRED"},
-        ]
     });
     //Ref State
     const tblSpecialInspection = ref(null);

@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function(){
         Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');
         Route::get('get_items_by_id', 'getItemsById')->name('pm.get_items_by_id');
         Route::get('get_description_by_items_id', 'getDescriptionByItemsId')->name('pm.get_description_by_items_id');
+        Route::get('generate_control_number', 'generateControlNumber')->name('pm.generate_control_number');
     });
 
 });

@@ -65,7 +65,20 @@
         <template #body>
             <div class="row mt-3">
                 <div class="row">
-
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Created by :</span>
+                                <span class="input-group-text" id="addon-wrapping">---</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Status :</span>
+                                <span class="input-group-text" id="addon-wrapping">---</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row mt-3">
                         <div class="col-6">
                             <div class="input-group flex-nowrap mb-2 input-group-sm">
@@ -76,29 +89,52 @@
                         <div class="col-6">
                             <div class="input-group flex-nowrap mb-2 input-group-sm">
                                 <span class="input-group-text" id="addon-wrapping">Status :</span>
-                                <span class="input-group-text" id="addon-wrapping">Status :</span>
+                                <span class="input-group-text" id="addon-wrapping">---</span>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-6">
+                            <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Control No. :</span>
+                                <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup">
+                            </div>
+                        </div>
                             <div class="input-group flex-nowrap mb-2 input-group-sm">
                                 <span class="input-group-text" id="addon-wrapping">Category. :</span>
-                                <input v-model="frmItem.category" type="text" class="form-control" id="inlineFormInputGroup">
+                                <Multiselect
+                                    v-model="frmItem.category"
+                                    :close-on-select="true"
+                                    :searchable="true"
+                                    :options="commonVar.category"
+                                />
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Created by :</span>
-                                <span class="input-group-text" id="addon-wrapping">Created by :</span>
-                            </div>
-                        </div>
+
+                    </div>
+                    <div class="row">
                         <div class="col-6">
                             <div class="input-group flex-nowrap mb-2 input-group-sm">
                                 <span class="input-group-text" id="addon-wrapping">Remarks. :</span>
                                 <textarea v-model="frmItem.remarks" type="text" class="form-control" id="inlineFormInputGroup" rows="2"></textarea>
                             </div>
                         </div>
+                        <div class="col-6">
+                            <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                <span class="input-group-text" id="addon-wrapping">Division. :</span>
+                                <Multiselect
+                                    v-model="frmItem.division"
+                                    :close-on-select="true"
+                                    :searchable="true"
+                                    :options="commonVar.division"
+                                    :change="onChangeDivision()"
+                                />
 
+                            </div>
+                        </div>
                     </div>
+                    <!--  -->
                     <div class="col-12 mt-2">
                         <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
                         <br><br>
@@ -199,9 +235,11 @@
     } = useForm();
     const {
         modalCommon,
+        commonVar,
     } = useCommon();
     const {
         modalPm,
+        pmVar,
         frmItem,
         cardSaveClassifications,
         rowSaveClassifications,
@@ -209,6 +247,7 @@
         rowSaveItems,
         getDescriptionByItemsId,
         getItemsById,
+        onChangeDivision,
     } = useProductMaterial();
 
     DataTable.use(DataTablesCore);
@@ -299,6 +338,8 @@
     const removeRowSaveDescription =   (indexItem, indexDescription) => {
         rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
     }
+
+
 
     const formSaveItem = async () => {
         let formData =  new FormData();

@@ -8,6 +8,9 @@ export default function useProductMaterial()
         category: '',
         remarks: '',
     });
+    const pmVar = ref({
+        controlNo: '',
+    });
     const rowSaveClassifications = ref();
     const cardSaveClassifications = ref(
         [
@@ -90,8 +93,19 @@ export default function useProductMaterial()
         });
     }
 
+    const onChangeDivision = (event) => {
+        let apiParams = {
+            division : frmItem.value.division
+        }
+        axiosFetchData(apiParams,'api/generate_control_number',function(response){
+            let data = response.data;
+            frmItem.value.controlNo = data.currentCtrlNo;
+        });
+    }
+
     return {
         modalPm,
+        pmVar,
         frmItem,
         rowSaveDescriptions,
         rowSaveItems,
@@ -99,5 +113,6 @@ export default function useProductMaterial()
         cardSaveClassifications,
         getDescriptionByItemsId,
         getItemsById,
+        onChangeDivision,
     }
 };

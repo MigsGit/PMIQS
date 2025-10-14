@@ -1,5 +1,6 @@
 <?php
 namespace App\Services;
+use App\Models\PmItem;
 use setasign\Fpdi\Fpdi;
 use App\Models\RapidxUser;
 use App\Models\RapidMailer;
@@ -297,7 +298,6 @@ class CommonService implements CommonInterface
             throw $e;
         }
     }
-
     public function getFilteredSection($department){
         try {
             if ( Str::contains($department, "LQC")) {
@@ -318,4 +318,32 @@ class CommonService implements CommonInterface
         }
     }
 
+    public function generateControlNumber($division){
+        date_default_timezone_set('Asia/Manila');
+        // Check if the Created At & App No / Division / Material Category is exisiting
+        // Example:PMI-TS-25-01-001
+       $item = PmItem::orderBy('pm_items_id','desc')->whereMonth('created_at',now())
+            ->where('division',$division)
+            ->whereNull('deleted_at')
+            ->limit(1)->get(['control_no']);
+        //If not exist reset the item to 1 ???
+        if(count( $item ) != 0){
+            $currentCtrlNo = explode('-',$item[0]->control_no);
+            $arrCtrNo		 	= end($currentCtrlNo);
+            $series 	 	= str_pad(($arrCtrNo+1),3,"0",STR_PAD_LEFT);
+            $currentCtrlNo = "PMI-".$division."-".date('m').date('y').'-'.$series;
+        }else{
+            $currentCtrlNo = "PMI-".$division."-".date('m').date('y').'-001';
+        }
+        if($division != null){
+            return [
+                'currentCtrlNo' => $currentCtrlNo
+            ];
+        }else{
+            return [
+                'currentCtrlNo' => ''
+            ];
+        }
+
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\PmItem;
 use Illuminate\Http\Request;
 use App\Models\PmDescription;
 use Illuminate\Support\Facades\DB;
+use App\Interfaces\CommonInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PmItemRequest;
 use App\Http\Resources\ItemResource;
@@ -16,12 +17,22 @@ use App\Interfaces\ResourceInterface;
 class ProductMaterialController extends Controller
 {
     protected $resourceInterface;
-    public function __construct(ResourceInterface $resourceInterface){
+    public function __construct(ResourceInterface $resourceInterface, CommonInterface $commonInterface){
         $this->resourceInterface = $resourceInterface;
+        $this->commonInterface = $commonInterface;
     }
-
+    public function generateControlNumber(Request $request){
+        try {
+           return $generateControlNumber = $this->commonInterface->generateControlNumber($request->division);
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
     public function saveItem(Request $request, PmItemRequest $pmItemRequest){
         try {
+
+           return $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
             $pmItemRequestValidated = $pmItemRequest->validated();
@@ -46,7 +57,8 @@ class ProductMaterialController extends Controller
                     'description_part_name' => $request->descriptionItemName[$key],
                     'created_at' => now(),
                 ];
-                $this->resourceInterface->create(
+                $this->resourceInterface->create
+                (
                     PmDescription::class,
                     $data
                 );

@@ -18,6 +18,7 @@ class CreatePmItemsTable extends Migration
             $table->string('status')->default('FORUP')->comment('FORUP-For Update | FORAPP-For Approval | DIS- Disapproved | CAN- Cancelled');
             $table->string('approval_status')->default('PREPBY')->comment('PREPBY-Preparedby |CHCKBY-Checkedby | NOTEDBY-Notedby |  APPBY - Approvedby');
             $table->string('control_no');
+            $table->string('division');
             $table->string('category');
             $table->unsignedBigInteger('created_by')->comment('Rapidx User Id');
             $table->unsignedBigInteger('updated_by')->nullable()->comment('Rapidx User Id');
