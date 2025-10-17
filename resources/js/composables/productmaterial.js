@@ -100,14 +100,16 @@ export default function useProductMaterial()
         });
     }
 
-    const onChangeDivision = (event) => {
-        let apiParams = {
-            division : frmItem.value.division
+    const onChangeDivision = (selectedItemsId=null) => {
+        if(selectedItemsId === null){
+            let apiParams = {
+                division : frmItem.value.division
+            }
+            axiosFetchData(apiParams,'api/generate_control_number',function(response){
+                let data = response.data;
+                frmItem.value.controlNo = data.currentCtrlNo;
+            });
         }
-        axiosFetchData(apiParams,'api/generate_control_number',function(response){
-            let data = response.data;
-            frmItem.value.controlNo = data.currentCtrlNo;
-        });
     }
 
     return {

@@ -331,9 +331,9 @@ class CommonService implements CommonInterface
             $currentCtrlNo = explode('-',$item[0]->control_no);
             $arrCtrNo		 	= end($currentCtrlNo);
             $series 	 	= str_pad(($arrCtrNo+1),3,"0",STR_PAD_LEFT);
-            $currentCtrlNo = "PMI-".$division."-".date('m').date('y').'-'.$series;
+            $currentCtrlNo = "PMI-".$division."-".date('y').date('m').'-'.$series;
         }else{
-            $currentCtrlNo = "PMI-".$division."-".date('m').date('y').'-001';
+            $currentCtrlNo = "PMI-".$division."-".date('y').date('m').'-001';
         }
         if($division != null){
             return [

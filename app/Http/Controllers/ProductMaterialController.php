@@ -23,8 +23,7 @@ class ProductMaterialController extends Controller
     }
     public function generateControlNumber(Request $request){
         try {
-           return $generateControlNumber = $this->commonInterface->generateControlNumber($request->division);
-            return response()->json(['is_success' => 'true']);
+            return $generateControlNumber = $this->commonInterface->generateControlNumber($request->division);
         } catch (Exception $e) {
             throw $e;
         }
@@ -51,28 +50,27 @@ class ProductMaterialController extends Controller
             //Save the Items & Descriptions
             PmDescription::where('pm_items_id',$itemsId)->delete();
             $productData =collect($request->itemNo)->map(function($item, $key) use ($pmItemRequest, $itemsId){
-                    $data = [
-                        'pm_items_id' => $itemsId,
-                        'item_no' => $item,
-                        'part_code' => $pmItemRequest->partcodeType[$key],
-                        'description_part_name' => $pmItemRequest->descriptionItemName[$key],
-                        'created_at' => now(),
+                $productData = [
+                    'pm_items_id' => $itemsId,
+                    'item_no' => $item,
+                    'part_code' => $pmItemRequest->partcodeType[$key],
+                    'description_part_name' => $pmItemRequest->descriptionItemName[$key],
+                    'created_at' => now(),
+                ];
+                if($pmItemRequest->category == 'RM'){
+                    $rawMatData = [
+                        'mat_specs_length' => $pmItemRequest->matSpecsLength[$key],
+                        'mat_specs_width' => $pmItemRequest->matSpecsWidth[$key],
+                        'mat_specs_height' => $pmItemRequest->matSpecsHeight[$key],
+                        'mat_raw_type' => $pmItemRequest->matRawType[$key],
+                        'mat_raw_thickness' => $pmItemRequest->matRawThickness[$key],
+                        'mat_raw_width' => $pmItemRequest->matRawWidth[$key],
                     ];
-                    if($pmItemRequest->category[0] == 'RM'){
-                        $rawMatData = [
-                            'matSpecsLength' => $pmItemRequest->matSpecsLength[$key],
-                            'matSpecsWidth' => $pmItemRequest->matSpecsWidth[$key],
-                            'matSpecsHeight' => $pmItemRequest->matSpecsHeight[$key],
-                            'matRawType' => $pmItemRequest->matRawType[$key],
-                            'matRawThickness' => $pmItemRequest->matRawThickness[$key],
-                            'matRawWidth' => $pmItemRequest->matRawWidth[$key],
-                        ];
-                    }
-                array_merge($data,$rawMatData ?? []);
+                }
                 $this->resourceInterface->create
                 (
                     PmDescription::class,
-                    array_merge($data,$rawMatData ?? [])
+                    array_merge($productData,$rawMatData ?? [])
                 );
             });
             DB::commit();

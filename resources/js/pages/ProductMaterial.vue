@@ -68,13 +68,12 @@
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
                             <span class="input-group-text" id="addon-wrapping">Control No. :</span>
-                            <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup">
+                            <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup" readonly>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">Status :</span>
-                            <input v-model="frmItem.status" type="text" class="form-control" id="inlineFormInputGroup" readonly>
+                            <span ref="status" class="badge badge-sm rounded-pill bg-primary" id="addon-wrapping">FOR UPDATE</span>
                         </div>
                     </div>
                 </div>
@@ -87,7 +86,6 @@
                                 :close-on-select="true"
                                 :searchable="true"
                                 :options="commonVar.category"
-                                :change="onChangeCategory()"
                             />
                         </div>
                     </div>
@@ -99,7 +97,7 @@
                                 :close-on-select="true"
                                 :searchable="true"
                                 :options="commonVar.division"
-                                :change="onChangeDivision()"
+                                :change="onChangeDivision(selectedItemsId)"
                             />
                         </div>
 
@@ -293,6 +291,7 @@
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         modalPm.Quotations.show();
+        frmItem.value.status = "FOR UPDATE";
     })
 
     const addRowSaveItem = () => {
@@ -360,10 +359,6 @@
     const removeRowSaveDescription =   (indexItem, indexDescription) => {
         rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
     }
-
-    const onChangeCategory = () => {
-    }
-
     const formSaveItem = async () => {
         let formData =  new FormData();
         formData.append('itemsId', selectedItemsId.value);

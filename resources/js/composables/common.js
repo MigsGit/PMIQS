@@ -20,7 +20,6 @@ export default function useCommon(){
         rapidxUserDeptId: '',
         isActiveTab : '',
         division : [
-            {"value":"","label":"-Select an option-"},
             {"value":"TS","label":"TS"},
             {"value":"CN","label":"CN"},
             {"value":"PPD","label":"PPD"},

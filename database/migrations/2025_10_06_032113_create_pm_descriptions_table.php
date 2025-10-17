@@ -19,12 +19,12 @@ class CreatePmDescriptionsTable extends Migration
             $table->bigInteger('item_no');
             $table->string('part_code')->nullable();
             $table->longText('description_part_name')->nullable();
-            $table->integer('mat_specs_length')->nullable();
-            $table->integer('mat_specs_width')->nullable();
-            $table->integer('mat_specs_height')->nullable();
-            $table->string('mat_raw_type')->nullable();
-            $table->integer('mat_raw_thickness')->nullable();
-            $table->integer('mat_raw_width')->nullable();
+            $table->integer('mat_specs_length')->default(0);
+            $table->integer('mat_specs_width')->default(0);
+            $table->integer('mat_specs_height')->default(0);
+            $table->string('mat_raw_type')->default('N/A');
+            $table->integer('mat_raw_thickness')->default(0);
+            $table->integer('mat_raw_width')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
