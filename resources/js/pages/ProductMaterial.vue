@@ -65,137 +65,147 @@
         <template #body>
             <div class="row mt-3">
                 <div class="row">
-                    <div class="row mt-3">
-                        <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Created by :</span>
-                                <span class="input-group-text" id="addon-wrapping">---</span>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Status :</span>
-                                <span class="input-group-text" id="addon-wrapping">---</span>
-                            </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Control No. :</span>
+                            <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup">
                         </div>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Control No. :</span>
-                                <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Status :</span>
-                                <span class="input-group-text" id="addon-wrapping">---</span>
-                            </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Status :</span>
+                            <input v-model="frmItem.status" type="text" class="form-control" id="inlineFormInputGroup" readonly>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Control No. :</span>
-                                <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup">
-                            </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Category. :</span>
+                            <Multiselect
+                                v-model="frmItem.category"
+                                :close-on-select="true"
+                                :searchable="true"
+                                :options="commonVar.category"
+                                :change="onChangeCategory()"
+                            />
                         </div>
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Category. :</span>
-                                <Multiselect
-                                    v-model="frmItem.category"
-                                    :close-on-select="true"
-                                    :searchable="true"
-                                    :options="commonVar.category"
-                                />
-                            </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Division. :</span>
+                            <Multiselect
+                                v-model="frmItem.division"
+                                :close-on-select="true"
+                                :searchable="true"
+                                :options="commonVar.division"
+                                :change="onChangeDivision()"
+                            />
                         </div>
 
                     </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Remarks. :</span>
-                                <textarea v-model="frmItem.remarks" type="text" class="form-control" id="inlineFormInputGroup" rows="2"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="input-group flex-nowrap mb-2 input-group-sm">
-                                <span class="input-group-text" id="addon-wrapping">Division. :</span>
-                                <Multiselect
-                                    v-model="frmItem.division"
-                                    :close-on-select="true"
-                                    :searchable="true"
-                                    :options="commonVar.division"
-                                    :change="onChangeDivision()"
-                                />
-
-                            </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Remarks. :</span>
+                            <textarea v-model="frmItem.remarks" type="text" class="form-control" id="inlineFormInputGroup" rows="2"></textarea>
                         </div>
                     </div>
-                    <!--  -->
-                    <div class="col-12 mt-2">
-                        <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
-                        <br><br>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Created by :</span>
+                            <input v-model="frmItem.createdBy" type="text" class="form-control" id="inlineFormInputGroup" readonly>
+                        </div>
                     </div>
-                    <div class="col-12">
-                         <!-- <Multiselect
-                                placeholder="-Select an Option-"
-                            :close-on-select="true"
-                            :searchable="true"
-                            :options="commonVar.optAdminAccess"
-                            @change="onChangeAdminAccess($event)"
-                        /> -->
-                        <!-- <input :value="selectedItemsId" v-model="pmItemsId" type="text" class="form-control" id="inlineFormInputGroup"> -->
+                </div>
+                <!--  -->
+                <div class="col-12">
+                    <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
+                    <br><br>
+                </div>
+                <div class="col-12">
+                        <!-- <Multiselect
+                            placeholder="-Select an Option-"
+                        :close-on-select="true"
+                        :searchable="true"
+                        :options="commonVar.optAdminAccess"
+                        @change="onChangeAdminAccess($event)"
+                    /> -->
+                    <!-- <input :value="selectedItemsId" v-model="pmItemsId" type="text" class="form-control" id="inlineFormInputGroup"> -->
 
-                        <div class="row itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
-                            <div class="card mb-2">
-                                    <h5 class="mb-0">
-                                        <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
-                                            Item No. {{ rowSaveItem.itemNo }}
+                    <div class="row itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
+                        <div class="card mb-2">
+                                <h5 class="mb-0">
+                                    <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
+                                        Item No. {{ rowSaveItem.itemNo }}
 
-                                        </button>
-                                    </h5>
-                                <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
-                                    <div class="card-body">
-                                        <div class="row">
+                                    </button>
+                                </h5>
+                            <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
                                             <div class="col-12">
-                                                <div class="col-12">
-                                                    <button @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
-                                                    <br><br>
+                                                <button @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
+                                                <br><br>
 
-                                                </div>
-                                                <table class="table table-striped">
-                                                    <thead>
-                                                        <tr>
-                                                        <th scope="col">#</th>
-                                                        <th scope="col" style="width: 30%;">PartCode/Type</th>
-                                                        <th scope="col">Description/ItemName</th>
-                                                        <th scope="col">Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
-                                                            <td>
-                                                                <span>{{ indexDescription+1 }}</span>
-                                                                <input v-model="rowSaveDescription.descItemNo" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type">
-                                                            </td>
-                                                            <td>
-                                                                <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
-                                                            </td>
-                                                            <td>
-                                                                <input v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
-                                                            </td>
-                                                            <td>
-                                                                <button @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
-                                                                    <li class="fa fa-trash"></li>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
                                             </div>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col" >PartCode/Type</th>
+                                                    <th scope="col">Description/ItemName</th>
+                                                    <th scope="col" v-show="frmItem.category === 'RM'">Length</th>
+                                                    <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
+                                                    <th scope="col" v-show="frmItem.category === 'RM'">Height</th>
+                                                    <th scope="col" v-show="frmItem.category === 'RM'">Type</th>
+                                                    <th scope="col" v-show="frmItem.category === 'RM'">Thickness</th>
+                                                    <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
+                                                    <th scope="col">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
+                                                        <td>
+                                                            <span>{{ indexDescription+1 }}</span>
+                                                            <input v-model="rowSaveDescription.descItemNo" type="hidden" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type" readonly>
+                                                        </td>
+                                                        <td>
+                                                            <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
+                                                        </td>
+                                                        <td>
+                                                            <input v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                        </td>
+
+                                                        <td v-show="frmItem.category === 'RM'">
+                                                            <input v-model="rowSaveDescription.matSpecsLength" type="number" min=0 class="form-control" id="inlineFormInputGroup">
+                                                        </td>
+                                                        <td v-show="frmItem.category === 'RM'">
+                                                            <input v-model="rowSaveDescription.matSpecsWidth" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                        </td>
+                                                        <td v-show="frmItem.category === 'RM'">
+                                                            <input v-model="rowSaveDescription.matSpecsHeight" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                        </td>
+                                                        <td v-show="frmItem.category === 'RM'">
+                                                            <input v-model="rowSaveDescription.matRawType" type="text" class="form-control" id="inlineFormInputGroup">
+                                                        </td v-show="frmItem.category === 'RM'">
+                                                        <td v-show="frmItem.category === 'RM'">
+                                                            <input v-model="rowSaveDescription.matRawThickness" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                        </td>
+                                                        <td v-show="frmItem.category === 'RM'">
+                                                            <input v-model="rowSaveDescription.matRawWidth" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                        </td>
+
+                                                        <td>
+                                                            <button @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
+                                                                <li class="fa fa-trash"></li>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -292,7 +302,13 @@
             rows : [{
                 descItemNo: newItemNo,
                 partcodeType: 'N/A',
-                descriptionItemName: "N/A"
+                descriptionItemName: "N/A",
+                matSpecsLength: 0,
+                matSpecsWidth: 0,
+                matSpecsHeight: 0,
+                matRawType: 'N/A',
+                matRawThickness: 0,
+                matRawWidth: 0,
             }]
         })
     }
@@ -333,13 +349,20 @@
             descItemNo: newItemNo,
             partcodeType: 'N/A',
             descriptionItemName: "N/A",
+            matSpecsLength: 0,
+            matSpecsWidth: 0,
+            matSpecsHeight: 0,
+            matRawType: 'N/A',
+            matRawThickness: 0,
+            matRawWidth: 0,
         })
     }
     const removeRowSaveDescription =   (indexItem, indexDescription) => {
         rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
     }
 
-
+    const onChangeCategory = () => {
+    }
 
     const formSaveItem = async () => {
         let formData =  new FormData();
@@ -356,10 +379,24 @@
                 const descItemNo = elementRowSaveDescription.descItemNo;
                 const partcodeType = elementRowSaveDescription.partcodeType;
                 const descriptionItemName = elementRowSaveDescription.descriptionItemName;
+
+                const matSpecsLength = elementRowSaveDescription.matSpecsLength;
+                const matSpecsWidth = elementRowSaveDescription.matSpecsWidth;
+                const matSpecsHeight = elementRowSaveDescription.matSpecsHeight;
+                const matRawType = elementRowSaveDescription.matRawType;
+                const matRawThickness = elementRowSaveDescription.matRawThickness;
+                const matRawWidth = elementRowSaveDescription.matRawWidth;
+
                 [
                     ["itemNo[]", descItemNo],
                     ["partcodeType[]", partcodeType],
-                    ["descriptionItemName[]", descriptionItemName]
+                    ["descriptionItemName[]", descriptionItemName],
+                    ["matSpecsLength[]", matSpecsLength],
+                    ["matSpecsWidth[]", matSpecsWidth],
+                    ["matSpecsHeight[]", matSpecsHeight],
+                    ["matRawType[]", matRawType],
+                    ["matRawThickness[]", matRawThickness],
+                    ["matRawWidth[]", matRawWidth],
                 ].forEach(([key, value]) =>
                     formData.append(key, value)
                 );

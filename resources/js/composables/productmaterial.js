@@ -21,6 +21,7 @@ export default function useProductMaterial()
                         qty: 0,
                         qty: "pcs",
                         unitPrice: "pcs",
+
                         remarks: "",
                     }
                 ]
@@ -35,7 +36,13 @@ export default function useProductMaterial()
             rows: [{
                 descItemNo: 1,
                 partcodeType: 'N/A',
-                descriptionItemName: "N/A"
+                descriptionItemName: "N/A",
+                matSpecsLength: 0,
+                matSpecsWidth: 0,
+                matSpecsHeight: 0,
+                matRawType: 'N/A',
+                matRawThickness: 0,
+                matRawWidth: 0,
             }]
         }
     ]);

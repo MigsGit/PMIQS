@@ -32,13 +32,14 @@ class ProductMaterialController extends Controller
     public function saveItem(Request $request, PmItemRequest $pmItemRequest){
         try {
 
-           return $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
+            $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
             $pmItemRequestValidated = $pmItemRequest->validated();
             if( $request->itemsId === "null" ){ //Add
                 $pmItemRequestValidated['control_no'] = $pmItemRequest->controlNo;
                 $pmItemRequestValidated['category'] = $pmItemRequest->category;
+                $pmItemRequestValidated['division'] = $pmItemRequest->division??'TS';
                 $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
                 $pmItemRequestValidated['created_by'] = session('rapidx_user_id');
                 // return $pmItemRequestValidated;
@@ -49,21 +50,32 @@ class ProductMaterialController extends Controller
             }
             //Save the Items & Descriptions
             PmDescription::where('pm_items_id',$itemsId)->delete();
-            collect($request->itemNo)->map(function($item, $key) use ($request, $itemsId){
-            $data = [
-                    'pm_items_id' => $itemsId,
-                    'item_no' => $item,
-                    'part_code' => $request->partcodeType[$key],
-                    'description_part_name' => $request->descriptionItemName[$key],
-                    'created_at' => now(),
-                ];
+            $productData =collect($request->itemNo)->map(function($item, $key) use ($pmItemRequest, $itemsId){
+                    $data = [
+                        'pm_items_id' => $itemsId,
+                        'item_no' => $item,
+                        'part_code' => $pmItemRequest->partcodeType[$key],
+                        'description_part_name' => $pmItemRequest->descriptionItemName[$key],
+                        'created_at' => now(),
+                    ];
+                    if($pmItemRequest->category[0] == 'RM'){
+                        $rawMatData = [
+                            'matSpecsLength' => $pmItemRequest->matSpecsLength[$key],
+                            'matSpecsWidth' => $pmItemRequest->matSpecsWidth[$key],
+                            'matSpecsHeight' => $pmItemRequest->matSpecsHeight[$key],
+                            'matRawType' => $pmItemRequest->matRawType[$key],
+                            'matRawThickness' => $pmItemRequest->matRawThickness[$key],
+                            'matRawWidth' => $pmItemRequest->matRawWidth[$key],
+                        ];
+                    }
+                array_merge($data,$rawMatData ?? []);
                 $this->resourceInterface->create
                 (
                     PmDescription::class,
-                    $data
+                    array_merge($data,$rawMatData ?? [])
                 );
             });
-            // DB::commit();
+            DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
