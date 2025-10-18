@@ -4,6 +4,15 @@ import useForm from "./utils/useForm";
 
 export default function useSettings(){
     const { axiosFetchData } = useFetch(); // Call  the useFetch function
+    const settingsVar = reactive({
+        optRapidxUser: [],
+        userRoles : [
+            {"value":"PREPBY","label":"Prepared By"},
+            {"value":"CHCKBY","label":"Checked By"},
+            {"value":"NOTEDBY","label":"Noted By"},
+            {"value":"APPBY","label":"Approved By"},
+        ],
+    });
     const frmDropdownMasterDetails = ref({
         dropdownMastersId : '',
         dropdownMasterDetailsId : '',
@@ -102,6 +111,7 @@ export default function useSettings(){
     }
     return {
         modal,
+        settingsVar,
         frmDropdownMasterDetails,
         frmEcrRequirementDetails,
         axiosFetchData,

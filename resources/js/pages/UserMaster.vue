@@ -49,7 +49,19 @@
                         <span class="input-group-text" id="addon-wrapping">Full Name:</span>
                         <Multiselect
                             v-model="frmUser.rapidxUser"
-                            :options="settingVar.optRapidxUser"
+                            :options="settingsVar.optRapidxUser"
+                            placeholder="Select an option"
+                            :searchable="true"
+                            :close-on-select="true"
+                        />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">User Roles:</span>
+                        <Multiselect
+                            v-model="frmUser.userRoles"
+                            :options="settingsVar.userRoles"
                             placeholder="Select an option"
                             :searchable="true"
                             :close-on-select="true"
@@ -87,6 +99,7 @@
     const { axiosSaveData } = useForm(); // Call the useFetch function
 
     const {
+        settingsVar,
         getRapidxUserByIdOpt,
         getNoModuleRapidxUserByIdOpt,
     } = useSettings();
@@ -97,9 +110,7 @@
     const frmUser = ref({
         rapidxUser: null
     });
-    const settingVar = reactive({
-        optRapidxUser: []
-    });
+
     const userMasterColumns = [
         { data: 'get_action',
         orderable: false,
@@ -134,7 +145,7 @@
     ];
 
     const rapidxUserParams = {
-        globalVar: settingVar.optRapidxUser,
+        globalVar: settingsVar.optRapidxUser,
         formModel: toRef(frmUser.value,'rapidxUser'),
         selectedVal: "",
     };

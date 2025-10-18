@@ -103,6 +103,7 @@ class ProductMaterialController extends Controller
                 $result .= '</button>';
                 $result .= '<ul class="dropdown-menu">';
                 $result .= "<li> <button items-id='".encrypt($row['id'])."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> Edit</button> </li>";
+                $result .= "<li> <button items-id='".encrypt($row['id'])."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> Edit</button> </li>";
                 $result .= '</ul>';
                 $result .= '</div>';
                 // $result .= '</center>';
@@ -116,7 +117,6 @@ class ProductMaterialController extends Controller
             throw $th;
         }
     }
-
     public function getItemsById(Request $request){
         try {
             $data = $this->resourceInterface->readCustomEloquent(
@@ -138,7 +138,6 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-
     public function getDescriptionByItemsId(Request $request){
         return 'true' ;
         try {

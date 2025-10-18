@@ -51,11 +51,11 @@ export default function useProductMaterial()
         let apiParams = {
 
         }
-
         axiosFetchData(apiParams,'api/get_description_by_items_id',function(response){
             console.log(response);
         });
     }
+
 
     const  getItemsById = (params) => {
         rowSaveItems.value = [];
@@ -68,8 +68,11 @@ export default function useProductMaterial()
                 let itemCollection = data.itemCollection[0];
                 frmItem.value.controlNo = itemCollection.controlNo;
                 frmItem.value.category = itemCollection.category;
+                frmItem.value.division = itemCollection.division;
                 frmItem.value.status = itemCollection.status;
                 frmItem.value.remarks = itemCollection.remarks;
+                console.log('itemCollection',itemCollection);
+
                 for (let index = 1; index <= data.descriptionCount; index++) {
                     const elementDescription = data.description[index];
                     let rows = [];
@@ -96,7 +99,9 @@ export default function useProductMaterial()
                     });
                 }
             }
-            modalPm.Quotations.show();
+            if(params.isClassificationQtyExist != true){
+                modalPm.Quotations.show();
+            }
         });
     }
 

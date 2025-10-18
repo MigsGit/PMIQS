@@ -59,7 +59,6 @@ export default [
             },
             {
                 path: 'classification_qty/:itemsId',
-                // path: 'classification_qty',
                 name: 'ClassificationQty',
                 beforeEnter: checkIfSessionExist,
                 component: ClassificationQty,

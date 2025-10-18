@@ -234,6 +234,9 @@
     import useCommon from '../composables/common';
     import useProductMaterial from '../composables/productmaterial';
     import ModalComponent from '../components/ModalComponent.vue';
+    import Router from '../routes';
+
+    // import Router from
 
     const {
         axiosFetchData,
@@ -276,7 +279,8 @@
                         let itemParams = {
                             itemsId : itemsId
                         }
-                        getItemsById(itemParams);
+                        Router.push({ name: 'ClassificationQty', params: { itemsId } });
+                        // getItemsById(itemParams);
                         selectedItemsId.value = itemsId;
                     });
                 }
@@ -290,7 +294,7 @@
 
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
-        modalPm.Quotations.show();
+        // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
     })
 
