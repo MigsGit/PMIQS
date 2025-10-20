@@ -14,7 +14,18 @@ export default function useProductMaterial()
     const rowSaveClassifications = ref();
     const cardSaveClassifications = ref(
         [
+            {
+                descriptionItemName:'N/A',
+                rows: [
+                    {   classification: 'N/A',
+                        qty: 0,
+                        qty: "pcs",
+                        unitPrice: "pcs",
 
+                        remarks: "",
+                    }
+                ]
+            }
         ]
     );
     const rowSaveDescriptions = ref();
@@ -54,16 +65,14 @@ export default function useProductMaterial()
         axiosFetchData(apiParams,'api/get_items_by_id',function(response){
             let data = response.data;
             if (data.descriptionCount > 0) {
-
                 let itemCollection = data.itemCollection[0];
                 frmItem.value.controlNo = itemCollection.controlNo;
                 frmItem.value.category = itemCollection.category;
                 frmItem.value.division = itemCollection.division;
                 frmItem.value.status = itemCollection.status;
                 frmItem.value.remarks = itemCollection.remarks;
+                console.log('itemCollection',itemCollection);
 
-
-                let arrFlatDescription = [];
                 for (let index = 1; index <= data.descriptionCount; index++) {
                     const elementDescription = data.description[index];
                     let rows = [];
@@ -88,23 +97,7 @@ export default function useProductMaterial()
                             descriptionItemName: 'N/A',
                         }],
                     });
-                    if (Array.isArray(elementDescription)) arrFlatDescription.push(...elementDescription);
                 }
-                console.log(arrFlatDescription);
-
-                cardSaveClassifications.value = arrFlatDescription.map((description) => ({
-                    descriptionPartName: description.descriptionPartName,
-                    descriptionPartCode: description.partCode,
-                    rows: [
-                        {
-                            descriptionsId: description.id,
-                            classification: 'N/A',
-                            qty: 0,
-                            unitPrice: 'pcs',
-                            remarks: '',
-                        },
-                    ],
-                }));
             }
             if(params.isClassificationQtyExist != true){
                 modalPm.Quotations.show();

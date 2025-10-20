@@ -145,82 +145,48 @@
                     </div>
             </div>
             <div class="col-6 shadow">
-                 <!-- Classification Cards -->
-                    <h4>Classification Cards</h4>
-                    <div v-for="(card, cardIndex) in cardSaveClassifications" :key="cardIndex" class="card mb-3">
-
-                   <div class="card-header">
-                       <h5>Description / ItemName: {{ card.descriptionPartName }}</h5>
-                       <h5>Part Code / Type: {{ card.descriptionPartCode}}</h5>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-arrows-alt-h"></i> </button>
+                        <br><br>
                     </div>
-                    <div class="card-body">
-                        <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                            <th>#</th>
-                            <th>Classification</th>
-                            <th>Quantity</th>
-                            <th>Unit Price</th>
-                            <th>Remarks</th>
-                            <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                </div>
+                <!-- <div class="row mt-3 descClassification" v-for="(cardSaveClassifications, indexClassification) in cardSaveClassifications.rows" :key="cardSaveClassifications.newClassificationNo"> -->
+                <div class="row mt-3 descClassification">
+                    <div class="card mb-2">
+                            <h5 class="mb-0">
+                                <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="true" aria-controls="collapseDescription">
+                                    <!-- Item No. {{ cardSaveClassifications.newClassificationNo}} -->
 
-                            <tr v-for="(row, rowIndex) in card.rows" :key="rowIndex">
-
-                            <td>{{ rowIndex + 1 }}</td>
-                            <td>
-                                <input
-                                type="text"
-                                class="form-control"
-                                v-model="row.classification"
-                                placeholder="Enter classification"
-                                />
-                                <input
-                                type="text"
-                                class="form-control"
-                                v-model="row.descriptionsId"
-                                placeholder="Enter classification"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                type="number"
-                                class="form-control"
-                                v-model="row.qty"
-                                placeholder="Enter quantity"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                type="text"
-                                class="form-control"
-                                v-model="row.unitPrice"
-                                placeholder="Enter unit price"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                type="text"
-                                class="form-control"
-                                v-model="row.remarks"
-                                placeholder="Enter remarks"
-                                />
-                            </td>
-                            <td>
-                                <button @click="removeRowFromCard(cardIndex, rowIndex)" class="btn btn-danger btn-sm">
-                                Remove
                                 </button>
-                            </td>
-                            </tr>
-                        </tbody>
-                        </table>
-                        <button @click="addRowClassification(cardIndex,card.rows)" class="btn btn-primary btn-sm">
-                                Add Row
-                        </button>
+                            </h5>
+                        <div id="collapseDescription" class="collapse show" data-bs-parent="#accordionMain">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="col-12">
+                                            <!-- <button @click="addRowSaveClassification(indexDescription)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button> -->
+                                            <br><br>
+                                        </div>
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col" style="width: 30%;">PartCode/Type</th>
+                                                <th scope="col">Description/ItemName</th>
+                                                <th scope="col">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -234,7 +200,6 @@
         ref,
         reactive,
         toRef,
-        watch,
     } from 'vue'
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
@@ -302,14 +267,12 @@
     ];
 
     onMounted ( async () =>{
-        console.log(rowSaveDescriptions);
-
         frmItem.value.status = "FOR UPDATE";
         let itemParams = {
             itemsId : itemsIdFrom.value,
             isClassificationQtyExist : true,
         }
-        await getItemsById(itemParams);
+        getItemsById(itemParams);
         selectedItemsId.value = itemsIdFrom.value;
     })
 
@@ -348,20 +311,22 @@
             ]
         });
     }
-     // Add a new row to a specific card
-     const addRowClassification = (cardIndex,card) => {
-      cardSaveClassifications.value[cardIndex].rows.push({
-        descriptionsId: card[0].descriptionsId,
-        classification: '',
-        qty: 0,
-        unitPrice: 'pcs',
-        remarks: '',
-      });
-    };
-      // Remove a row from a specific card
-    const removeRowFromCard = (cardIndex, rowIndex) => {
-      cardSaveClassifications.value[cardIndex].rows.splice(rowIndex, 1);
-    };
+    const addClassification = () => {
+        const newClassificationNo = cardSaveClassifications.value.length + 1;
+        cardSaveClassifications.value.push( {
+            newClassificationNo: newClassificationNo,
+            rows: [
+                {   classification: 'N/A',
+                    qty: 0,
+                    qty: "pcs",
+                    unitPrice: "pcs",
+                    remarks: "",
+                }
+            ]
+        });
+        console.log(cardSaveClassifications);
+
+    }
     const addRowSaveDescription = (itemNoIndex,newItemNo) => {
         rowSaveItems.value[itemNoIndex].rows.push( {
             descItemNo: newItemNo,
