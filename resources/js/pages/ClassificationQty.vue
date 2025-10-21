@@ -57,8 +57,6 @@
                     </div>
                     <!--  -->
                     <div class="col-12">
-                        <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
-                        <br><br>
                     </div>
                     <div class="col-12 mb-3">
                         <div class="row itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
@@ -73,24 +71,18 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-12">
-                                                <div class="col-12">
-                                                    <button @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
-                                                    <br><br>
-
-                                                </div>
                                                 <table class="table table-striped">
                                                     <thead>
                                                         <tr>
-                                                        <th scope="col">#</th>
-                                                        <th scope="col" >PartCode/Type</th>
-                                                        <th scope="col">Description/ItemName</th>
-                                                        <th scope="col" v-show="frmItem.category === 'RM'">Length</th>
-                                                        <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
-                                                        <th scope="col" v-show="frmItem.category === 'RM'">Height</th>
-                                                        <th scope="col" v-show="frmItem.category === 'RM'">Type</th>
-                                                        <th scope="col" v-show="frmItem.category === 'RM'">Thickness</th>
-                                                        <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
-                                                        <th scope="col">Action</th>
+                                                            <th scope="col">#</th>
+                                                            <th scope="col" >PartCode/Type</th>
+                                                            <th scope="col">Description/ItemName</th>
+                                                            <th scope="col" v-show="frmItem.category === 'RM'">Length</th>
+                                                            <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
+                                                            <th scope="col" v-show="frmItem.category === 'RM'">Height</th>
+                                                            <th scope="col" v-show="frmItem.category === 'RM'">Type</th>
+                                                            <th scope="col" v-show="frmItem.category === 'RM'">Thickness</th>
+                                                            <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -123,15 +115,6 @@
                                                             </td>
                                                             <td v-show="frmItem.category === 'RM'">
                                                                 <input v-model="rowSaveDescription.matRawWidth" type="number" min="0" class="form-control" id="inlineFormInputGroup">
-                                                            </td>
-
-                                                            <td>
-                                                                <button @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
-                                                                    <li class="fa fa-trash"></li>
-                                                                </button>
-                                                                <button @click="addRowSaveClassificationQty(indexItem,indexDescription,rowSaveItem.rows.descriptionItemName)" class="btn btn-primary btn-sm" type="button" data-item-process="add">
-                                                                    <li class="fa fa-plus"></li>
-                                                                </button>
                                                             </td>
                                                         </tr>
                                                     </tbody>

@@ -273,8 +273,20 @@
             searchable: false,
             createdCell(cell){
                 let btnGetMaterialById = cell.querySelector('#btnGetMaterialById');
+                let btnGetClassificationQtyByItemsId = cell.querySelector('#btnGetClassificationQtyByItemsId');
                 if(btnGetMaterialById !=null){
                     btnGetMaterialById.addEventListener('click',function(){
+                        let itemsId = this.getAttribute('items-id')
+                        let itemParams = {
+                            itemsId : itemsId
+                        }
+                        // Router.push({ name: 'ClassificationQty', params: { itemsId } });
+                        getItemsById(itemParams);
+                        selectedItemsId.value = itemsId;
+                    });
+                }
+                if(btnGetClassificationQtyByItemsId !=null){
+                    btnGetClassificationQtyByItemsId.addEventListener('click',function(){
                         let itemsId = this.getAttribute('items-id')
                         let itemParams = {
                             itemsId : itemsId
