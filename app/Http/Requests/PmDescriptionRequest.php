@@ -24,7 +24,6 @@ class PmDescriptionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
         ];
     }
 }

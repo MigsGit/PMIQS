@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PmItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Interfaces\ResourceInterface;
+use App\Http\Requests\PmDescriptionRequest;
 
 class ProductMaterialController extends Controller
 {
@@ -54,32 +55,34 @@ class ProductMaterialController extends Controller
                     $pmItemRequestValidated
                 );
             }
-            //Save the Items & Descriptions
-            PmDescription::where('pm_items_id',$itemsId)->delete();
-            $productData =collect($request->itemNo)->map(function($item, $key) use ($pmItemRequest, $itemsId){
-                $productData = [
-                    'pm_items_id' => $itemsId,
-                    'item_no' => $item,
-                    'part_code' => $pmItemRequest->partcodeType[$key],
-                    'description_part_name' => $pmItemRequest->descriptionItemName[$key],
-                    'created_at' => now(),
-                ];
-                if($pmItemRequest->category == 'RM'){
-                    $rawMatData = [
-                        'mat_specs_length' => $pmItemRequest->matSpecsLength[$key],
-                        'mat_specs_width' => $pmItemRequest->matSpecsWidth[$key],
-                        'mat_specs_height' => $pmItemRequest->matSpecsHeight[$key],
-                        'mat_raw_type' => $pmItemRequest->matRawType[$key],
-                        'mat_raw_thickness' => $pmItemRequest->matRawThickness[$key],
-                        'mat_raw_width' => $pmItemRequest->matRawWidth[$key],
+            if( $request->itemsId === "null" ){ //Add
+                //Save the Items & Descriptions
+                PmDescription::where('pm_items_id',$itemsId)->delete();
+                $productData =collect($request->itemNo)->map(function($item, $key) use ($pmItemRequest, $itemsId){
+                    $productData = [
+                        'pm_items_id' => $itemsId,
+                        'item_no' => $item,
+                        'part_code' => $pmItemRequest->partcodeType[$key],
+                        'description_part_name' => $pmItemRequest->descriptionItemName[$key],
+                        'created_at' => now(),
                     ];
-                }
-                $this->resourceInterface->create
-                (
-                    PmDescription::class,
-                    array_merge($productData,$rawMatData ?? [])
-                );
-            });
+                    if($pmItemRequest->category == 'RM'){
+                        $rawMatData = [
+                            'mat_specs_length' => $pmItemRequest->matSpecsLength[$key],
+                            'mat_specs_width' => $pmItemRequest->matSpecsWidth[$key],
+                            'mat_specs_height' => $pmItemRequest->matSpecsHeight[$key],
+                            'mat_raw_type' => $pmItemRequest->matRawType[$key],
+                            'mat_raw_thickness' => $pmItemRequest->matRawThickness[$key],
+                            'mat_raw_width' => $pmItemRequest->matRawWidth[$key],
+                        ];
+                    }
+                    $this->resourceInterface->create
+                    (
+                        PmDescription::class,
+                        array_merge($productData,$rawMatData ?? [])
+                    );
+                });
+            }
             DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
@@ -104,11 +107,50 @@ class ProductMaterialController extends Controller
                     'unit_price' => $request->unitPrice[$key],
                     'remarks' => $request->remarks[$key],
                 ];
-                // $this->resourceInterface->create
-                // (
-                //     PmClassification::class,
-                //     $rowClassificationData,
-                // );
+                $this->resourceInterface->create
+                (
+                    PmClassification::class,
+                    $rowClassificationData,
+                );
+            });
+            DB::commit();
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+    public function saveItemNo(Request $request,PmDescriptionRequest $pmDescriptionRequest){
+        try {
+            date_default_timezone_set('Asia/Manila');
+            DB::beginTransaction();
+            $request->selectedItemNo;
+            $itemsId = decrypt($request->itemsId);
+            // Delete the Description by Item No & ave the Descriptions
+            PmDescription::where('item_no',$request->selectedItemNo)->delete();
+            $productData =collect($request->itemNo)->map(function($item, $key) use ($pmDescriptionRequest, $itemsId){
+               $productData = [
+                    'pm_items_id' => $itemsId,
+                    'item_no' => $item,
+                    'part_code' => $pmDescriptionRequest->partcodeType[$key],
+                    'description_part_name' => $pmDescriptionRequest->descriptionItemName[$key],
+                    'created_at' => now(),
+                ];
+                if($pmDescriptionRequest->category == 'RM'){
+                    $rawMatData = [
+                        'mat_specs_length' => $pmDescriptionRequest->matSpecsLength[$key],
+                        'mat_specs_width' => $pmDescriptionRequest->matSpecsWidth[$key],
+                        'mat_specs_height' => $pmDescriptionRequest->matSpecsHeight[$key],
+                        'mat_raw_type' => $pmDescriptionRequest->matRawType[$key],
+                        'mat_raw_thickness' => $pmDescriptionRequest->matRawThickness[$key],
+                        'mat_raw_width' => $pmDescriptionRequest->matRawWidth[$key],
+                    ];
+                }
+                $this->resourceInterface->create
+                (
+                    PmDescription::class,
+                    array_merge($productData,$rawMatData ?? [])
+                );
             });
             DB::commit();
             return response()->json(['is_success' => 'true']);

@@ -19,6 +19,7 @@ export default function useProductMaterial()
     const rowSaveItems = ref([
         {
             itemNo: 1,
+            descriptionsId: 0,
             rows: [{
                 descItemNo: 1,
                 partcodeType: 'N/A',
@@ -69,15 +70,16 @@ export default function useProductMaterial()
                     // Add the card data to rowSaveItems
                     rowSaveItems.value.push({
                         itemNo: index,
+                        descriptionsId: elementDescription[0].id,
                         rows: rows.length > 0 ? rows : [{
                             descItemNo: index,
                             partcodeType: 'N/A',
                             descriptionItemName: 'N/A',
                         }],
                     });
+                    console.log('rowSaveItems',elementDescription);
                     if (Array.isArray(elementDescription)) arrFlatDescription.push(...elementDescription);
                 }
-                console.log(arrFlatDescription);
 
                 cardSaveClassifications.value = arrFlatDescription.map((description) => ({
                     descriptionPartName: description.descriptionPartName,

@@ -136,7 +136,6 @@
                                 <h5 class="mb-0">
                                     <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
                                         Item No. {{ rowSaveItem.itemNo }}
-
                                     </button>
                                 </h5>
                             <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
@@ -167,7 +166,7 @@
                                                     <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
                                                         <td>
                                                             <span>{{ indexDescription+1 }}</span>
-                                                            <input v-model="rowSaveDescription.descItemNo" type="hidden" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type" readonly>
+                                                            <input v-model="rowSaveDescription.descItemNo" type="" class="form-control" id="inlineFormInputGroup" readonly>
                                                         </td>
                                                         <td>
                                                             <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
@@ -203,6 +202,8 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
+                                            <button @click="saveDescItemNo(rowSaveItem.itemNo)" type="button" class="btn btn-success btn-sm" style="float: right !important;"><i class="fas fa-save"></i> Save Item No. {{ rowSaveItem.itemNo }}</button>
+                                                <br><br>
                                         </div>
                                     </div>
                                 </div>
@@ -251,7 +252,6 @@
         modalPm,
         pmVar,
         frmItem,
-        reloadTable,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
@@ -303,12 +303,12 @@
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
-        reloadTable();
     })
     const addRowSaveItem = () => {
         const newItemNo = rowSaveItems.value.length + 1;
         rowSaveItems.value.push( {
             itemNo: newItemNo,
+            descriptionsId: 0,
             rows : [{
                 descItemNo: newItemNo,
                 partcodeType: 'N/A',
@@ -378,6 +378,43 @@
             }
         }
         axiosSaveData(formData,'api/save_item', (response) =>{
+            console.log(response);
+        });
+    }
+    const saveDescItemNo = async (selectedItemNo) => {
+        let formData =  new FormData();
+        let descItemByselectedItemNo = rowSaveItems.value.find(({ itemNo
+        }) => itemNo === selectedItemNo); //Find the selected itemNo Object
+        formData.append('itemsId', selectedItemsId.value);
+        formData.append('selectedItemNo', selectedItemNo);
+        for (let index = 0; index < descItemByselectedItemNo.rows.length; index++) {
+            const elementRowSaveDescription = descItemByselectedItemNo.rows[index];
+            const descItemNo = elementRowSaveDescription.descItemNo;
+            const partcodeType = elementRowSaveDescription.partcodeType;
+            const descriptionItemName = elementRowSaveDescription.descriptionItemName;
+
+            const matSpecsLength = elementRowSaveDescription.matSpecsLength;
+            const matSpecsWidth = elementRowSaveDescription.matSpecsWidth;
+            const matSpecsHeight = elementRowSaveDescription.matSpecsHeight;
+            const matRawType = elementRowSaveDescription.matRawType;
+            const matRawThickness = elementRowSaveDescription.matRawThickness;
+            const matRawWidth = elementRowSaveDescription.matRawWidth;
+
+            [
+                ["itemNo[]", descItemNo],
+                ["partcodeType[]", partcodeType],
+                ["descriptionItemName[]", descriptionItemName],
+                ["matSpecsLength[]", matSpecsLength],
+                ["matSpecsWidth[]", matSpecsWidth],
+                ["matSpecsHeight[]", matSpecsHeight],
+                ["matRawType[]", matRawType],
+                ["matRawThickness[]", matRawThickness],
+                ["matRawWidth[]", matRawWidth],
+            ].forEach(([key, value]) =>
+                formData.append(key, value)
+            );
+        }
+        axiosSaveData(formData,'api/save_item_no', (response) =>{
             console.log(response);
         });
     }
