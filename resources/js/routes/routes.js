@@ -40,7 +40,7 @@ export default [
             },
             {
                 path: 'product_material',
-                name: 'product_material',
+                name: 'ProductMaterial',
                 beforeEnter: checkIfSessionExist,
                 component: ProductMaterial,
 

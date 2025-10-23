@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function(){
 
     Route::controller(ProductMaterialController::class)->group(function (): void{
         Route::post('save_item', 'saveItem')->name('pm.save_item');
+        Route::post('save_classification_qty', 'saveClassificationQty')->name('pm.save_classification_qty');
         Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');
         Route::get('get_items_by_id', 'getItemsById')->name('pm.get_items_by_id');
         Route::get('get_description_by_items_id', 'getDescriptionByItemsId')->name('pm.get_description_by_items_id');

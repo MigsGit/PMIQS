@@ -7,6 +7,7 @@ use App\Models\PmItem;
 
 use Illuminate\Http\Request;
 use App\Models\PmDescription;
+use App\Models\PmClassification;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\CommonInterface;
 use App\Http\Controllers\Controller;
@@ -34,18 +35,24 @@ class ProductMaterialController extends Controller
             $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
-            $pmItemRequestValidated = $pmItemRequest->validated();
+            $pmItemRequestValidated = [];
+            $pmItemRequestValidated['control_no'] = $pmItemRequest->controlNo;
+            $pmItemRequestValidated['category'] = $pmItemRequest->category;
+            $pmItemRequestValidated['division'] = $pmItemRequest->division;
+            $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
             if( $request->itemsId === "null" ){ //Add
-                $pmItemRequestValidated['control_no'] = $pmItemRequest->controlNo;
-                $pmItemRequestValidated['category'] = $pmItemRequest->category;
-                $pmItemRequestValidated['division'] = $pmItemRequest->division??'TS';
-                $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
                 $pmItemRequestValidated['created_by'] = session('rapidx_user_id');
-                // return $pmItemRequestValidated;
                 $pmItemsId = $this->resourceInterface->create(PmItem::class,$pmItemRequestValidated);
                 $itemsId = $pmItemsId['dataId'];
             }else{ //Edit
                 $itemsId = decrypt($request->itemsId);
+                $pmItemRequestValidated;
+                $pmItemRequestValidated['updated_by'] = session('rapidx_user_id');
+                $this->resourceInterface->updateConditions(
+                    PmItem::class,
+                    ['pm_items_id' => $itemsId],
+                    $pmItemRequestValidated
+                );
             }
             //Save the Items & Descriptions
             PmDescription::where('pm_items_id',$itemsId)->delete();
@@ -72,6 +79,36 @@ class ProductMaterialController extends Controller
                     PmDescription::class,
                     array_merge($productData,$rawMatData ?? [])
                 );
+            });
+            DB::commit();
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+    public function saveClassificationQty(Request $request){
+
+        try {
+            date_default_timezone_set('Asia/Manila');
+            DB::beginTransaction();
+            $request->descriptionsId;
+            PmClassification::whereIn('pm_descriptions_id',$request->descriptionsId)->delete();
+            $classificationData =collect($request->descriptionsId)->map(function($item, $key) use ($request){
+                $rowClassificationData = [
+                    'pm_descriptions_id' => $item,
+                    'classification' => $request->classification[$key],
+                    // 'qty' => $request->qty[$key],
+                    'qty' => $request->qty[$key],
+                    'uom' => 1,
+                    'unit_price' => $request->unitPrice[$key],
+                    'remarks' => $request->remarks[$key],
+                ];
+                // $this->resourceInterface->create
+                // (
+                //     PmClassification::class,
+                //     $rowClassificationData,
+                // );
             });
             DB::commit();
             return response()->json(['is_success' => 'true']);
@@ -122,7 +159,10 @@ class ProductMaterialController extends Controller
             $data = $this->resourceInterface->readCustomEloquent(
                 PmItem::class,
                 [],
-                ['descriptions'],
+                [
+                    'descriptions',
+                    'rapidx_user_created_by'
+                ],
                 ['pm_items_id' => decrypt($request->itemsId)],
             );
             $pmItems =  $data->get();
@@ -131,6 +171,7 @@ class ProductMaterialController extends Controller
             return response()->json([
                 'isSuccess' => 'true',
                 'itemCollection' => $itemCollection,
+                'createdBy' => $itemCollection[0]['rapidx_user_created_by']['name'],
                 'description' => $description,
                 'descriptionCount' => $description->count(),
             ]);

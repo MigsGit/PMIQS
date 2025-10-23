@@ -14,7 +14,7 @@
                     <DataTable
                         width="100%" cellspacing="0"
                         class="table mt-2"
-                        ref="tblUserMaster"
+                        ref="tblProductMaterial"
                         ajax="api/load_product_material"
                         :columns="productMaterialColumns"
                         :options="{
@@ -40,7 +40,6 @@
             </div>
         </div>
     </div>
-    <!-- @add-event="formProductMaterial" -->
     <ModalComponent icon="fa-file" modalDialog="modal-dialog modal-md" title="Add User" ref="modalAddUser">
         <template #body>
             <div class="row mt-3">
@@ -252,6 +251,7 @@
         modalPm,
         pmVar,
         frmItem,
+        reloadTable,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
@@ -260,13 +260,9 @@
         getItemsById,
         onChangeDivision,
     } = useProductMaterial();
-
     DataTable.use(DataTablesCore);
-
     const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
-    const itemNoIndex = ref(1);
-
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -303,13 +299,12 @@
         { data : 'createdBy' },
         { data : 'remarks' },
     ];
-
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
+        reloadTable();
     })
-
     const addRowSaveItem = () => {
         const newItemNo = rowSaveItems.value.length + 1;
         rowSaveItems.value.push( {
@@ -326,38 +321,6 @@
                 matRawWidth: 0,
             }]
         })
-    }
-    const addRowSaveClassification = () => {
-        console.log();
-
-        const newClassificationNo = cardSaveClassifications.value.length + 1;
-        cardSaveClassifications.value.push( {
-            newClassificationNo: newClassificationNo,
-            rows: [
-                {   classification: 'N/A',
-                    qty: 0,
-                    qty: "pcs",
-                    unitPrice: "pcs",
-                    remarks: "",
-                }
-            ]
-        });
-    }
-    const addClassification = () => {
-        const newClassificationNo = cardSaveClassifications.value.length + 1;
-        cardSaveClassifications.value.push( {
-            newClassificationNo: newClassificationNo,
-            rows: [
-                {   classification: 'N/A',
-                    qty: 0,
-                    qty: "pcs",
-                    unitPrice: "pcs",
-                    remarks: "",
-                }
-            ]
-        });
-        console.log(cardSaveClassifications);
-
     }
     const addRowSaveDescription = (itemNoIndex,newItemNo) => {
         rowSaveItems.value[itemNoIndex].rows.push( {
@@ -379,6 +342,7 @@
         let formData =  new FormData();
         formData.append('itemsId', selectedItemsId.value);
         formData.append('controlNo', frmItem.value.controlNo);
+        formData.append('division', frmItem.value.division);
         formData.append('category', frmItem.value.category);
         formData.append('remarks', frmItem.value.remarks);
 
@@ -417,7 +381,6 @@
             console.log(response);
         });
     }
-
 </script>
 <style lang="scss" scoped>
 

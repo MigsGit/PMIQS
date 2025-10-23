@@ -2,6 +2,7 @@
     <div class="container-fluid px-4">
         <div class="row mt-3">
             <div class="col-6 shadow">
+                <h4>Items & Description Details</h4>
                     <div class="row mt-3">
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
@@ -35,7 +36,6 @@
                                     :close-on-select="true"
                                     :searchable="true"
                                     :options="commonVar.division"
-                                    :change="onChangeDivision(selectedItemsId)"
                                 />
                             </div>
 
@@ -128,10 +128,16 @@
                     </div>
             </div>
             <div class="col-6 shadow">
+                <div class="row">
+                    <div class="col-6">
+                        <h4>Classification Details</h4>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <button @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save</button>
+                    </div>
+                </div>
                  <!-- Classification Cards -->
-                    <h4>Classification Cards</h4>
                     <div v-for="(card, cardIndex) in cardSaveClassifications" :key="cardIndex" class="card mb-3">
-
                    <div class="card-header">
                        <h5>Description / ItemName: {{ card.descriptionPartName }}</h5>
                        <h5>Part Code / Type: {{ card.descriptionPartCode}}</h5>
@@ -143,27 +149,26 @@
                             <th>#</th>
                             <th>Classification</th>
                             <th>Quantity</th>
+                            <th>UOM</th>
                             <th>Unit Price</th>
                             <th>Remarks</th>
                             <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-
-                            <tr v-for="(row, rowIndex) in card.rows" :key="rowIndex">
-
+                            <tr v-for="(rowSaveClassifications, rowIndex) in card.rows" :key="rowIndex">
                             <td>{{ rowIndex + 1 }}</td>
                             <td>
                                 <input
                                 type="text"
                                 class="form-control"
-                                v-model="row.classification"
+                                v-model="rowSaveClassifications.classification"
                                 placeholder="Enter classification"
                                 />
                                 <input
                                 type="text"
                                 class="form-control"
-                                v-model="row.descriptionsId"
+                                v-model="rowSaveClassifications.descriptionsId"
                                 placeholder="Enter classification"
                                 />
                             </td>
@@ -171,7 +176,15 @@
                                 <input
                                 type="number"
                                 class="form-control"
-                                v-model="row.qty"
+                                v-model="rowSaveClassifications.qty"
+                                placeholder="Enter quantity"
+                                />
+                            </td>
+                            <td>
+                                <input
+                                type="number"
+                                class="form-control"
+                                v-model="rowSaveClassifications.uom"
                                 placeholder="Enter quantity"
                                 />
                             </td>
@@ -179,7 +192,7 @@
                                 <input
                                 type="text"
                                 class="form-control"
-                                v-model="row.unitPrice"
+                                v-model="rowSaveClassifications.unitPrice"
                                 placeholder="Enter unit price"
                                 />
                             </td>
@@ -187,32 +200,31 @@
                                 <input
                                 type="text"
                                 class="form-control"
-                                v-model="row.remarks"
+                                v-model="rowSaveClassifications.remarks"
                                 placeholder="Enter remarks"
                                 />
                             </td>
                             <td>
-                                <button @click="removeRowFromCard(cardIndex, rowIndex)" class="btn btn-danger btn-sm">
-                                Remove
-                                </button>
+                                <!-- <center> -->
+                                    <button @click="removeRowFromCard(cardIndex, rowIndex)" class="btn btn-danger mt-3">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                <!-- </center> -->
                             </td>
                             </tr>
                         </tbody>
                         </table>
-                        <button @click="addRowClassification(cardIndex,card.rows)" class="btn btn-primary btn-sm">
-                                Add Row
+                        <button @click="addRowClassification(cardIndex,card.rows)" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
                         </button>
                     </div>
                     </div>
             </div>
         </div>
     </div>
-
-
 </template>
-
 <script setup>
-     import {
+    import {
         onMounted,
         ref,
         reactive,
@@ -226,11 +238,10 @@
     import useCommon from '../composables/common';
     import useProductMaterial from '../composables/productmaterial';
     import ModalComponent from '../components/ModalComponent.vue';
+    import Router from '../routes';
     import { useRoute } from 'vue-router';
-
     const route = useRoute();
     const itemsIdFrom = ref(route.params.itemsId); // Retrieve itemsId from route params
-
     const {
         axiosFetchData,
     } = useFetch();
@@ -244,23 +255,17 @@
     const {
         modalPm,
         pmVar,
+        tblProductMaterial,
         frmItem,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
         rowSaveItems,
-        getDescriptionByItemsId,
         getItemsById,
         onChangeDivision,
     } = useProductMaterial();
-
     DataTable.use(DataTablesCore);
-
     const selectedItemsId = ref(null);
-    const modalQuotations = ref(null);
-    const classExpandItemDescQty = ref("col-12 shadow");
-    const itemNoIndex = ref(1);
-
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -283,7 +288,6 @@
         { data : 'createdBy' },
         { data : 'remarks' },
     ];
-
     onMounted ( async () =>{
         console.log(rowSaveDescriptions);
 
@@ -295,115 +299,52 @@
         await getItemsById(itemParams);
         selectedItemsId.value = itemsIdFrom.value;
     })
-
-    const addRowSaveItem = () => {
-        const newItemNo = rowSaveItems.value.length + 1;
-        rowSaveItems.value.push( {
-            itemNo: newItemNo,
-            rows : [{
-                descItemNo: newItemNo,
-                partcodeType: 'N/A',
-                descriptionItemName: "N/A",
-                matSpecsLength: 0,
-                matSpecsWidth: 0,
-                matSpecsHeight: 0,
-                matRawType: 'N/A',
-                matRawThickness: 0,
-                matRawWidth: 0,
-            }]
-        })
-    }
-    const addRowSaveClassificationQty = (indexItem,indexDescription,descriptionItemName) => {
-        const newClassificationNo = cardSaveClassifications.value.length + 1;
-        cardSaveClassifications.value.push( {
-            newClassificationNo: newClassificationNo,
-            rows: [
-                {
-                    indexItem: indexItem,
-                    indexDescription: indexDescription,
-                    descriptionItemName: descriptionItemName,
-                    classification: 'N/A',
-                    qty: 0,
-                    qty: "pcs",
-                    unitPrice: "pcs",
-                    remarks: "",
-                }
-            ]
-        });
-    }
-     // Add a new row to a specific card
-     const addRowClassification = (cardIndex,card) => {
+    // Add a new row to a specific card
+    const addRowClassification = (cardIndex,card) => {
       cardSaveClassifications.value[cardIndex].rows.push({
-        descriptionsId: card[0].descriptionsId,
-        classification: '',
-        qty: 0,
-        unitPrice: 'pcs',
-        remarks: '',
+            descriptionsId: card[0].descriptionsId,
+            classification: '',
+            qty: 0,
+            uom: 'pcs',
+            unitPrice: 0,
+            remarks: '',
       });
     };
-      // Remove a row from a specific card
+    // Remove a row from a specific card
     const removeRowFromCard = (cardIndex, rowIndex) => {
       cardSaveClassifications.value[cardIndex].rows.splice(rowIndex, 1);
     };
-    const addRowSaveDescription = (itemNoIndex,newItemNo) => {
-        rowSaveItems.value[itemNoIndex].rows.push( {
-            descItemNo: newItemNo,
-            partcodeType: 'N/A',
-            descriptionItemName: "N/A",
-            matSpecsLength: 0,
-            matSpecsWidth: 0,
-            matSpecsHeight: 0,
-            matRawType: 'N/A',
-            matRawThickness: 0,
-            matRawWidth: 0,
-        })
-    }
-    const removeRowSaveDescription =   (indexItem, indexDescription) => {
-        rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
-    }
-    const formSaveItem = async () => {
+    const formSaveClassificationQty = async () => {
         let formData =  new FormData();
-        formData.append('itemsId', selectedItemsId.value);
-        formData.append('controlNo', frmItem.value.controlNo);
-        formData.append('category', frmItem.value.category);
-        formData.append('remarks', frmItem.value.remarks);
+        for (let index = 0; index < cardSaveClassifications.value.length; index++) {
+            const elementCardSaveClassifications = cardSaveClassifications.value[index];
 
-        for (let index = 0; index < rowSaveItems.value.length; index++) {
-            const elementRowSaveItems = rowSaveItems.value[index];
+            for (let index = 0; index < elementCardSaveClassifications.rows.length; index++) {
+                const elementRowSaveDescription = elementCardSaveClassifications.rows[index];
 
-            for (let index = 0; index < elementRowSaveItems.rows.length; index++) {
-                const elementRowSaveDescription = elementRowSaveItems.rows[index];
-                const descItemNo = elementRowSaveDescription.descItemNo;
-                const partcodeType = elementRowSaveDescription.partcodeType;
-                const descriptionItemName = elementRowSaveDescription.descriptionItemName;
-
-                const matSpecsLength = elementRowSaveDescription.matSpecsLength;
-                const matSpecsWidth = elementRowSaveDescription.matSpecsWidth;
-                const matSpecsHeight = elementRowSaveDescription.matSpecsHeight;
-                const matRawType = elementRowSaveDescription.matRawType;
-                const matRawThickness = elementRowSaveDescription.matRawThickness;
-                const matRawWidth = elementRowSaveDescription.matRawWidth;
-
+                const descriptionsId = elementRowSaveDescription.descriptionsId;
+                const classification = elementRowSaveDescription.classification;
+                const qty = elementRowSaveDescription.qty;
+                const uom = elementRowSaveDescription.uom;
+                const unitPrice = elementRowSaveDescription.unitPrice;
+                const remarks = elementRowSaveDescription.remarks;
                 [
-                    ["itemNo[]", descItemNo],
-                    ["partcodeType[]", partcodeType],
-                    ["descriptionItemName[]", descriptionItemName],
-                    ["matSpecsLength[]", matSpecsLength],
-                    ["matSpecsWidth[]", matSpecsWidth],
-                    ["matSpecsHeight[]", matSpecsHeight],
-                    ["matRawType[]", matRawType],
-                    ["matRawThickness[]", matRawThickness],
-                    ["matRawWidth[]", matRawWidth],
+                    ["descriptionsId[]", descriptionsId],
+                    ["classification[]", classification],
+                    ["qty[]", qty],
+                    ["uom[]", uom],
+                    ["unitPrice[]", unitPrice],
+                    ["remarks[]", remarks],
                 ].forEach(([key, value]) =>
                     formData.append(key, value)
                 );
             }
         }
-        axiosSaveData(formData,'api/save_item', (response) =>{
-            console.log(response);
+        axiosSaveData(formData,'api/save_classification_qty', (response) =>{
+            // tblProductMaterial.value.dt.draw();
+            Router.push({ name: 'ProductMaterial'});
         });
     }
-
 </script>
 <style lang="scss" scoped>
 

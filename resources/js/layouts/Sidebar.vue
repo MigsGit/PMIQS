@@ -10,7 +10,7 @@
                 <router-link class="nav-link" :to="{ name: 'dashboard' }">
                     <font-awesome-icon class="nav-icon" icon="gauge-high" />&nbsp;Dashboard
                 </router-link>
-                <router-link class="nav-link" :to="{ name: 'product_material' }">
+                <router-link class="nav-link" :to="{ name: 'ProductMaterial' }">
                     <font-awesome-icon class="nav-icon" icon="fa fa-file" />&nbsp;ProductMaterial
                 </router-link>
                 <router-link v-if="departmentGroup === 'ISS' || departmentGroup === 'QAD'" class="sb-nav-link-icon nav-link" :to="{ name: 'UserMaster' }">

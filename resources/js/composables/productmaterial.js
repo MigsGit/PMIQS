@@ -12,11 +12,8 @@ export default function useProductMaterial()
         controlNo: '',
     });
     const rowSaveClassifications = ref();
-    const cardSaveClassifications = ref(
-        [
-
-        ]
-    );
+    const tblProductMaterial = ref(null);
+    const cardSaveClassifications = ref([]);
     const rowSaveDescriptions = ref();
     const modalPm = {};
     const rowSaveItems = ref([
@@ -35,17 +32,6 @@ export default function useProductMaterial()
             }]
         }
     ]);
-
-    const getDescriptionByItemsId = () => {
-        let apiParams = {
-
-        }
-        axiosFetchData(apiParams,'api/get_description_by_items_id',function(response){
-            console.log(response);
-        });
-    }
-
-
     const  getItemsById = (params) => {
         rowSaveItems.value = [];
         let apiParams = {
@@ -60,6 +46,7 @@ export default function useProductMaterial()
                 frmItem.value.category = itemCollection.category;
                 frmItem.value.division = itemCollection.division;
                 frmItem.value.status = itemCollection.status;
+                frmItem.value.createdBy = data.createdBy;
                 frmItem.value.remarks = itemCollection.remarks;
 
 
@@ -100,7 +87,8 @@ export default function useProductMaterial()
                             descriptionsId: description.id,
                             classification: 'N/A',
                             qty: 0,
-                            unitPrice: 'pcs',
+                            uom: 'pcs',
+                            unitPrice: 0,
                             remarks: '',
                         },
                     ],
@@ -111,7 +99,6 @@ export default function useProductMaterial()
             }
         });
     }
-
     const onChangeDivision = (selectedItemsId=null) => {
         if(selectedItemsId === null){
             let apiParams = {
@@ -127,12 +114,12 @@ export default function useProductMaterial()
     return {
         modalPm,
         pmVar,
+        tblProductMaterial,
         frmItem,
         rowSaveDescriptions,
         rowSaveItems,
         rowSaveClassifications,
         cardSaveClassifications,
-        getDescriptionByItemsId,
         getItemsById,
         onChangeDivision,
     }

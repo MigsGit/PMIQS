@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Carbon\Carbon;
 use App\Http\Resources\BaseResource;
+use App\Http\Resources\RapidxUserResource;
 use App\Http\Resources\DescriptionResource;
 
 

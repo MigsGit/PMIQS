@@ -24,7 +24,11 @@ class PmItemRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'itemsId' => ['required'],
+            'controlNo' => ['required'],
+            'division' => ['required'],
+            'category' => ['required'],
+            'remarks' => ['required'],
         ];
     }
 }
