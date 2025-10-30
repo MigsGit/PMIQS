@@ -211,6 +211,124 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12">
+                    <div class="card mb-2">
+                            <h5 class="mb-0">
+                                <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApprovalSummary" aria-expanded="true" aria-controls="collapseMan">
+                                   Approval Summary
+                                </button>
+                            </h5>
+                        <div id="collapseApprovalSummary" class="collapse show" data-bs-parent="#accordionMain">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12 overflow-auto">
+                                        <table class="table table-responsive">
+                                            <thead>
+                                                <tr>
+                                                <th scope="col" style="width: 25%;">Role</th>
+                                                <th scope="col" style="width: 25%;">Approver Name</th>
+                                                <th scope="col" style="width: 10%;">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="production">
+                                                    <td>
+                                                        Prepared By
+                                                    </td>
+                                                    <td>
+                                                        <Multiselect
+                                                            :disabled="isModalView"
+                                                            v-model="frmItem.preparedBy"
+                                                            :close-on-select="true"
+                                                            :searchable="true"
+                                                            :options="settingsVar.preparedBy"
+                                                        />
+                                                    </td>
+                                                    <td>
+
+                                                    </td>
+                                                </tr>
+                                                <tr class="production">
+                                                    <td>
+                                                        Checked By
+                                                    </td>
+                                                    <td>
+                                                        <Multiselect
+                                                            :disabled="isModalView"
+                                                            v-model="frmItem.checkedBy"
+                                                            :close-on-select="true"
+                                                            :searchable="true"
+                                                            :options="settingsVar.checkedBy"
+                                                        />
+                                                    </td>
+                                                    <td>
+
+                                                    </td>
+                                                </tr>
+                                                <tr class="production">
+                                                    <td>
+                                                        Noted By
+                                                    </td>
+                                                    <td>
+                                                        <Multiselect
+                                                            :disabled="isModalView"
+                                                            v-model="frmItem.notedBy"
+                                                            :close-on-select="true"
+                                                            :searchable="true"
+                                                            :options="settingsVar.notedBy"
+                                                        />
+                                                    </td>
+                                                    <td>
+
+                                                    </td>
+                                                </tr>
+                                                <tr class="production">
+                                                    <td>
+                                                        Approved By
+                                                    </td>
+                                                    <td>
+                                                        <Multiselect
+                                                            :disabled="isModalView"
+                                                            v-model="frmItem.approvedByOne"
+                                                            :close-on-select="true"
+                                                            :searchable="true"
+                                                            :options="settingsVar.approvedByOne"
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <!-- <button @click="reloadRapidxUserMaster('prdn')" class="btn btn-outline-warning btn-sm" type="button" data-item-process="refresh">
+                                                            <font-awesome-icon class="nav-icon" icon="refresh" />
+                                                        </button> -->
+                                                    </td>
+                                                </tr>
+                                                <tr class="production">
+                                                    <td>
+                                                        Approved By
+                                                    </td>
+                                                    <td>
+                                                        <Multiselect
+                                                            :disabled="isModalView"
+                                                            v-model="frmItem.approvedByTwo"
+                                                            :close-on-select="true"
+                                                            :searchable="true"
+                                                            :options="settingsVar.approvedByTwo"
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <!-- <button @click="reloadRapidxUserMaster('prdn')" class="btn btn-outline-warning btn-sm" type="button" data-item-process="refresh">
+                                                            <font-awesome-icon class="nav-icon" icon="refresh" />
+                                                        </button> -->
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </template>
         <template #footer>
@@ -232,6 +350,7 @@
     import useFetch from '../composables/utils/useFetch';
     import useForm from '../composables/utils/useForm';
     import useCommon from '../composables/common';
+    import useSettings from '../composables/settings';
     import useProductMaterial from '../composables/productmaterial';
     import ModalComponent from '../components/ModalComponent.vue';
     import Router from '../routes';
@@ -260,9 +379,43 @@
         getItemsById,
         onChangeDivision,
     } = useProductMaterial();
+
+    const {
+        settingsVar,
+        getRapidxUserByIdOpt,
+    } = useSettings();
+
     DataTable.use(DataTablesCore);
     const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
+    const isModalView = ref(false);
+
+    const preparedByParams = {
+        globalVar: settingsVar.preparedBy,
+        formModel: toRef(frmItem.value,'preparedBy'),
+        selectedVal: "0",
+    };
+    const checkedByParams = {
+        globalVar: settingsVar.checkedBy,
+        formModel: toRef(frmItem.value,'checkedBy'),
+        selectedVal: "0",
+    };
+    const notedByParams = {
+        globalVar: settingsVar.notedBy,
+        formModel: toRef(frmItem.value,'notedBy'),
+        selectedVal: "0",
+    };
+    const approvedByOneParams = {
+        globalVar: settingsVar.approvedByOne,
+        formModel: toRef(frmItem.value,'approvedByOne'),
+        selectedVal: "0",
+    };
+    const approvedByTwoParams = {
+        globalVar: settingsVar.approvedByTwo,
+        formModel: toRef(frmItem.value,'approvedByTwo'),
+        selectedVal: "0",
+    };
+
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -303,6 +456,12 @@
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
+        getRapidxUserByIdOpt(preparedByParams);
+        getRapidxUserByIdOpt(checkedByParams);
+        getRapidxUserByIdOpt(notedByParams);
+        getRapidxUserByIdOpt(approvedByOneParams);
+        getRapidxUserByIdOpt(approvedByTwoParams);
+
     })
     const addRowSaveItem = () => {
         const newItemNo = rowSaveItems.value.length + 1;
@@ -419,7 +578,3 @@
         });
     }
 </script>
-<style lang="scss" scoped>
-
-</style>
-

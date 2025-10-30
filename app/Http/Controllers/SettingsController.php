@@ -224,6 +224,7 @@ class SettingsController extends Controller
     }
     public function getDropdownMasterCategory(Request $request){
         try {
+            // return DropdownMaster::get();
             $dropdownMaster =  $this->resourceInterface->readCustomEloquent(DropdownMaster::class,['category'],[],[]);
            $dropdownMaster->whereNull('deleted_at');
            $dropdownMaster= $dropdownMaster->groupBy('category')->get();
@@ -316,8 +317,9 @@ class SettingsController extends Controller
             return response()->json(['is_success' => 'false', 'exceptionError' => $e->getMessage()]);
         }
     }
-    public function getNoModuleRapidxUserByIdOpt(Request $request){
+    public function getNoModuleRapidxUserByIdOpt(Request $request){ //get all users in rapidx
         try {
+            return 'true';
             $rapidxUserById = DB::connection('mysql_rapidx')->select('SELECT users.id,users.name
                 FROM  users users
                 LEFT JOIN user_accesses user_accesses ON user_accesses.user_id = users.id
@@ -326,6 +328,54 @@ class SettingsController extends Controller
                 -- AND user_accesses.user != users.id
                 GROUP BY users.id,users.name
                 '
+            );
+            if(count ($rapidxUserById) > 0){
+                return response()->json(['isSuccess' => 'true','rapidxUserById'=>$rapidxUserById]);
+            }
+            return response()->json(['isSuccess' => 'false','rapidxUserById'=>[],'msg' => 'User Not Found !',],500);
+        } catch (Exception $e) {
+            return response()->json(['isSuccess' => 'false', 'exceptionError' => $e->getMessage()]);
+        }
+    }
+    public function getRapidxUserByIdOpt(Request $request){  //get users with module access in rapidx
+        try {
+            $rapidxUserDeptGroup = $request->rapidxUserDeptGroup ?? "N/A";
+            $isApprover = $request->isApprover ?? "N/A";
+            $rapidxUserDeptGroupQuery = $rapidxUserDeptGroup === "N/A" ? '': 'AND departments.department_group = "'.$rapidxUserDeptGroup.'"';
+
+            $userApprover = User::where('roles','APP')->get();
+            $userApproverCollection = collect($userApprover);
+            $userApproverCollectionImplode = $userApproverCollection->pluck('rapidx_user_id')->implode(', ');
+            $rapidxUserIdGroupQuery = $isApprover === "N/A" ? '': 'AND users.id IN('.$userApproverCollectionImplode.')';
+            if($isApprover === "true"){
+                $rapidxUserById = DB::connection('mysql_rapidx')->select('SELECT users.*,user_accesses.
+                    module_id,departments.department_name,departments.department_group
+                    FROM  users
+                    LEFT JOIN user_accesses user_accesses ON user_accesses.user_id = users.id
+                    LEFT JOIN departments departments ON departments.department_id = users.department_id
+                    WHERE 1=1
+                    -- AND departments.department_group = "'.$request->rapidxUserDeptGroup.'"
+                    '.$rapidxUserDeptGroupQuery.'
+                    '.$rapidxUserIdGroupQuery.'
+                    AND users.user_stat = 1
+                    AND user_accesses.module_id = 46'
+                );
+                if(count ($rapidxUserById) > 0){
+                    return response()->json(['isSuccess' => 'true','rapidxUserById'=>$rapidxUserById]);
+                }
+                return response()->json(['isSuccess' => 'false','rapidxUserById'=>[],'msg' => 'User Not Found !',],500);
+            }
+
+            $rapidxUserById = DB::connection('mysql_rapidx')->select('SELECT users.*,user_accesses.
+                module_id,departments.department_name,departments.department_group
+                FROM  users
+                LEFT JOIN user_accesses user_accesses ON user_accesses.user_id = users.id
+                LEFT JOIN departments departments ON departments.department_id = users.department_id
+                WHERE 1=1
+                -- AND departments.department_group = "'.$request->rapidxUserDeptGroup.'"
+                '.$rapidxUserDeptGroupQuery.'
+                AND users.user_stat = 1
+                AND user_accesses.module_id = 46'
             );
             if(count ($rapidxUserById) > 0){
                 return response()->json(['isSuccess' => 'true','rapidxUserById'=>$rapidxUserById]);

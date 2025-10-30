@@ -12,6 +12,17 @@ export default function useSettings(){
             {"value":"NOTEDBY","label":"Noted By"},
             {"value":"APPBY","label":"Approved By"},
         ],
+        preparedBy:[],
+        checkedBy:[],
+        notedBy:[],
+        approvedByOne:[],
+        approvedByTwo:[],
+        userRoles : [
+            {"value":"PREPBY","label":"Prepared By"},
+            {"value":"CHCKBY","label":"Checked By"},
+            {"value":"NOTEDBY","label":"Noted By"},
+            {"value":"APPBY","label":"Approved By"},
+        ],
     });
     const frmDropdownMasterDetails = ref({
         dropdownMastersId : '',
@@ -25,7 +36,7 @@ export default function useSettings(){
         details : '',
         evidence : '',
     });
-    const modal ={}
+    const modalSettings ={}
 
     const getDropdownMasterByOpt = async (params) => {
         let apiParams = {
@@ -59,6 +70,7 @@ export default function useSettings(){
         });
     }
     const getRapidxUserByIdOpt = async (params) => {
+
         let apiParams = {
             rapidxUserDeptGroup : params.rapidxUserDeptGroup ?? '',
             isApprover : params.isApprover ?? '',
@@ -84,6 +96,7 @@ export default function useSettings(){
         });
     }
     const getNoModuleRapidxUserByIdOpt = async (params) => {
+        alert('getNoModuleRapidxUserByIdOpt')
         let apiParams = {
             rapidxUserDeptGroup : params.rapidxUserDeptGroup ?? '',
             isApprover : params.isApprover ?? '',
@@ -106,11 +119,12 @@ export default function useSettings(){
             params.formModel.value = params.selectedVal; //Make sure the data type is correct | String or Array
         });
     }
+
     const onUserChange = async (selectedParams)=>{
         await getRapidxUserByIdOpt(selectedParams);
     }
     return {
-        modal,
+        modalSettings,
         settingsVar,
         frmDropdownMasterDetails,
         frmEcrRequirementDetails,

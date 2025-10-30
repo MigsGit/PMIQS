@@ -110,7 +110,7 @@
 
     //Constant Object
     const {
-        modalCommon,
+        modalSettings,
         frmDropdownMasterDetails,
         axiosFetchData,
         getDropdownMasterByOpt
@@ -148,7 +148,7 @@
 
     // optDropdownMasterByCategory
     onMounted(async () => {
-        modal.modalSaveDropdownMasterDetails = new Modal(modalSaveDropdownMasterDetails.value.modalRef,{ keyboard: false });
+        modalSettings.modalSaveDropdownMasterDetails = new Modal(modalSaveDropdownMasterDetails.value.modalRef,{ keyboard: false });
         await getDropdownMasterCategory(dropDropdownMasterByCategoryParams);
         modalSaveDropdownMasterDetails.value.modalRef.addEventListener('hidden.bs.modal', event => {
             frmDropdownMasterDetails.value.dropdownMasterDetailsId = '';
@@ -163,6 +163,7 @@
         }
         axiosFetchData(apiParams,'api/get_dropdown_master',function(response){
             let data = response.data;
+
             let dropdownMaster = data.dropdownMaster;
             params.globalVar.value.splice(0, params.globalVar.value.length,
                 { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
@@ -181,6 +182,7 @@
         axiosFetchData(apiParams,'api/get_dropdown_master_category',function(response){
             let data = response.data;
             let dropdownMaster = data.dropdownMaster;
+            console.log(data);
             params.globalVar.value.splice(0, params.globalVar.value.length,
                 { value: '', label: '-Select Category-', disabled:true }, // Push "" option at the start
                     ...dropdownMaster.map((value) => {
@@ -209,7 +211,7 @@
     }
 
     const btnAddDropdownMasterDetails = async () => {
-        modal.modalSaveDropdownMasterDetails.show();
+        modalSettings.modalSaveDropdownMasterDetails.show();
     }
 
     const getDropdownMasterDetailsId = async (dropdownMasterDetailsId) => {
@@ -222,7 +224,7 @@
             frmDropdownMasterDetails.value.dropdownMasterDetailsId = dropdownMasterDetail.id;
             frmDropdownMasterDetails.value.dropdownMastersDetails = dropdownMasterDetail.dropdown_masters_details;
             frmDropdownMasterDetails.value.remarks = dropdownMasterDetail.remarks;
-            modal.modalSaveDropdownMasterDetails.show();
+            modalSettings.modalSaveDropdownMasterDetails.show();
         });
     }
 
@@ -238,7 +240,7 @@
             formData.append(key, value)
         );
         axiosSaveData(formData,'api/save_dropdown_master_details', (response) =>{
-            modal.modalSaveDropdownMasterDetails.hide();
+            modalSettings.modalSaveDropdownMasterDetails.hide();
             tblDropdownMasterDetails.value.dt.ajax.url('api/load_dropdown_master_details?dropDownMastersId='+frmDropdownMasterDetails.value.dropdownMastersId).draw();
         });
     }

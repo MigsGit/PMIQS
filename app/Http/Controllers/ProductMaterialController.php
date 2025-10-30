@@ -159,6 +159,193 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
+
+    public function saveEcrApproval(Request $request){
+        try {
+            date_default_timezone_set('Asia/Manila');
+            DB::beginTransaction();
+            $ecrsId = $request->ecrs_id;
+
+            //Get Current Ecr Approval is equal to Current Session
+            $ecrApprovalCurrent = EcrApproval::where('ecrs_id',$ecrsId)
+            ->whereNotNull('rapidx_user_id')
+            ->where('status','PEN')
+            ->first();
+            if($ecrApprovalCurrent->rapidx_user_id != session('rapidx_user_id')){
+                return response()->json(['isSuccess' => 'false','msg' => 'You are not the current approver !'],500);
+            }
+            //Get Current Status
+            $ecrDetails= Ecr::where('id',$ecrsId)->get(['id','approval_status','status','category','ecr_no','created_by']);
+            //Verify if the ECR Requirement is Completed.
+            $isCompletedEcrRequirementComplete = $this->isCompletedEcrRequirementComplete($ecrsId);
+
+            // === TODO:QA Requirements
+            // if($ecrApprovalCurrent->approval_status === 'QACB' || $ecrApprovalCurrent->approval_status === 'QAIN'){
+            if(  $isCompletedEcrRequirementComplete === 'false' && $request->status === 'APP'){
+                // return response()->json(['isSuccess' => 'false','msg' => 'Incomplete details, Please fill up the ECR Requirement!'],500);
+            }
+            // }
+
+            //Update the ECR Approval Status
+            $ecrApprovalCurrent->update([
+                'status' => $request->status,
+                'remarks' => $request->remarks,
+            ]);
+
+            //Get the ECR Approval Status & Id, Update the Approval Status as PENDING
+            $ecrApproval = EcrApproval::where('ecrs_id',$ecrsId)
+            ->whereNotNull('rapidx_user_id')
+            ->where('status','-')
+            ->limit(1)
+            ->get(['id','approval_status','rapidx_user_id']);
+
+            //Initialize the Email Address of the User
+            $requestedBy = $this->emailInterface->getEmailByRapidxUserId($ecrDetails[0]->created_by);
+            //DISAPPROVED ECR
+            if ( $request->status === "DIS" ){
+                $EcrConditions = [
+                    'id' => $request->ecrs_id,
+                ];
+                $ecrValidated = [
+                    'status' => 'DIS',
+                ];
+                $this->resourceInterface->updateConditions(Ecr::class,$EcrConditions,$ecrValidated);
+                //Send DISAPPROVED Email to Requestor
+                $to = $requestedBy['email'] ?? '';
+                $currentSession = $this->emailInterface->getEmailByRapidxUserId( session('rapidx_user_id'));
+                $from =$currentSession['email'] ?? '';
+                $from_name = $currentSession['fullName'];
+                $subject = "DISAPPROVED: Engineering Change Request (ECR)";
+                $msg = $this->emailInterface->ecrEmailMsg($ecrsId);
+
+                //Reset EcrRequirement
+                EcrRequirement::where('ecrs_id',$ecrsId)->delete();
+                DB::commit();
+                $emailData = [
+                    "to" =>$to,
+                    "cc" =>"",
+                    "bcc" =>"mclegaspi@pricon.ph,rdahorro@pricon.ph,jggabuat@pricon.ph",
+                    "from" => $from,
+                    "from_name" =>$from_name ?? "4M Change Control Management System",
+                    "subject" =>$subject,
+                    "message" =>  $msg,
+                    "attachment_filename" => "",
+                    "attachment" => "",
+                    "send_date_time" => now(),
+                    "date_time_sent" => "",
+                    "date_created" => now(),
+                    "created_by" => session('rapidx_username'),
+                    "system_name" => "rapidx_4M",
+                ];
+                $this->emailInterface->sendEmail($emailData);
+                return response()->json(['isSuccess' => 'true']);
+            }
+            //If the ECR is Approved, Save the ECR Details by Category
+            if ( count($ecrApproval) === 0){
+
+                $EcrConditions = [
+                    'id' => $request->ecrs_id,
+                ];
+                $ecrValidated = [
+                    'status' => 'OK', //APPROVED ECR
+                    'approval_status' => 'OK',
+                ];
+                $this->resourceInterface->updateConditions(Ecr::class,$EcrConditions,$ecrValidated);
+                // If approved, Save Man, Method, Machine, Material, Environment
+                $this->saveDetailsByCategory($ecrDetails[0]->category,$ecrsId);
+                //Send Approved Email to the Requestor
+                $to = $requestedBy['email'] ?? '';
+                // $to =  'cpagtalunan@pricon.ph",';
+                $from = 'issinfoservice@pricon.ph';
+                $msg = $this->emailInterface->ecrEmailMsg($ecrsId);
+                $msgEcrRequirement = $this->emailInterface->ecrEmailMsgEcrRequirement($ecrsId);
+                $subject = "APPROVED: Engineering Change Request (ECR)";
+                $subjectEcr = "ECR Requirements: " .$ecrDetails[0]->ecr_no;
+                $from_name = "4M Change Control Management System";
+                $emailDataEcrRequirement = [
+                    // "to" =>"cpagtalunan@pricon.ph",
+                    // "bcc" =>"mclegaspi@pricon.ph",
+
+                    "to" =>$to,
+                    "cc" =>"",
+                    "bcc" =>"mclegaspi@pricon.ph,rdahorro@pricon.ph,jggabuat@pricon.ph",
+                    "from" => $from,
+                    "from_name" =>$from_name ?? "4M Change Control Management System",
+                    "subject" =>$subjectEcr,
+                    "message" =>  $msgEcrRequirement,
+                    "attachment_filename" => "",
+                    "attachment" => "",
+                    "send_date_time" => now(),
+                    "date_time_sent" => "",
+                    "date_created" => now(),
+                    "created_by" => session('rapidx_username'),
+                    "system_name" => "rapidx_4M",
+                ];
+            }
+
+            if ( count($ecrApproval) != 0 ){
+                $ecrCurrentApproval = $this->emailInterface->getEmailByRapidxUserId($ecrApproval[0]->rapidx_user_id);
+
+                $ecrApprovalValidated = [
+                    'status' => 'PEN',
+                ];
+                $ecrApprovalConditions = [
+                    'id' => $ecrApproval[0]->id,
+                ];
+                $this->resourceInterface->updateConditions(EcrApproval::class,$ecrApprovalConditions,$ecrApprovalValidated);
+
+                //Update the ECR Approval Status
+                $EcrConditions = [
+                    'id' => $request->ecrs_id,
+                ];
+                $ecrValidated = [
+                    'approval_status' => $ecrApproval[0]->approval_status,
+                ];
+                //Change QA Status
+                if (str_contains($ecrApproval[0]->approval_status, 'QA')) {
+                    $ecrValidated = [
+                        'approval_status' => $ecrApproval[0]->approval_status,
+                        'status' => 'QA',
+                    ];
+                }
+                $this->resourceInterface->updateConditions(Ecr::class,$EcrConditions,$ecrValidated);
+                //Send Approval Email
+                $msg = $this->emailInterface->ecrEmailMsg($ecrsId);
+                //Send For Approval Email to Next Approver
+                $to = $ecrCurrentApproval['email'] ?? '';
+                $from = $requestedBy['email'] ?? '';
+                $subject = "FOR APPROVAL: Engineering Change Request (ECR)";
+                $from_name = "4M Change Control Management System";
+            }
+            $emailData = [
+                "to" =>$to,
+                "cc" =>"",
+                "bcc" =>"mclegaspi@pricon.ph,rdahorro@pricon.ph,jggabuat@pricon.ph",
+                "from" => $from,
+                "from_name" =>$from_name ?? "4M Change Control Management System",
+                "subject" =>$subject,
+                "message" =>  $msg,
+                "attachment_filename" => "",
+                "attachment" => "",
+                "send_date_time" => now(),
+                "date_time_sent" => "",
+                "date_created" => now(),
+                "created_by" => session('rapidx_username'),
+                "system_name" => "rapidx_4M",
+            ];
+
+            DB::commit();
+            if ( count($ecrApproval) === 0){
+                $this->emailInterface->sendEmail($emailDataEcrRequirement);
+            }
+            $this->emailInterface->sendEmail($emailData);
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+    
     public function loadProductMaterial(Request $request){
         try {
             $data = $this->resourceInterface->readCustomEloquent(
