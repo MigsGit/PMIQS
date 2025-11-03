@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class PmItem extends Model
 {
+
+    protected $primaryKey = 'pm_items_id';
+
     /**
      * Get all of the comments for the PmItem
      *

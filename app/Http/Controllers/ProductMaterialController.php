@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DataTables;
 use App\Models\PmItem;
 
+use App\Models\PmApproval;
 use Illuminate\Http\Request;
 use App\Models\PmDescription;
 use App\Models\PmClassification;
@@ -32,6 +33,7 @@ class ProductMaterialController extends Controller
     }
     public function saveItem(Request $request, PmItemRequest $pmItemRequest){
         try {
+
 
             $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
             date_default_timezone_set('Asia/Manila');
@@ -83,8 +85,35 @@ class ProductMaterialController extends Controller
                     );
                 });
             }
+
+            PmApproval::where('pm_items_id',$itemsId)->delete();
+            $pmApprovalStatus = [
+                'PREPBY' => $request->preparedBy,
+                'CHCKBY' => $request->checkedBy,
+                'NOTEDBY' => $request->notedBy,
+                'APPBY1' => $request->approvedByOne,
+                'APPBY2' => $request->approvedByTwo,
+            ];
+           $pmApprovalRequest= collect($pmApprovalStatus)->flatMap(function($users,$approvalStatus) use ($pmItemRequest,$itemsId){
+                return collect($users)->map(function ($userId) use ($approvalStatus, $pmItemRequest,$itemsId): array {
+                    // $approval_status as a array name
+                    //return array users id, defined type by use keyword,
+                    return [
+                        'pm_items_id' => $itemsId,
+                        'rapidx_user_id' =>  $userId == 0 ? NULL : $userId,
+                        'approval_status' => $approvalStatus,
+                        'remarks' => $pmItemRequest->remarks,
+                        'created_at' => now(),
+                    ];
+                });
+            })->toArray();
+            PmApproval::insert($pmApprovalRequest);
+            PmApproval::where('approval_status', 'PREPBY')
+            ->where('pm_items_id', $itemsId)
+            ->first()
+            ->update(['status'=>'PEN']);
             DB::commit();
-            return response()->json(['is_success' => 'true']);
+            return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -114,7 +143,7 @@ class ProductMaterialController extends Controller
                 );
             });
             DB::commit();
-            return response()->json(['is_success' => 'true']);
+            return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -153,7 +182,7 @@ class ProductMaterialController extends Controller
                 );
             });
             DB::commit();
-            return response()->json(['is_success' => 'true']);
+            return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -339,13 +368,13 @@ class ProductMaterialController extends Controller
                 $this->emailInterface->sendEmail($emailDataEcrRequirement);
             }
             $this->emailInterface->sendEmail($emailData);
-            return response()->json(['is_success' => 'true']);
+            return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
         }
     }
-    
+
     public function loadProductMaterial(Request $request){
         try {
             $data = $this->resourceInterface->readCustomEloquent(
@@ -411,7 +440,7 @@ class ProductMaterialController extends Controller
     public function getDescriptionByItemsId(Request $request){
         return 'true' ;
         try {
-            return response()->json(['is_success' => 'true']);
+            return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             throw $e;
         }

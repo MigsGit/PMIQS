@@ -504,6 +504,13 @@
         formData.append('division', frmItem.value.division);
         formData.append('category', frmItem.value.category);
         formData.append('remarks', frmItem.value.remarks);
+        
+        formData.append('preparedBy', frmItem.value.preparedBy);
+        formData.append('checkedBy', frmItem.value.checkedBy);
+        formData.append('notedBy', frmItem.value.notedBy);
+        formData.append('approvedByOne', frmItem.value.approvedByOne);
+        formData.append('approvedByTwo', frmItem.value.approvedByTwo);
+
 
         for (let index = 0; index < rowSaveItems.value.length; index++) {
             const elementRowSaveItems = rowSaveItems.value[index];
@@ -558,6 +565,9 @@
             const matRawType = elementRowSaveDescription.matRawType;
             const matRawThickness = elementRowSaveDescription.matRawThickness;
             const matRawWidth = elementRowSaveDescription.matRawWidth;
+
+
+
 
             [
                 ["itemNo[]", descItemNo],
