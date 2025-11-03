@@ -26,6 +26,7 @@ class DescriptionResource extends BaseResource
     public function toArray($request)
     {
         $data = parent::toArray($request);
+        $data['classifications'] = ClassificationResource::collection($this->whenLoaded('classifications'));
         return $data;
 
     }

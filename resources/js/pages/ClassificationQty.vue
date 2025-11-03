@@ -341,7 +341,6 @@
             }
         }
         axiosSaveData(formData,'api/save_classification_qty', (response) =>{
-            // tblProductMaterial.value.dt.draw();
             Router.push({ name: 'ProductMaterial'});
         });
     }

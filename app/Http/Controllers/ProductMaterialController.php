@@ -124,7 +124,7 @@ class ProductMaterialController extends Controller
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
-            $request->descriptionsId;
+            // return $request->classification;
             PmClassification::whereIn('pm_descriptions_id',$request->descriptionsId)->delete();
             $classificationData =collect($request->descriptionsId)->map(function($item, $key) use ($request){
                 $rowClassificationData = [
@@ -419,13 +419,16 @@ class ProductMaterialController extends Controller
                 [],
                 [
                     'descriptions',
-                    'rapidx_user_created_by'
+                    'rapidx_user_created_by',
+                    'descriptions.classifications',
                 ],
                 ['pm_items_id' => decrypt($request->itemsId)],
             );
             $pmItems =  $data->get();
             $itemCollection = ItemResource::collection($pmItems)->resolve();
             $description = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
+
+
             return response()->json([
                 'isSuccess' => 'true',
                 'itemCollection' => $itemCollection,

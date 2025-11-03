@@ -7,5 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PmClassification extends Model
 {
+    protected $primaryKey = 'pm_classifications_id';
+
     use HasFactory;
 }

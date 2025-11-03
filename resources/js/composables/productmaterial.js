@@ -41,7 +41,7 @@ export default function useProductMaterial()
         axiosFetchData(apiParams,'api/get_items_by_id',function(response){
             let data = response.data;
             if (data.descriptionCount > 0) {
-
+                //description
                 let itemCollection = data.itemCollection[0];
                 frmItem.value.controlNo = itemCollection.controlNo;
                 frmItem.value.category = itemCollection.category;
@@ -50,10 +50,11 @@ export default function useProductMaterial()
                 frmItem.value.createdBy = data.createdBy;
                 frmItem.value.remarks = itemCollection.remarks;
 
-
                 let arrFlatDescription = [];
                 for (let index = 1; index <= data.descriptionCount; index++) {
                     const elementDescription = data.description[index];
+
+
                     let rows = [];
                     // Populate rows for the current Item No
                     if (elementDescription) {
@@ -77,24 +78,76 @@ export default function useProductMaterial()
                             descriptionItemName: 'N/A',
                         }],
                     });
-                    console.log('rowSaveItems',elementDescription);
                     if (Array.isArray(elementDescription)) arrFlatDescription.push(...elementDescription);
                 }
 
-                cardSaveClassifications.value = arrFlatDescription.map((description) => ({
-                    descriptionPartName: description.descriptionPartName,
-                    descriptionPartCode: description.partCode,
-                    rows: [
-                        {
-                            descriptionsId: description.id,
-                            classification: 'N/A',
-                            qty: 0,
-                            uom: 'pcs',
-                            unitPrice: 0,
-                            remarks: '',
-                        },
-                    ],
-                }));
+                for (let indexRowDescriptions = 0; indexRowDescriptions < arrFlatDescription.length; indexRowDescriptions++) {
+                    const elementClassifications = arrFlatDescription[indexRowDescriptions].classifications;
+                    const elementDescription = arrFlatDescription[indexRowDescriptions];
+
+                    let rows = [];
+                    if (elementClassifications) {
+                        for (let indexRowClassifications = 0; indexRowClassifications < elementClassifications.length; indexRowClassifications++) {
+                            let arrClassifications = elementClassifications[indexRowClassifications]
+                            console.log('arrClassifications',arrClassifications);
+
+                            rows.push({
+                                descriptionsId: arrClassifications.descriptionsId,
+                                classification: arrClassifications.classification,
+                                qty: arrClassifications.qty,
+                                uom: arrClassifications.uom,
+                                unitPrice: arrClassifications.unitPrice,
+                                remarks: arrClassifications.remarks,
+                            });
+                        }
+                    }
+
+                    // Push the description and its classifications into cardSaveClassifications
+                    cardSaveClassifications.value.push({
+                        descriptionPartName: elementDescription.descriptionPartName,
+                        descriptionPartCode: elementDescription.partCode,
+                        rows: rows.length > 0 ? rows : [
+                            {
+                                descriptionsId: elementDescription.id,
+                                classification: 'N/A',
+                                qty: 0,
+                                uom: 'pcs',
+                                unitPrice: 0,
+                                remarks: '',
+                            },
+                        ],
+                    });
+                }
+
+                // cardSaveClassifications.value = arrFlatDescription.map((description) => ({
+                //     descriptionPartName: description.descriptionPartName,
+                //     descriptionPartCode: description.partCode,
+                //     rows: [
+                //         {
+                //             descriptionsId: description.id,
+                //             classification: 'N/A',
+                //             qty: 0,
+                //             uom: 'pcs',
+                //             unitPrice: 0,
+                //             remarks: '',
+                //         },
+                //     ],
+                // }));
+
+                // if (elementFlatDescription) {
+                //     for (let indexRow = 0; indexRow < elementDescription.length; indexRow++) {
+                //         const elementDescriptionRow = elementDescription[indexRow];
+                //         rows.push({
+                //             descriptionsId: elementDescriptionRow.pm_classifications_id
+                //             ,
+                //             classification: 'N/A',
+                //             qty: 0,
+                //             uom: 'pcs',
+                //             unitPrice: 0,
+                //             remarks: '',
+                //         });
+                //     }
+                // }
             }
             if(params.isClassificationQtyExist != true){
                 modalPm.Quotations.show();

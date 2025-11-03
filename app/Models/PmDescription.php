@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class PmDescription extends Model
 {
+    protected $primaryKey = 'pm_descriptions_id';
+
     public function classifications()
     {
-        return $this->hasMany(PmClassification::class, 'pm_classifications_id', 'pm_classifications_id');
+        return $this->hasMany(PmClassification::class, 'pm_descriptions_id', 'pm_descriptions_id');
     }
 }
