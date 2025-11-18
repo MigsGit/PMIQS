@@ -122,17 +122,70 @@ class ProductMaterialController extends Controller
     }
     public function saveForApproval(Request $request){
         try {
+            DB::beginTransaction();
             date_default_timezone_set('Asia/Manila');
-            $selectedItemsId = $request->selectedItemsId;
+            $selectedItemsId = decrypt($request->selectedItemsId);
+            $status = $request->approverDecision;
+
             //Get Current Ecr Approval is equal to Current Session
-            $ecrApprovalCurrent = PmApproval::where('pm_items_id',$selectedItemsId)
+            $pmApprovalCurrent = PmApproval::where('pm_items_id',$selectedItemsId)
             ->where('rapidx_user_id',session('rapidx_user_id'))
             ->where('status','PEN')
-            ->count();
-            if($ecrApprovalCurrent === 0){
+            ->first();
+            if(blank($pmApprovalCurrent)){
                 return response()->json(['isSuccess' => 'false','msg' => 'You are not the current approver !'],500);
             }
-            DB::beginTransaction();
+            //Get the ECR Approval Status & Id, Update the Approval Status as PENDING
+            $pmApprovalNext = PmApproval::where('pm_items_id',$selectedItemsId)
+            ->whereNotNull('rapidx_user_id')
+            ->where('status','-')
+            ->first(['pm_approvals_id','approval_status','rapidx_user_id']);
+
+            if ( $status === "DIS" ){  //DISAPPROVED
+                $pmApprovalCurrent->update([
+                    'status' => $status,
+                    'remarks' => $request->approverRemarks,
+                ]);
+                $this->resourceInterface->updateConditions(pmItem::class,[
+                    'pm_items_id' => $selectedItemsId
+                ],[
+                    'status' => 'DIS',
+                    'approval_status' => 'DIS',
+                ]);
+                DB::commit();
+                return response()->json(['isSuccess' => 'true']);
+            }
+
+            if(filled($pmApprovalNext)){ //Update APPROVED and Next PENDING Approval
+                $pmApprovalCurrent->update([
+                    'status' => $status,
+                    'remarks' => $request->approverRemarks,
+                ]);
+
+                $pmApprovalNext->update([
+                    'status' => 'PEN',
+                ]);
+
+                $this->resourceInterface->updateConditions(pmItem::class,[
+                    'pm_items_id' => $selectedItemsId
+                ],[
+                    'status' => 'FORAPP',
+                    'approval_status' => $pmApprovalNext->approval_status,
+                ]);
+            }
+
+            if(blank($pmApprovalNext)){  //Update APPROVED status of Item
+                $this->resourceInterface->updateConditions(pmItem::class,[
+                    'pm_items_id' => $selectedItemsId
+                ],[
+                    'status' => 'OK',
+                    'approval_status' => 'OK',
+                ]);
+                $pmApprovalCurrent->update([
+                    'status' => $status,
+                    'remarks' => $request->approverRemarks,
+                ]);
+            }
             DB::commit();
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
@@ -141,7 +194,6 @@ class ProductMaterialController extends Controller
         }
     }
     public function saveClassificationQty(Request $request){
-
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
@@ -209,7 +261,6 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-
     public function saveEcrApproval(Request $request){
         try {
             date_default_timezone_set('Asia/Manila');
@@ -395,7 +446,6 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-
     public function loadProductMaterial(Request $request){
         try {
             $data = $this->resourceInterface->readCustomEloquent(
@@ -435,6 +485,7 @@ class ProductMaterialController extends Controller
     }
     public function getItemsById(Request $request){
         try {
+            $itemsId = decrypt($request->itemsId);
             $data = $this->resourceInterface->readCustomEloquent(
                 PmItem::class,
                 [],
@@ -444,11 +495,27 @@ class ProductMaterialController extends Controller
                     'descriptions.classifications',
                     'pm_approvals.rapidx_user_rapidx_user_id',
                 ],
-                ['pm_items_id' => decrypt($request->itemsId)],
+                ['pm_items_id' => $itemsId],
             );
             $pmItems =  $data->get();
             $itemCollection = ItemResource::collection($pmItems)->resolve();
             $description = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
+
+            $ecrApprovalCurrentCount = $this->resourceInterface->readCustomEloquent(
+                PmApproval::class,
+                [],
+                [
+                    'descriptions',
+                    'rapidx_user_created_by',
+                    'descriptions.classifications',
+                    'pm_approvals.rapidx_user_rapidx_user_id',
+                ],
+                [
+                    'pm_items_id' =>$itemsId,
+                    'rapidx_user_id' => session('rapidx_user_id'),
+                    'status' => 'PEN',
+                ],
+            );
             // return  PmApprovalResource::collection($pmItems)->resolve();
             return response()->json([
                 'isSuccess' => 'true',
@@ -457,6 +524,7 @@ class ProductMaterialController extends Controller
                 'pmApprovals' => $itemCollection[0]['pm_approvals'],
                 'description' => $description,
                 'descriptionCount' => $description->count(),
+                'ecrApprovalCurrentCount' => $ecrApprovalCurrentCount->count(),
             ]);
         } catch (Exception $e) {
             throw $e;

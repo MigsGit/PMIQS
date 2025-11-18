@@ -10,6 +10,7 @@ export default function useProductMaterial()
     });
     const pmVar = ref({
         controlNo: '',
+        ecrApprovalCurrentCount: 0,
     });
     const rowSaveClassifications = ref();
     const tblProductMaterial = ref(null);
@@ -50,8 +51,9 @@ export default function useProductMaterial()
                 frmItem.value.category = itemCollection.category;
                 frmItem.value.division = itemCollection.division;
                 frmItem.value.status = itemCollection.status;
-                frmItem.value.createdBy = data.createdBy;
                 frmItem.value.remarks = itemCollection.remarks;
+                frmItem.value.createdBy = data.createdBy;
+                pmVar.value.ecrApprovalCurrentCount = data.ecrApprovalCurrentCount;
 
                 frmItem.value.preparedBy = pmApprovals[0].rapidx_user_rapidx_user_id.id ?? '0'
                 frmItem.value.checkedBy = pmApprovals[1].rapidx_user_rapidx_user_id.id ?? '0';
@@ -61,8 +63,6 @@ export default function useProductMaterial()
 
                 for (let index = 1; index <= data.descriptionCount; index++) {
                     const elementDescription = data.description[index];
-
-
                     let rows = [];
                     // Populate rows for the current Item No
                     if (elementDescription) {
