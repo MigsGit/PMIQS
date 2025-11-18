@@ -9,4 +9,7 @@ class RapidxUser extends Model
 {
     protected $connection = 'mysql_rapidx';
     protected $table = 'users';
+
+    protected $hidden_fields = ['created_at'];
+
 }

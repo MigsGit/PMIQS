@@ -134,6 +134,8 @@
                     </div>
                     <div class="col-6 mb-3">
                         <button @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save</button>
+                        <button @click="btnForApproval" type="submit" style="float: right !important;" class="btn btn-info"> <font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp; For Approval </button>
+
                     </div>
                 </div>
                  <!-- Classification Cards -->
@@ -222,6 +224,21 @@
             </div>
         </div>
     </div>
+    <!-- @add-event="formSaveApproval"  -->
+    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-md" title="For Your Approval" ref="modalSaveApproval">
+        <template #body>
+            <div class="row mt-3">
+                <div class="input-group flex-nowrap mb-2 input-group-sm">
+                    <span class="input-group-text" id="addon-wrapping">Remarks:</span>
+                   <textarea class="form-control" v-model="approverRemarks" id="" row="5"></textarea>
+                </div>
+            </div>
+        </template>
+        <template #footer>
+            <button @click="saveForApproval('DIS')" type="submit" class="btn btn-danger btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-thumbs-down" />&nbsp;     Disapproved</button>
+            <button @click="saveForApproval('APP')" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp;     Approved</button>
+        </template>
+    </ModalComponent>
 </template>
 <script setup>
     import {
@@ -266,6 +283,8 @@
     } = useProductMaterial();
     DataTable.use(DataTablesCore);
     const selectedItemsId = ref(null);
+    const approverRemarks = ref(null);
+    const modalSaveApproval = ref(null);
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -289,7 +308,7 @@
         { data : 'remarks' },
     ];
     onMounted ( async () =>{
-        console.log(rowSaveDescriptions);
+        modalPm.SaveApproval = new Modal(modalSaveApproval.value.modalRef,{ keyboard: false });
 
         frmItem.value.status = "FOR UPDATE";
         let itemParams = {
@@ -298,7 +317,36 @@
         }
         await getItemsById(itemParams);
         selectedItemsId.value = itemsIdFrom.value;
+
     })
+    const btnForApproval = () => {
+        modalPm.SaveApproval.show();
+    }
+    const saveForApproval = (approverDecision) => {
+        let formData =  new FormData();
+        formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
+        formData.append('approverRemarks', approverRemarks.value)
+        formData.append('approverDecision', approverDecision)
+        axiosSaveData(formData,'api/save_for_approval', (response) =>{
+            console.log(response);
+            // Router.push({ name: 'ProductMaterial'});
+        });
+
+        // Swal.fire({
+        //     title: 'Confirmation',
+        //     text: 'Please double check your details, the Approval will RESET !',
+        //     icon: 'warning',
+        //     allowOutsideClick: false,
+        //     showCancelButton: true,
+        //     confirmButtonColor: '#3085d6',
+        //     cancelButtonColor: '#d33',
+        //     confirmButtonText: 'Yes'
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //     }
+        // });
+
+    }
     // Add a new row to a specific card
     const addRowClassification = (cardIndex,card) => {
       cardSaveClassifications.value[cardIndex].rows.push({

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Carbon\Carbon;
 use App\Http\Resources\BaseResource;
-use App\Http\Resources\RapidxUserResource;
+use App\Http\Resources\PmApprovalResource;
 use App\Http\Resources\DescriptionResource;
 
 
@@ -33,6 +33,7 @@ class ItemResource extends BaseResource
         $data =  parent::toArray($request);
         $data['createdAt'] = Carbon::parse($this->createdAt)->format('m-d-Y'); //date format
         $data['descriptions'] = DescriptionResource::collection($this->whenLoaded('descriptions'));
+        $data['pm_approvals'] = PmApprovalResource::collection($this->whenLoaded('pm_approvals'));
         return $data;
     }
 }

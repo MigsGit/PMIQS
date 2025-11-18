@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PmApprovalResource;
 use DataTables;
 use App\Models\PmItem;
 
@@ -112,6 +113,26 @@ class ProductMaterialController extends Controller
             ->where('pm_items_id', $itemsId)
             ->first()
             ->update(['status'=>'PEN']);
+            DB::commit();
+            return response()->json(['isSuccess' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+    public function saveForApproval(Request $request){
+        try {
+            date_default_timezone_set('Asia/Manila');
+            $selectedItemsId = $request->selectedItemsId;
+            //Get Current Ecr Approval is equal to Current Session
+            $ecrApprovalCurrent = PmApproval::where('pm_items_id',$selectedItemsId)
+            ->where('rapidx_user_id',session('rapidx_user_id'))
+            ->where('status','PEN')
+            ->count();
+            if($ecrApprovalCurrent === 0){
+                return response()->json(['isSuccess' => 'false','msg' => 'You are not the current approver !'],500);
+            }
+            DB::beginTransaction();
             DB::commit();
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
@@ -421,18 +442,19 @@ class ProductMaterialController extends Controller
                     'descriptions',
                     'rapidx_user_created_by',
                     'descriptions.classifications',
+                    'pm_approvals.rapidx_user_rapidx_user_id',
                 ],
                 ['pm_items_id' => decrypt($request->itemsId)],
             );
             $pmItems =  $data->get();
             $itemCollection = ItemResource::collection($pmItems)->resolve();
             $description = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
-
-
+            // return  PmApprovalResource::collection($pmItems)->resolve();
             return response()->json([
                 'isSuccess' => 'true',
                 'itemCollection' => $itemCollection,
                 'createdBy' => $itemCollection[0]['rapidx_user_created_by']['name'],
+                'pmApprovals' => $itemCollection[0]['pm_approvals'],
                 'description' => $description,
                 'descriptionCount' => $description->count(),
             ]);

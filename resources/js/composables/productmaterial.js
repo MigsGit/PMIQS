@@ -42,7 +42,10 @@ export default function useProductMaterial()
             let data = response.data;
             if (data.descriptionCount > 0) {
                 //description
+            let arrFlatDescription = [];
+
                 let itemCollection = data.itemCollection[0];
+                let pmApprovals = data.pmApprovals;
                 frmItem.value.controlNo = itemCollection.controlNo;
                 frmItem.value.category = itemCollection.category;
                 frmItem.value.division = itemCollection.division;
@@ -50,7 +53,12 @@ export default function useProductMaterial()
                 frmItem.value.createdBy = data.createdBy;
                 frmItem.value.remarks = itemCollection.remarks;
 
-                let arrFlatDescription = [];
+                frmItem.value.preparedBy = pmApprovals[0].rapidx_user_rapidx_user_id.id ?? '0'
+                frmItem.value.checkedBy = pmApprovals[1].rapidx_user_rapidx_user_id.id ?? '0';
+                frmItem.value.notedBy =  pmApprovals[2].rapidx_user_rapidx_user_id.id ?? '0';
+                frmItem.value.approvedByOne =  pmApprovals[3].rapidx_user_rapidx_user_id.id ?? '0';
+                frmItem.value.approvedByTwo =  pmApprovals[4].rapidx_user_rapidx_user_id.id ?? '0';
+
                 for (let index = 1; index <= data.descriptionCount; index++) {
                     const elementDescription = data.description[index];
 
@@ -67,87 +75,64 @@ export default function useProductMaterial()
                             });
                         }
                     }
+                    if(elementDescription){
+                        // Add the card data to rowSaveItems
+                        rowSaveItems.value.push({
+                            itemNo: index,
+                            descriptionsId: elementDescription[0].id,
+                            rows: rows.length > 0 ? rows : [{
+                                descItemNo: index,
+                                partcodeType: 'N/A',
+                                descriptionItemName: 'N/A',
+                            }],
+                        });
 
-                    // Add the card data to rowSaveItems
-                    rowSaveItems.value.push({
-                        itemNo: index,
-                        descriptionsId: elementDescription[0].id,
-                        rows: rows.length > 0 ? rows : [{
-                            descItemNo: index,
-                            partcodeType: 'N/A',
-                            descriptionItemName: 'N/A',
-                        }],
-                    });
-                    if (Array.isArray(elementDescription)) arrFlatDescription.push(...elementDescription);
+
+                        if (Array.isArray(elementDescription)) arrFlatDescription.push(...elementDescription);
+                     }
+
                 }
+                if (arrFlatDescription) {
+                    for (let indexRowDescriptions = 0; indexRowDescriptions < arrFlatDescription.length; indexRowDescriptions++) {
 
-                for (let indexRowDescriptions = 0; indexRowDescriptions < arrFlatDescription.length; indexRowDescriptions++) {
-                    const elementClassifications = arrFlatDescription[indexRowDescriptions].classifications;
-                    const elementDescription = arrFlatDescription[indexRowDescriptions];
+                            const elementClassifications = arrFlatDescription[indexRowDescriptions].classifications ?? false;
+                            const elementDescription = arrFlatDescription[indexRowDescriptions];
 
-                    let rows = [];
-                    if (elementClassifications) {
-                        for (let indexRowClassifications = 0; indexRowClassifications < elementClassifications.length; indexRowClassifications++) {
-                            let arrClassifications = elementClassifications[indexRowClassifications]
-                            console.log('arrClassifications',arrClassifications);
+                            let rows = [];
+                            if (elementClassifications) {
+                                for (let indexRowClassifications = 0; indexRowClassifications < elementClassifications.length; indexRowClassifications++) {
+                                    let arrClassifications = elementClassifications[indexRowClassifications]
+                                    console.log('arrClassifications',arrClassifications);
 
-                            rows.push({
-                                descriptionsId: arrClassifications.descriptionsId,
-                                classification: arrClassifications.classification,
-                                qty: arrClassifications.qty,
-                                uom: arrClassifications.uom,
-                                unitPrice: arrClassifications.unitPrice,
-                                remarks: arrClassifications.remarks,
+                                    rows.push({
+                                        descriptionsId: arrClassifications.descriptionsId,
+                                        classification: arrClassifications.classification,
+                                        qty: arrClassifications.qty,
+                                        uom: arrClassifications.uom,
+                                        unitPrice: arrClassifications.unitPrice,
+                                        remarks: arrClassifications.remarks,
+                                    });
+                                }
+                            }
+
+                            // Push the description and its classifications into cardSaveClassifications
+                            cardSaveClassifications.value.push({
+                                descriptionPartName: elementDescription.descriptionPartName,
+                                descriptionPartCode: elementDescription.partCode,
+                                rows: rows.length > 0 ? rows : [
+                                    {
+                                        descriptionsId: elementDescription.id,
+                                        classification: 'N/A',
+                                        qty: 0,
+                                        uom: 'pcs',
+                                        unitPrice: 0,
+                                        remarks: '',
+                                    },
+                                ],
                             });
-                        }
                     }
-
-                    // Push the description and its classifications into cardSaveClassifications
-                    cardSaveClassifications.value.push({
-                        descriptionPartName: elementDescription.descriptionPartName,
-                        descriptionPartCode: elementDescription.partCode,
-                        rows: rows.length > 0 ? rows : [
-                            {
-                                descriptionsId: elementDescription.id,
-                                classification: 'N/A',
-                                qty: 0,
-                                uom: 'pcs',
-                                unitPrice: 0,
-                                remarks: '',
-                            },
-                        ],
-                    });
                 }
 
-                // cardSaveClassifications.value = arrFlatDescription.map((description) => ({
-                //     descriptionPartName: description.descriptionPartName,
-                //     descriptionPartCode: description.partCode,
-                //     rows: [
-                //         {
-                //             descriptionsId: description.id,
-                //             classification: 'N/A',
-                //             qty: 0,
-                //             uom: 'pcs',
-                //             unitPrice: 0,
-                //             remarks: '',
-                //         },
-                //     ],
-                // }));
-
-                // if (elementFlatDescription) {
-                //     for (let indexRow = 0; indexRow < elementDescription.length; indexRow++) {
-                //         const elementDescriptionRow = elementDescription[indexRow];
-                //         rows.push({
-                //             descriptionsId: elementDescriptionRow.pm_classifications_id
-                //             ,
-                //             classification: 'N/A',
-                //             qty: 0,
-                //             uom: 'pcs',
-                //             unitPrice: 0,
-                //             remarks: '',
-                //         });
-                //     }
-                // }
             }
             if(params.isClassificationQtyExist != true){
                 modalPm.Quotations.show();

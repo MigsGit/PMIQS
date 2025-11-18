@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\PmApproval;
 use App\Models\RapidxUser;
 use App\Models\PmDescription;
 use App\Models\PmClassification;
@@ -21,9 +22,14 @@ class PmItem extends Model
     {
         return $this->hasMany(PmDescription::class, 'pm_items_id', 'pm_items_id');
     }
-  
+
     public function rapidx_user_created_by()
     {
         return $this->hasOne(RapidxUser::class, 'id', 'created_by');
+    }
+
+    public function pm_approvals()
+    {
+        return $this->hasMany(PmApproval::class, 'pm_items_id', 'pm_items_id');
     }
 }

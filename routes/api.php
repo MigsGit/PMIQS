@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function(){
 
     Route::controller(ProductMaterialController::class)->group(function (): void{
         Route::post('save_item', 'saveItem')->name('pm.save_item');
+        Route::post('save_for_approval', 'saveForApproval')->name('pm.save_for_approval');
         Route::post('save_classification_qty', 'saveClassificationQty')->name('pm.save_classification_qty');
         Route::post('save_item_no', 'saveItemNo')->name('pm.save_item_no');
         Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');

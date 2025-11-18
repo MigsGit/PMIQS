@@ -354,9 +354,7 @@
     import useProductMaterial from '../composables/productmaterial';
     import ModalComponent from '../components/ModalComponent.vue';
     import Router from '../routes';
-
     // import Router from
-
     const {
         axiosFetchData,
     } = useFetch();
@@ -415,7 +413,6 @@
         formModel: toRef(frmItem.value,'approvedByTwo'),
         selectedVal: "0",
     };
-
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -504,7 +501,7 @@
         formData.append('division', frmItem.value.division);
         formData.append('category', frmItem.value.category);
         formData.append('remarks', frmItem.value.remarks);
-        
+
         formData.append('preparedBy', frmItem.value.preparedBy);
         formData.append('checkedBy', frmItem.value.checkedBy);
         formData.append('notedBy', frmItem.value.notedBy);
@@ -565,10 +562,6 @@
             const matRawType = elementRowSaveDescription.matRawType;
             const matRawThickness = elementRowSaveDescription.matRawThickness;
             const matRawWidth = elementRowSaveDescription.matRawWidth;
-
-
-
-
             [
                 ["itemNo[]", descItemNo],
                 ["partcodeType[]", partcodeType],
