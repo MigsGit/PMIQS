@@ -30,7 +30,7 @@
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
                             <span class="input-group-text" id="addon-wrapping">Category. :</span>
                             <Multiselect
-                                v-model="frmItem.category" 
+                                v-model="frmItem.category"
                                 :close-on-select="true"
                                 :searchable="true"
                                 :options="commonVar.category"
@@ -64,7 +64,7 @@
                         </div>
                     </div>
                 </div>
-                <!--  -->
+                <!-- Item Description -->
                 <div class="col-12">
                 </div>
                 <div class="col-12 mb-3">
@@ -129,6 +129,47 @@
                                                 </tbody>
                                             </table>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Approvers -->
+                <!-- v-show="isSelectReadonly === true" -->
+                <div class="row mt-3">
+                    <div class="card mb-2">
+                            <h5 class="mb-0">
+                                <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApprovalSummary" aria-expanded="true" aria-controls="collapseApprovalSummary">
+                                    ECR Approver Summary
+                                </button>
+                            </h5>
+                        <div id="collapseApprovalSummary" class="collapse show" data-bs-parent="#accordionMain">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <DataTable
+                                            width="100%" cellspacing="0"
+                                            class="table mt-2"
+                                            ref="tblPmApproverSummary"
+                                            :columns="tblPmApproverSummaryColumns"
+                                            ajax="api/load_pm_approval_summary?itemsId"
+                                            :options="{
+                                                paging:false,
+                                                serverSide: true, //Serverside true will load the network
+                                                ordering: false,
+                                            }"
+                                        >
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Approver Name</th>
+                                                    <th>Role</th>
+                                                    <th>Remarks</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                        </DataTable>
                                     </div>
                                 </div>
                             </div>
@@ -295,6 +336,8 @@
     const selectedItemsId = ref(null);
     const approverRemarks = ref(null);
     const modalSaveApproval = ref(null);
+    const tblPmApproverSummary = ref(null);
+
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -317,6 +360,13 @@
         { data : 'createdBy' },
         { data : 'remarks' },
     ];
+    const tblPmApproverSummaryColumns = [
+        {   data: 'get_count'} ,
+        {   data: 'get_approver_name'} ,
+        {   data: 'get_role'} ,
+        {   data: 'remarks'},
+        {   data: 'get_status'} ,
+    ];
     onMounted ( async () =>{
         modalPm.SaveApproval = new Modal(modalSaveApproval.value.modalRef,{ keyboard: false });
 
@@ -327,6 +377,7 @@
         }
         await getItemsById(itemParams);
         selectedItemsId.value = itemsIdFrom.value;
+        tblPmApproverSummary.value.dt.ajax.url("api/load_pm_approval_summary?itemsId="+selectedItemsId.value).draw();
 
     })
     const btnForApproval = () => {

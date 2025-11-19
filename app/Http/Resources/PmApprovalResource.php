@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Resources;
+use Carbon\Carbon;
 use App\Http\Resources\BaseResource;
 
 
@@ -12,11 +13,12 @@ class PmApprovalResource extends BaseResource
         'rapidx_user_id' => 'id',
         'status' => 'status',
         'approval_status' => 'approvalStatus',
-        'remarks' => 'controlNo',
+        'remarks' => 'remarks',
         'updated_by' => 'updatedBy',
         'created_at' => 'createdAt',
+        'updated_at' => 'updatedAt',
     ];
-    protected $hidden_fields = ['updated_at', 'deleted_at'];
+    protected $hidden_fields = ['deleted_at'];
 
      /**
      * Transform the resource into an array.
@@ -26,6 +28,7 @@ class PmApprovalResource extends BaseResource
     public function toArray($request):array
     {
         $data =  parent::toArray($request);
+        $data['updatedAt'] = Carbon::parse($this->updatedAt)->format('m-d-Y'); //date format
         return $data;
     }
 }

@@ -483,6 +483,110 @@ class ProductMaterialController extends Controller
             throw $th;
         }
     }
+    public function loadPmApprovalSummary(Request $request){
+        $itemsId = $request->itemsId;
+        try {
+            if(filled($itemsId)){
+                $itemsId = decrypt($request->itemsId);
+            }else{
+                $itemsId = 0;
+            }
+            $pmApproval = $this->resourceInterface->readCustomEloquent(
+                PmApproval::class,
+                [],
+                ['rapidx_user_rapidx_user_id'],
+                ['pm_items_id' => $itemsId ]
+            );
+            $pmApprovalData = $pmApproval->get();
+            $pmApprovalResource = pmApprovalResource::collection($pmApprovalData)->resolve();
+            $pmApprovalResourceCollection = json_decode(json_encode($pmApprovalResource), true); //updated_at  remarks
+            return DataTables($pmApprovalResourceCollection)
+            ->addColumn('get_count',function ($row) use(&$ctr){
+                $ctr++;
+                $result = '';
+                $result .= $ctr;
+                $result .= '</br>';
+                return $result;
+            })
+            ->addColumn('get_approver_name',function ($row){
+                $result = '';
+                $result .= $row['rapidx_user_rapidx_user_id']['name'];
+                $result .= '</br>';
+                return $result;
+            })
+            ->addColumn('get_role',function ($row){
+                $getApprovalStatus = $this->getPmApprovalStatus($row['approvalStatus']);
+                $result = '';
+                $result .= '<center>';
+                $result .= '<span class="badge rounded-pill bg-primary"> '.$getApprovalStatus['approvalStatus'].' </span>';
+                $result .= '<center>';
+                $result .= '</br>';
+                return $result;
+            })
+            ->addColumn('get_status',function ($row){
+                switch ($row['status']) {
+
+                    case 'PEN':
+                        $status = 'PENDING';
+                        $bgColor = 'badge rounded-pill bg-warning';
+                        break;
+                    case 'APP':
+                        $status = 'APPROVED - '.$row['updatedAt'];
+                        // $status = 'APPROVED";
+                        $bgColor = 'badge rounded-pill bg-success';
+                        break;
+                    case 'DIS':
+                        $status = 'DISAPPROVED';
+                        $bgColor = 'badge rounded-pill bg-danger';
+                        break;
+                    default:
+                        $status = '---';
+                        $bgColor = '';
+                        break;
+                }
+
+                $result = '';
+                $result .= '<center>';
+                $result .= '<span class="'.$bgColor.'"> '.$status.' </span>';
+                $result .= '<br>';
+                $result .= '</br>';
+                return $result;
+            })
+            ->rawColumns(['get_count','get_status','get_approver_name','get_role'])
+            ->make(true);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+    public function getPmApprovalStatus($approvalStatus){
+        try {
+             switch ($approvalStatus) {
+                 case 'PREPBY':
+                     $approvalStatus = 'Prepared by';
+                     break;
+                 case 'CHCKBY':
+                     $approvalStatus = 'Checked by';
+                     break;
+                 case 'NOTEDBY':
+                     $approvalStatus = 'Noted by';
+                     break;
+                 case 'APPBY1':
+                     $approvalStatus = 'Approved by';
+                     break;
+                 case 'APPBY2':
+                     $approvalStatus = 'Approved by';
+                     break;
+                 default:
+                     $approvalStatus = '';
+                     break;
+             }
+             return [
+                 'approvalStatus' => $approvalStatus,
+             ];
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
     public function getItemsById(Request $request){
         try {
             $itemsId = decrypt($request->itemsId);
