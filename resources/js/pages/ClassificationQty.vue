@@ -185,7 +185,7 @@
                     </div>
 
                     <div class="col-6 mb-3">
-                        <button @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save</button>
+                        <button v-show="pmItemStatusParam === 'RUP'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save</button>
 
                     </div>
                 </div>
@@ -309,7 +309,8 @@
     import Router from '../routes';
     import { useRoute } from 'vue-router';
     const route = useRoute();
-    const itemsIdFrom = ref(route.params.itemsId); // Retrieve itemsId from route params
+    const itemsIdParam = ref(route.params.itemsId); // Retrieve itemsId Route route params
+    const pmItemStatusParam = ref(route.params.pmItemStatus); // Retrieve paramsPmItemStatus from route params
     const {
         axiosFetchData,
     } = useFetch();
@@ -361,24 +362,22 @@
         { data : 'remarks' },
     ];
     const tblPmApproverSummaryColumns = [
-        {   data: 'get_count'} ,
-        {   data: 'get_approver_name'} ,
-        {   data: 'get_role'} ,
-        {   data: 'remarks'},
-        {   data: 'get_status'} ,
+        {   data: 'getCount'} ,
+        {   data: 'getApproverName'} ,
+        {   data: 'getRole'} ,
+        {   data: 'getRemarks'},
+        {   data: 'getStatus'} ,
     ];
     onMounted ( async () =>{
         modalPm.SaveApproval = new Modal(modalSaveApproval.value.modalRef,{ keyboard: false });
-
         frmItem.value.status = "FOR UPDATE";
         let itemParams = {
-            itemsId : itemsIdFrom.value,
+            itemsId : itemsIdParam.value,
             isClassificationQtyExist : true,
         }
         await getItemsById(itemParams);
-        selectedItemsId.value = itemsIdFrom.value;
+        selectedItemsId.value = itemsIdParam.value;
         tblPmApproverSummary.value.dt.ajax.url("api/load_pm_approval_summary?itemsId="+selectedItemsId.value).draw();
-
     })
     const btnForApproval = () => {
         modalPm.SaveApproval.show();

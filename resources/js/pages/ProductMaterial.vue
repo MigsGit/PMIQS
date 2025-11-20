@@ -423,6 +423,7 @@
                 if(btnGetMaterialById !=null){
                     btnGetMaterialById.addEventListener('click',function(){
                         let itemsId = this.getAttribute('items-id')
+                        let pmItemStatus = this.getAttribute('pm-item-status')
                         let itemParams = {
                             itemsId : itemsId
                         }
@@ -434,10 +435,16 @@
                 if(btnGetClassificationQtyByItemsId !=null){
                     btnGetClassificationQtyByItemsId.addEventListener('click',function(){
                         let itemsId = this.getAttribute('items-id')
+                        let pmItemStatus = this.getAttribute('pm-item-status')
                         let itemParams = {
-                            itemsId : itemsId
+                            itemsId : itemsId,
                         }
-                        Router.push({ name: 'ClassificationQty', params: { itemsId } });
+                        Router.push({ name: 'ClassificationQty',
+                            params: {
+                                itemsId,
+                                pmItemStatus,
+                            },
+                        });
                         // getItemsById(itemParams);
                         selectedItemsId.value = itemsId;
                     });

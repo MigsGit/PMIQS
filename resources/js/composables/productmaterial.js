@@ -102,8 +102,6 @@ export default function useProductMaterial()
                             if (elementClassifications) {
                                 for (let indexRowClassifications = 0; indexRowClassifications < elementClassifications.length; indexRowClassifications++) {
                                     let arrClassifications = elementClassifications[indexRowClassifications]
-                                    console.log('arrClassifications',arrClassifications);
-
                                     rows.push({
                                         descriptionsId: arrClassifications.descriptionsId,
                                         classification: arrClassifications.classification,

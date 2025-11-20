@@ -463,15 +463,16 @@ class ProductMaterialController extends Controller
                 $result .= '    Action';
                 $result .= '</button>';
                 $result .= '<ul class="dropdown-menu">';
-                $result .= "<li> <button items-id='".encrypt($row['id'])."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> Edit Items</button> </li>";
-                $result .= "<li> <button items-id='".encrypt($row['id'])."' item-status='".$row['status']."' class='dropdown-item' id='btnGetClassificationQtyByItemsId'> <i class='fa-solid fa-pen-to-square'></i> Edit Qty</button> </li>";
+                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> Edit Items</button> </li>";
+                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetClassificationQtyByItemsId'> <i class='fa-solid fa-pen-to-square'></i> Edit Qty</button> </li>";
                 $result .= '</ul>';
                 $result .= '</div>';
                 // $result .= '</center>';
                 return $result;
             })
             ->rawColumns([
-                'getActions'
+                'getActions',
+                'getRemarks',
             ])
             ->make(true);
         } catch (\Throwable $th) {
@@ -496,20 +497,20 @@ class ProductMaterialController extends Controller
             $pmApprovalResource = pmApprovalResource::collection($pmApprovalData)->resolve();
             $pmApprovalResourceCollection = json_decode(json_encode($pmApprovalResource), true); //updated_at  remarks
             return DataTables($pmApprovalResourceCollection)
-            ->addColumn('get_count',function ($row) use(&$ctr){
+            ->addColumn('getCount',function ($row) use(&$ctr){
                 $ctr++;
                 $result = '';
                 $result .= $ctr;
                 $result .= '</br>';
                 return $result;
             })
-            ->addColumn('get_approver_name',function ($row){
+            ->addColumn('getApproverName',function ($row){
                 $result = '';
                 $result .= $row['rapidx_user_rapidx_user_id']['name'];
                 $result .= '</br>';
                 return $result;
             })
-            ->addColumn('get_role',function ($row){
+            ->addColumn('getRole',function ($row){
                 $getApprovalStatus = $this->getPmApprovalStatus($row['approvalStatus']);
                 $result = '';
                 $result .= '<center>';
@@ -518,9 +519,13 @@ class ProductMaterialController extends Controller
                 $result .= '</br>';
                 return $result;
             })
-            ->addColumn('get_status',function ($row){
+            ->addColumn('getRemarks',function ($row){
+                $result = "";
+                $result .= $row->remarks ?? "N/A";
+                return $result;
+            })
+            ->addColumn('getStatus',function ($row){
                 switch ($row['status']) {
-
                     case 'PEN':
                         $status = 'PENDING';
                         $bgColor = 'badge rounded-pill bg-warning';
@@ -539,7 +544,6 @@ class ProductMaterialController extends Controller
                         $bgColor = '';
                         break;
                 }
-
                 $result = '';
                 $result .= '<center>';
                 $result .= '<span class="'.$bgColor.'"> '.$status.' </span>';
@@ -547,7 +551,7 @@ class ProductMaterialController extends Controller
                 $result .= '</br>';
                 return $result;
             })
-            ->rawColumns(['get_count','get_status','get_approver_name','get_role'])
+            ->rawColumns(['getCount','getStatus','getApproverName','getRemarks','getRole'])
             ->make(true);
         } catch (Exception $e) {
             throw $e;

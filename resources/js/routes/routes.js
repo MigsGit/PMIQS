@@ -58,12 +58,15 @@ export default [
                 component: DropdownMaster,
             },
             {
-                path: 'classification_qty/:itemsId',
-                // path: 'classification_qty',
+                path: 'classification_qty/:itemsId/:pmItemStatus',
                 name: 'ClassificationQty',
                 beforeEnter: checkIfSessionExist,
                 component: ClassificationQty,
                 props: true,
+                // props: (route) => ({
+                //     itemsId: route.params.itemsId || 'defaultId', // Get from query or provide a default
+                //     test: route.params.test || 'defaultName',
+                //   }),
             }
         ]
     }
