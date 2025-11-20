@@ -156,6 +156,12 @@ class ProductMaterialController extends Controller
                 return response()->json(['isSuccess' => 'true']);
             }
 
+            if(filled($pmApprovalNext)){ //<<<<<<< HEAD
+                DB::commit();
+                return response()->json(['isSuccess' => 'true']);
+
+            }
+
             if(filled($pmApprovalNext)){ //Update APPROVED and Next PENDING Approval
                 $pmApprovalCurrent->update([
                     'status' => $status,
@@ -186,18 +192,7 @@ class ProductMaterialController extends Controller
                     'remarks' => $request->approverRemarks,
                 ]);
             }
-            DB::commit();
-            return response()->json(['isSuccess' => 'true']);
-        } catch (Exception $e) {
-            DB::rollback();
-            throw $e;
-        }
-    }
-    public function saveClassificationQty(Request $request){
-        try {
-            date_default_timezone_set('Asia/Manila');
-            DB::beginTransaction();
-            // return $request->classification;
+ $request->classification;
             PmClassification::whereIn('pm_descriptions_id',$request->descriptionsId)->delete();
             $classificationData =collect($request->descriptionsId)->map(function($item, $key) use ($request){
                 $rowClassificationData = [
