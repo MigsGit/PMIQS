@@ -30,6 +30,7 @@
                                     <font-awesome-icon class="nav-icon" icon="fa-cogs" />
                                 </th>
                                 <th>Control Number</th>
+                                <th style="width: 10%;">Status</th>
                                 <th>Category</th>
                                 <th>Created By</th>
                                 <th>Remarks</th>
@@ -452,6 +453,7 @@
             }
         },
         { data : 'controlNo' },
+        { data : 'getStatus' },
         { data : 'category' },
         { data : 'createdBy' },
         { data : 'remarks' },

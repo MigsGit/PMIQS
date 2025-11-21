@@ -15,4 +15,7 @@ interface CommonInterface
     public function getEcrApprovalStatus($approvalStatus);
     public function getRapidxUserDeptByDeptId($departmentId);
     public function generateControlNumber(string $division);
+
+    public function getPmItemStatus($current_status);
+    public function getPmApprovalStatus($approvalStatus);
 }

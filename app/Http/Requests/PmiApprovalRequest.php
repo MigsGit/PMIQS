@@ -31,16 +31,4 @@ class PmiApprovalRequest extends FormRequest
             'approvedByTwo' => ['required'],
         ];
     }
-    public function messages()
-    {
-        return [
-            'preparedBy' => 'The Prepared By is required.',
-            'checkedBy' => 'The Checked By is required.',
-            'notedBy' => 'The Approved By is required.',
-            'approvedByOne' => 'The Prepared By is required.',
-            'approvedByTwo' => 'The Checked By is required.',
-
-        ];
-    }
-
 }

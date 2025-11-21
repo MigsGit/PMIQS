@@ -32,4 +32,8 @@ class PmItem extends Model
     {
         return $this->hasMany(PmApproval::class, 'pm_items_id', 'pm_items_id');
     }
+    public function pm_approval_pending()
+    {
+        return $this->hasOne(PmApproval::class, 'pm_items_id', 'pm_items_id')->where('status','PEN')->whereNull('deleted_at');
+    }
 }

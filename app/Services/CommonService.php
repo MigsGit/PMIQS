@@ -317,7 +317,6 @@ class CommonService implements CommonInterface
             throw $e;
         }
     }
-
     public function generateControlNumber($division){
         date_default_timezone_set('Asia/Manila');
         // Check if the Created At & App No / Division / Material Category is exisiting
@@ -345,5 +344,72 @@ class CommonService implements CommonInterface
             ];
         }
 
+    }
+    public function getPmItemStatus($current_status){
+
+        try {
+             switch ($current_status) {
+                case 'FORUP':
+                    $status = 'Internal Approval';
+                    $bgStatus = 'badge rounded-pill bg-primary';
+                    break;
+                case 'FORAPP':
+                    $status = 'QA Approval';
+                    $bgStatus = 'badge rounded-pill bg-warning';
+                    break;
+                case 'DIS':
+                    $status = 'DISAPPROVED';
+                    $bgStatus = 'badge rounded-pill bg-danger';
+                    break;
+                case 'CAN':
+                    $status = 'CANCELLED';
+                    $bgStatus = 'badge rounded-pill bg-danger';
+                    break;
+                case 'OK':
+                    $status = 'APPROVED';
+                    $bgStatus = 'badge rounded-pill bg-success';
+                    break;
+                 default:
+                     $status = '';
+                     $bgStatus = '';
+                     break;
+             }
+             return [
+                 'status' => $status,
+                 'bgStatus' => $bgStatus,
+                 'current_status' => $current_status,
+             ];
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+    public function getPmApprovalStatus($approvalStatus){
+        try {
+             switch ($approvalStatus) {
+                 case 'PREPBY':
+                     $approvalStatus = 'Prepared by';
+                     break;
+                 case 'CHCKBY':
+                     $approvalStatus = 'Checked by';
+                     break;
+                 case 'NOTEDBY':
+                     $approvalStatus = 'Noted by';
+                     break;
+                 case 'APPBY1':
+                     $approvalStatus = 'Approved by';
+                     break;
+                 case 'APPBY2':
+                     $approvalStatus = 'Approved by';
+                     break;
+                 default:
+                     $approvalStatus = '';
+                     break;
+             }
+             return [
+                 'approvalStatus' => $approvalStatus,
+             ];
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 }
