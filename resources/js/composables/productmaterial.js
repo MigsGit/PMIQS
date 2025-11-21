@@ -43,8 +43,7 @@ export default function useProductMaterial()
             let data = response.data;
             if (data.descriptionCount > 0) {
                 //description
-            let arrFlatDescription = [];
-
+                let arrFlatDescription = [];
                 let itemCollection = data.itemCollection[0];
                 let pmApprovals = data.pmApprovals;
                 frmItem.value.controlNo = itemCollection.controlNo;
@@ -54,26 +53,36 @@ export default function useProductMaterial()
                 frmItem.value.remarks = itemCollection.remarks;
                 frmItem.value.createdBy = data.createdBy;
                 pmVar.value.ecrApprovalCurrentCount = data.ecrApprovalCurrentCount;
-
-                frmItem.value.preparedBy = pmApprovals[0].rapidx_user_rapidx_user_id.id ?? '0'
-                frmItem.value.checkedBy = pmApprovals[1].rapidx_user_rapidx_user_id.id ?? '0';
-                frmItem.value.notedBy =  pmApprovals[2].rapidx_user_rapidx_user_id.id ?? '0';
-                frmItem.value.approvedByOne =  pmApprovals[3].rapidx_user_rapidx_user_id.id ?? '0';
-                frmItem.value.approvedByTwo =  pmApprovals[4].rapidx_user_rapidx_user_id.id ?? '0';
-
+                if(pmApprovals[0] != undefined){
+                    frmItem.value.preparedBy = pmApprovals[0].rapidx_user_rapidx_user_id.id ?? '0'
+                    frmItem.value.checkedBy = pmApprovals[1].rapidx_user_rapidx_user_id.id ?? '0';
+                    frmItem.value.notedBy =  pmApprovals[2].rapidx_user_rapidx_user_id.id ?? '0';
+                    frmItem.value.approvedByOne =  pmApprovals[3].rapidx_user_rapidx_user_id.id ?? '0';
+                    frmItem.value.approvedByTwo =  pmApprovals[4].rapidx_user_rapidx_user_id.id ?? '0';
+                }
                 for (let index = 1; index <= data.descriptionCount; index++) {
                     const elementDescription = data.description[index];
                     let rows = [];
                     // Populate rows for the current Item No
                     if (elementDescription) {
                         for (let indexRow = 0; indexRow < elementDescription.length; indexRow++) {
+                            // console.log(elementDescription.matSpecsLength);
+
                             const elementDescriptionRow = elementDescription[indexRow];
                             rows.push({
                                 descItemNo: elementDescriptionRow.itemNo,
                                 partcodeType: elementDescriptionRow.partCode || 'N/A',
                                 descriptionItemName: elementDescriptionRow.descriptionPartName || 'N/A',
+                                //Raw Mats
+                                matSpecsLength: elementDescriptionRow.matSpecsLength,
+                                matSpecsWidth: elementDescriptionRow.matSpecsWidth,
+                                matSpecsHeight: elementDescriptionRow.matSpecsHeight,
+                                matRawType: elementDescriptionRow.matRawType,
+                                matRawThickness: elementDescriptionRow.matRawThickness,
+                                matRawWidth: elementDescriptionRow.matRawWidth,
                             });
                         }
+
                     }
                     if(elementDescription){
                         // Add the card data to rowSaveItems
@@ -81,15 +90,21 @@ export default function useProductMaterial()
                             itemNo: index,
                             descriptionsId: elementDescription[0].id,
                             rows: rows.length > 0 ? rows : [{
-                                descItemNo: index,
-                                partcodeType: 'N/A',
-                                descriptionItemName: 'N/A',
+                                // descItemNo: index,
+                                // partcodeType: elementDescription.partcodeType,
+                                // descriptionItemName: elementDescription.descriptionItemName,
+                                // //Raw Mats
+                                // matSpecsLength: elementDescription.matSpecsLength,
+                                // matSpecsWidth: elementDescription.matSpecsWidth,
+                                // matSpecsHeight: elementDescription.matSpecsHeight,
+                                // matRawType: elementDescription.matRawType,
+                                // matRawThickness: elementDescription.matRawThickness,
+                                // matRawWidth: elementDescription.matRawWidth,
                             }],
                         });
 
-
                         if (Array.isArray(elementDescription)) arrFlatDescription.push(...elementDescription);
-                     }
+                    }
 
                 }
                 if (arrFlatDescription) {
@@ -105,6 +120,7 @@ export default function useProductMaterial()
                                     rows.push({
                                         descriptionsId: arrClassifications.descriptionsId,
                                         classification: arrClassifications.classification,
+                                        //Product
                                         qty: arrClassifications.qty,
                                         uom: arrClassifications.uom,
                                         unitPrice: arrClassifications.unitPrice,

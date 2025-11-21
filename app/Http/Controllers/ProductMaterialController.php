@@ -34,13 +34,11 @@ class ProductMaterialController extends Controller
     }
     public function saveItem(Request $request, PmItemRequest $pmItemRequest){
         try {
-
-
             $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
             $pmItemRequestValidated = [];
-            $pmItemRequestValidated['control_no'] = $pmItemRequest->controlNo;
+            $pmItemRequestValidated['control_no'] = $generateControlNumber;
             $pmItemRequestValidated['category'] = $pmItemRequest->category;
             $pmItemRequestValidated['division'] = $pmItemRequest->division;
             $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
@@ -603,7 +601,6 @@ class ProductMaterialController extends Controller
             $pmItems =  $data->get();
             $itemCollection = ItemResource::collection($pmItems)->resolve();
             $description = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
-
             $ecrApprovalCurrentCount = $this->resourceInterface->readCustomEloquent(
                 PmApproval::class,
                 [],

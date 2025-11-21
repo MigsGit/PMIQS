@@ -96,7 +96,6 @@ export default function useSettings(){
         });
     }
     const getNoModuleRapidxUserByIdOpt = async (params) => {
-        alert('getNoModuleRapidxUserByIdOpt')
         let apiParams = {
             rapidxUserDeptGroup : params.rapidxUserDeptGroup ?? '',
             isApprover : params.isApprover ?? '',
