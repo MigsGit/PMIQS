@@ -139,7 +139,7 @@
                                     </button>
                                 </h5>
                             <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
-                                <div class="card-body">
+                                <div class="card-body overflow-auto">
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="col-12">
@@ -219,7 +219,7 @@
                                 </button>
                             </h5>
                         <div id="collapseApprovalSummary" class="collapse show" data-bs-parent="#accordionMain">
-                            <div class="card-body">
+                            <div class="card-body overflow-auto">
                                 <div class="row">
                                     <div class="col-12 overflow-auto">
                                         <table class="table table-responsive">

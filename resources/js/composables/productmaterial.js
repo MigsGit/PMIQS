@@ -138,7 +138,7 @@ export default function useProductMaterial()
                                         descriptionsId: elementDescription.id,
                                         classification: 'N/A',
                                         qty: 0,
-                                        uom: 'pcs',
+                                        uom: '',
                                         unitPrice: 0,
                                         remarks: '',
                                     },

@@ -30,6 +30,11 @@ export default function useCommon(){
             {"value":"RM","label":"Raw Materials"},
             {"value":"PRO","label":"Product"},
         ],
+        uom : [
+            {"value":"","label":"-Select an Option-",selected:true,disabled:true},
+            {"value":1,"label":"pcs"},
+            {"value":2,"label":"roll"},
+        ],
     });
     //Ref State
     const tblSpecialInspection = ref(null);

@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 </div>
-                <div class="row">
+                <div class="row overflow-auto">
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
                             <span class="input-group-text" id="addon-wrapping">Category. :</span>
@@ -68,7 +68,7 @@
                 <div class="col-12">
                 </div>
                 <div class="col-12 mb-3">
-                    <div class="row itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
+                    <div class="row itemDesc " v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
                         <div class="card mb-2">
                                 <h5 class="mb-0">
                                     <button id="" class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
@@ -77,7 +77,7 @@
                                     </button>
                                 </h5>
                             <div id="collapseMan" class="collapse show" data-bs-parent="#accordionMain">
-                                <div class="card-body">
+                                <div class="card-body overflow-auto">
                                     <div class="row">
                                         <div class="col-12">
                                             <table class="table table-striped">
@@ -145,7 +145,7 @@
                                 </button>
                             </h5>
                         <div id="collapseApprovalSummary" class="collapse show" data-bs-parent="#accordionMain">
-                            <div class="card-body">
+                            <div class="card-body overflow-auto">
                                 <div class="row">
                                     <div class="col-12">
                                         <DataTable
@@ -194,16 +194,16 @@
                        <h5>Description / ItemName: {{ card.descriptionPartName }}</h5>
                        <h5>Part Code / Type: {{ card.descriptionPartCode}}</h5>
                     </div>
-                    <div class="card-body">
+                        <div class="card-body overflow-auto">
                         <table class="table table-bordered">
                         <thead>
                             <tr>
                             <th>#</th>
                             <th>Classification</th>
                             <th>Quantity</th>
-                            <th>UOM</th>
+                            <th style="width: 30%;">UOM</th>
                             <th>Unit Price</th>
-                            <th>Remarks</th>
+                            <th style="width: 20%;">Remarks</th>
                             <th>Actions</th>
                             </tr>
                         </thead>
@@ -229,16 +229,25 @@
                                 type="number"
                                 class="form-control"
                                 v-model="rowSaveClassifications.qty"
-                                placeholder="Enter quantity"
+                                placeholder="-Select an Option-"
+                                selected=""
                                 />
                             </td>
                             <td>
-                                <input
+                                <Multiselect
+                                v-model="rowSaveClassifications.uom"
+                                :close-on-select="true"
+                                :searchable="true"
+                                :options="commonVar.uom"
+                                placeholder="-Select an Option-"
+                            />
+                                <!-- nmodify -->
+                                <!-- <input
                                 type="number"
                                 class="form-control"
                                 v-model="rowSaveClassifications.uom"
                                 placeholder="Enter quantity"
-                                />
+                                /> -->
                             </td>
                             <td>
                                 <input

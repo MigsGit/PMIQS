@@ -24,7 +24,21 @@ class PmClassificationRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'descriptionsId.0' => ['required', 'integer', 'min:1'],
+            'classification.0' => ['required'],
+            'qty.0' => ['required', 'integer', 'min:0'],
+            'uom.0' => ['required'],
+            'unitPrice.0' => ['required', 'integer', 'min:0'],
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'descriptionsId.0' => 'The Descriptions Id is required.',
+            'classification.0' => 'The Classification By is required.',
+            'qty.0' => 'The Qty By is required.',
+            'uom.0' => 'The Uom By is required.',
+            'unitPrice.0' => 'The UnitPrice By is required.',
         ];
     }
 }

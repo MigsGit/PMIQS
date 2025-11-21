@@ -24,17 +24,22 @@ class PmiApprovalRequest extends FormRequest
     public function rules()
     {
         return [
-            'prepared_by.0' => ['required', 'integer', 'min:1'], // index 0 must be = 1
-            'checked_by.0' => ['required', 'integer', 'min:1'],
-            'approved_by.0' => ['required', 'integer', 'min:1'],
+            'preparedBy' => ['required'],
+            'checkedBy' => ['required'],
+            'notedBy' => ['required'],
+            'approvedByOne' => ['required'],
+            'approvedByTwo' => ['required'],
         ];
     }
     public function messages()
     {
         return [
-            'prepared_by.0.min' => 'The Prepared By is required.',
-            'checked_by.0.min' => 'The Checked By is required.',
-            'approved_by.0.min' => 'The Approved By is required.',
+            'preparedBy' => 'The Prepared By is required.',
+            'checkedBy' => 'The Checked By is required.',
+            'notedBy' => 'The Approved By is required.',
+            'approvedByOne' => 'The Prepared By is required.',
+            'approvedByTwo' => 'The Checked By is required.',
+
         ];
     }
 
