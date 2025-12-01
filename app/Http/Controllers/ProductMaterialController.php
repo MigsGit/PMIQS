@@ -15,6 +15,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PmItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Interfaces\ResourceInterface;
+use Illuminate\Support\Facades\Cache;
+use App\Interfaces\PdfCustomInterface;
 use App\Http\Resources\PmApprovalResource;
 use App\Http\Requests\PmDescriptionRequest;
 use App\Http\Requests\PmClassificationRequest;
@@ -22,9 +24,11 @@ use App\Http\Requests\PmClassificationRequest;
 class ProductMaterialController extends Controller
 {
     protected $resourceInterface;
-    public function __construct(ResourceInterface $resourceInterface, CommonInterface $commonInterface){
+    protected $pdfCustomInterface;
+    public function __construct(ResourceInterface $resourceInterface, CommonInterface $commonInterface,PdfCustomInterface $pdfCustomInterface){
         $this->resourceInterface = $resourceInterface;
         $this->commonInterface = $commonInterface;
+        $this->pdfCustomInterface = $pdfCustomInterface;
     }
     public function generateControlNumber(Request $request){
         try {
@@ -33,21 +37,23 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-    public function saveItem(Request $request, PmItemRequest $pmItemRequest,PmClassificationRequest $pmClassificationRequest){
+    public function saveItem(Request $request, PmItemRequest $pmItemRequest,PmDescriptionRequest $pmDescriptionRequest){
         try {
             $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
             $pmItemRequestValidated = [];
-            $pmItemRequestValidated['control_no'] = $generateControlNumber;
             $pmItemRequestValidated['category'] = $pmItemRequest->category;
             $pmItemRequestValidated['division'] = $pmItemRequest->division;
             $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
-            if( $request->itemsId === "null" ){ //Add
+            if( blank($request->itemsId) ){ //Add
+                // return 'add';
                 $pmItemRequestValidated['created_by'] = session('rapidx_user_id');
+                $pmItemRequestValidated['control_no'] = $generateControlNumber['currentCtrlNo'];
                 $pmItemsId = $this->resourceInterface->create(PmItem::class,$pmItemRequestValidated);
-                $itemsId = $pmItemsId['dataId'];
+               $itemsId = $pmItemsId['dataId'];
             }else{ //Edit
+                // return 'Edit';
                 $itemsId = decrypt($request->itemsId);
                 $pmItemRequestValidated;
                 $pmItemRequestValidated['updated_by'] = session('rapidx_user_id');
@@ -112,6 +118,8 @@ class ProductMaterialController extends Controller
             ->where('pm_items_id', $itemsId)
             ->first()
             ->update(['status'=>'PEN']);
+
+            Cache::forget('pmItemCache');
             DB::commit();
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
@@ -191,7 +199,18 @@ class ProductMaterialController extends Controller
                     'remarks' => $request->approverRemarks,
                 ]);
             }
- $request->classification;
+            DB::commit();
+            return response()->json(['isSuccess' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+    public function saveClassificationQty(Request $request,PmClassificationRequest $pmClassificationRequest){
+        try {
+            return 'true';
+            date_default_timezone_set('Asia/Manila');
+            DB::beginTransaction();
             PmClassification::whereIn('pm_descriptions_id',$request->descriptionsId)->delete();
             $classificationData =collect($request->descriptionsId)->map(function($item, $key) use ($request){
                 $rowClassificationData = [
@@ -199,7 +218,7 @@ class ProductMaterialController extends Controller
                     'classification' => $request->classification[$key],
                     // 'qty' => $request->qty[$key],
                     'qty' => $request->qty[$key],
-                    'uom' => 1,
+                    'uom' => $request->uom[$key],
                     'unit_price' => $request->unitPrice[$key],
                     'remarks' => $request->remarks[$key],
                 ];
@@ -223,7 +242,9 @@ class ProductMaterialController extends Controller
             $request->selectedItemNo;
             $itemsId = decrypt($request->itemsId);
             // Delete the Description by Item No & ave the Descriptions
-            PmDescription::where('item_no',$request->selectedItemNo)->delete();
+            PmDescription::where('item_no',$request->selectedItemNo)->update([
+                'deleted_at' => now()
+            ]);
             $productData =collect($request->itemNo)->map(function($item, $key) use ($pmDescriptionRequest, $itemsId){
                $productData = [
                     'pm_items_id' => $itemsId,
@@ -271,7 +292,11 @@ class ProductMaterialController extends Controller
             $itemResource = ItemResource::collection($pmItems)->resolve();
             $itemResourceCollection = json_decode(json_encode($itemResource), true);
 
-            return DataTables::of($itemResourceCollection)
+           $itemResourceCollectionCache = Cache::remember('pmItemCache', now()->addMinutes(10), function () use ($itemResourceCollection) {
+                return collect($itemResourceCollection);
+            });
+
+            return DataTables::of($itemResourceCollectionCache)
             ->addColumn('getActions',function ($row){
                 $result = "";
                 // $result .= '<center>';
@@ -286,8 +311,7 @@ class ProductMaterialController extends Controller
                 $result .= '</div>';
                 // $result .= '</center>';
                 return $result;
-            })
-            ->addColumn('getStatus',function ($row){
+            })->addColumn('getStatus',function ($row): string{
                 $currentApprover = $row['pm_approval_pending']['rapidx_user_rapidx_user_id']['name'] ?? '';
                 $status = $row['status'];
                 $getStatus = $this->commonInterface->getPmItemStatus($status);
@@ -306,12 +330,17 @@ class ProductMaterialController extends Controller
                 $result .= '</center>';
                 $result .= '</br>';
                 return $result;
-            })
-            ->rawColumns([
+            })->addColumn('getAttachment',function ($row){
+                $result = '';
+                $result .= '<center>';
+                $result .= "<a class='btn btn-outline-danger btn-sm mr-1 mt-3 btn-get-ecr-id' items-id='".encrypt($row['id'])."' id='btnViewPmItemRef'> <i class='fa-solid fa-file-pdf'></i> Download</a>";
+                $result .= '</center>';
+                return $result;
+            })->rawColumns([
                 'getActions',
                 'getStatus',
-            ])
-            ->make(true);
+                'getAttachment',
+            ])->make(true);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -427,9 +456,18 @@ class ProductMaterialController extends Controller
                     'status' => 'PEN',
                 ],
             );
+
+            $status = $itemCollection[0]['status'];
+            $getStatus = $this->commonInterface->getPmItemStatus($status);
+            $status = '';
+            $status .= '<center>';
+            $status .= '<span class="'.$getStatus['bgStatus'].'"> '.$getStatus['status'].' </span>';
+            $status .= '</center>';
+            $status .= '</br>';
             // return  PmApprovalResource::collection($pmItems)->resolve();
             return response()->json([
                 'isSuccess' => 'true',
+                'status' => $status,
                 'itemCollection' => $itemCollection,
                 'createdBy' => $itemCollection[0]['rapidx_user_created_by']['name'],
                 'pmApprovals' => $itemCollection[0]['pm_approvals'],
@@ -445,6 +483,55 @@ class ProductMaterialController extends Controller
         return 'true' ;
         try {
             return response()->json(['isSuccess' => 'true']);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function viewPmItemRef(Request $request){
+        // return 'true' ; //PdfCustomInterface
+
+        $data = [
+            'to' => "Yamaichi Electronics Co.",
+            'attn' => "Mr. Nishi / Ms. Chiba",
+            'cc' => "Ms. Ogawa / Mr. Uchida / Mr. Watanabe",
+            'subject' => "Quotation for TR405-1040 & TR407-1040",
+            'date' => "April 29, 2025",
+
+            'item1' => [
+                [
+                    'description' => "TR405-1040 Base & Cover Tray",
+                    'specs' => "360 x 175 x 40.9",
+                    'material' => "APET 1.0mm",
+                    'price' => "$1.2669",
+                ],
+            ],
+            'item2' => [
+                [
+                    'description' => "TR407-1040 Base & Cover Tray",
+                    'specs' => "360 x 175 x 40.9",
+                    'material' => "APET 1.0mm",
+                    'price' => "$1.2669",
+                ],
+            ],
+
+            'terms' => [
+                "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
+                "Terms of Payment: 30 days after end of month.",
+                "Quotation valid until new quotation is issued.",
+                "Other conditions subject to supplier regulation."
+            ],
+
+            'prepared_by' => "Loida Canponpon, PPC-CN Sr. Supervisor",
+            'checked_by' => "Michelle De Olino, PPC Asst. Manager",
+            'noted_by' => "Ms. Lyn S., PPC Asst. VP",
+        ];
+     $pdf= $this->pdfCustomInterface->generatePdfProductMaterial($data);
+      return response($pdf)
+      ->header('Content-Type', 'application/pdf')
+      ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
+        try {
+            return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
             throw $e;
         }

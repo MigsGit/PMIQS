@@ -41,18 +41,21 @@ export default function useProductMaterial()
         }
         axiosFetchData(apiParams,'api/get_items_by_id',function(response){
             let data = response.data;
+            let arrFlatDescription = [];
+            let itemCollection = data.itemCollection[0];
+            let pmApprovals = data.pmApprovals;
+            frmItem.value.controlNo = itemCollection.controlNo;
+            frmItem.value.category = itemCollection.category;
+            frmItem.value.division = itemCollection.division;
+            frmItem.value.status = itemCollection.status;
+            frmItem.value.remarks = itemCollection.remarks;
+            frmItem.value.createdBy = data.createdBy;
+            pmVar.value.ecrApprovalCurrentCount = data.ecrApprovalCurrentCount;
+            pmVar.value.status = data.status;
+
+            //description
             if (data.descriptionCount > 0) {
-                //description
-                let arrFlatDescription = [];
-                let itemCollection = data.itemCollection[0];
-                let pmApprovals = data.pmApprovals;
-                frmItem.value.controlNo = itemCollection.controlNo;
-                frmItem.value.category = itemCollection.category;
-                frmItem.value.division = itemCollection.division;
-                frmItem.value.status = itemCollection.status;
-                frmItem.value.remarks = itemCollection.remarks;
-                frmItem.value.createdBy = data.createdBy;
-                pmVar.value.ecrApprovalCurrentCount = data.ecrApprovalCurrentCount;
+
                 if(pmApprovals[0] != undefined){
                     frmItem.value.preparedBy = pmApprovals[0].rapidx_user_rapidx_user_id.id ?? '0'
                     frmItem.value.checkedBy = pmApprovals[1].rapidx_user_rapidx_user_id.id ?? '0';

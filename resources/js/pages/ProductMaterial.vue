@@ -31,6 +31,7 @@
                                 </th>
                                 <th>Control Number</th>
                                 <th style="width: 10%;">Status</th>
+                                <th>Attachment</th>
                                 <th>Category</th>
                                 <th>Created By</th>
                                 <th>Remarks</th>
@@ -72,8 +73,7 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span ref="status" class="badge badge-sm rounded-pill bg-primary" id="addon-wrapping">FOR UPDATE</span>
+                        <div class="input-group flex-nowrap mb-2 input-group-sm" v-html="pmVar.status">
                         </div>
                     </div>
                 </div>
@@ -337,6 +337,43 @@
             <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
         </template>
     </ModalComponent>
+    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
+        <template #body>
+            <div class="row mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">
+                                PDF Attachment
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- v-for -->
+                        <!-- <tr v-for="(arrOriginalFilename, index) in arrOriginalFilenames" :key="arrOriginalFilename.index">
+                            <th scope="row">{{ index+1 }}</th>
+                            <td>
+                                <a href="#" class="link-primary" ref="aViewEnvironmentRef" @click="btnLinkViewEnvironmentRef(selectedEcrsIdEncrypted,index)">
+                                    {{ arrOriginalFilename }}
+                                </a>
+                            </td>
+                        </tr> -->
+                        <tr>
+                            <th scope="row"></th>
+                            <td>
+                                <a href="#" class="link-primary" ref="aViewEnvironmentRef" @click="btnLinkViewPmItemRef(selectedItemsId)">
+                                    View Attachment
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+        <template #footer>
+        </template>
+    </ModalComponent>
 </template>
 
 <script setup>
@@ -385,8 +422,10 @@
     } = useSettings();
 
     DataTable.use(DataTablesCore);
+    const tblProductMaterial = ref(null);
     const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
+    const modalViewPmRef = ref(null);
     const isModalView = ref(false);
 
     const preparedByParams = {
@@ -416,7 +455,7 @@
     };
     const productMaterialColumns = [
         {   data : 'getActions',
-             orderable: false,
+            orderable: false,
             searchable: false,
             createdCell(cell){
                 let btnGetMaterialById = cell.querySelector('#btnGetMaterialById');
@@ -454,12 +493,31 @@
         },
         { data : 'controlNo' },
         { data : 'getStatus' },
+        { data : 'getAttachment' ,
+        orderable: false,
+            searchable: false,
+            createdCell(cell){
+                let btnViewPmItemRef = cell.querySelector('#btnViewPmItemRef');
+                if(btnViewPmItemRef !=null){
+                    btnViewPmItemRef.addEventListener('click',function(){
+                        let itemsId = this.getAttribute('items-id')
+                        let itemParams = {
+                            itemsId : itemsId,
+                        }
+                        selectedItemsId.value = itemsId;
+                        modalPm.ViewPmRef.show();
+                        // getViewPmItemRef(itemParams);
+                    });
+                }
+            }
+        },
         { data : 'category' },
         { data : 'createdBy' },
         { data : 'remarks' },
     ];
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
+        modalPm.ViewPmRef = new Modal(modalViewPmRef.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
         getRapidxUserByIdOpt(preparedByParams);
@@ -551,6 +609,7 @@
         }
         axiosSaveData(formData,'api/save_item', (response) =>{
             console.log(response);
+            tblProductMaterial.value.dt.draw();
         });
     }
     const saveDescItemNo = async (selectedItemNo) => {
@@ -588,5 +647,9 @@
         axiosSaveData(formData,'api/save_item_no', (response) =>{
             console.log(response);
         });
+    }
+
+    const btnLinkViewPmItemRef = async (selectedItemsId) =>{
+        window.open(`api/view_pm_item_ref?itemsId=${selectedItemsId}`, '_blank');
     }
 </script>

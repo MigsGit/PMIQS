@@ -232,4 +232,93 @@ class PdfCustomService implements PdfCustomInterface
         ];
         return $ApproverOrdinates = $this->resource_interface->readOnlyRelationsAndConditions(Document::class,[],$relations,$conditions);
     }
+
+    public function generatePdfProductMaterial($data)
+    {
+        // return 'true';
+        $newFpdi = new Fpdi();
+        $this->fpdi->AddPage();
+
+        // === FONT SETTINGS ===
+        $this->fpdi->SetFont('Arial', '', 10);
+
+        // === HEADER DETAILS ===
+        $this->fpdi->SetXY(10, 10);
+        $this->fpdi->SetFont('Arial', 'B', 12);
+        $this->fpdi->Cell(190, 6, "PMI-CN-2504-022", 0, 1, "L");
+
+        $this->fpdi->SetFont('Arial', '', 10);
+        $this->fpdi->Ln(2);
+
+        $this->fpdi->Cell(100, 5, "To: " . $data['to'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Attn.: " . $data['attn'], 0, 1);
+        $this->fpdi->Cell(100, 5, "CC: " . $data['cc'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Subject: " . $data['subject'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Date: " . $data['date'], 0, 1);
+
+        $this->fpdi->Ln(5);
+        $this->fpdi->MultiCell(190, 5, "We are pleased to submit quotation for TR405-1040 and TR407-1040 tray:");
+
+        // ===== TABLE FOR ITEM 1 =====
+        $this->fpdi->Ln(3);
+        $this->fpdi->SetFont('Arial', 'B', 11);
+        $this->fpdi->Cell(190, 6, "1. TR405-1040", 0, 1);
+
+        $this->buildSpecsTable($newFpdi, $data['item1']);
+
+        // ===== TABLE FOR ITEM 2 =====
+        $this->fpdi->Ln(5);
+        $this->fpdi->SetFont('Arial', 'B', 11);
+        $this->fpdi->Cell(190, 6, "2. TR407-1040", 0, 1);
+
+        $this->buildSpecsTable($newFpdi, $data['item2']);
+
+        // ===== TERMS AND CONDITIONS =====
+        $this->fpdi->Ln(6);
+        $this->fpdi->SetFont('Arial', 'B', 10);
+        $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);
+        $this->fpdi->SetFont('Arial', '', 10);
+        foreach ($data['terms'] as $i => $term) {
+            $this->fpdi->Cell(190, 5, ($i + 1) . ". " . $term, 0, 1);
+        }
+        // ===== SIGNATORY SECTION =====
+        $this->fpdi->Ln(10);
+        $this->fpdi->SetFont('Arial', '', 10);
+        $this->fpdi->Cell(190, 5, "For your information and acceptance.", 0, 1);
+
+        $this->fpdi->Ln(10);
+        $this->fpdi->Cell(90, 5, "Prepared by:", 0, 0);
+        $this->fpdi->Cell(90, 5, "Checked by:", 0, 1);
+        $this->fpdi->Ln(15);
+        $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
+        $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
+
+        $this->fpdi->Ln(10);
+        $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
+        $this->fpdi->Ln(15);
+        $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
+
+        return $this->fpdi->Output("S"); // return as string
+    }
+
+    private function buildSpecsTable($newFpdi, $item)
+    {
+        $this->fpdi->SetFont('Arial', 'B', 9);
+        $this->fpdi->SetFillColor(230, 230, 230);
+
+        // TABLE HEADER
+        $this->fpdi->Cell(60, 6, "Description", 1, 0, "C", true);
+        $this->fpdi->Cell(50, 6, "Specs", 1, 0, "C", true);
+        $this->fpdi->Cell(40, 6, "Raw Material", 1, 0, "C", true);
+        $this->fpdi->Cell(40, 6, "Price", 1, 1, "C", true);
+
+        $this->fpdi->SetFont('Arial', '', 9);
+
+        foreach ($item as $row) {
+            $this->fpdi->Cell(60, 6, $row['description'], 1);
+            $this->fpdi->Cell(50, 6, $row['specs'], 1);
+            $this->fpdi->Cell(40, 6, $row['material'], 1);
+            $this->fpdi->Cell(40, 6, $row['price'], 1, 1);
+        }
+    }
 }

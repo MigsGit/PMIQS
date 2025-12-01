@@ -199,7 +199,4 @@ class PdfService
         }
         $this->fpdi->Output();
     }
-    private function getApproverOrdinates(){
-
-    }
 }

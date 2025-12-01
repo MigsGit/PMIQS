@@ -13,6 +13,7 @@ interface PdfCustomInterface
     public function convertPdfPageToImage(string $filePath, int $pageNumber, string $outputDir);
     public function insertImageAtCoordinates($pdfPath, $imagePath, $x, $y, $page); //one image only
     public function insertMultipleImageAtCoordinates($data);
+    public function generatePdfProductMaterial($data);
 
 
 }

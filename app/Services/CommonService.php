@@ -350,11 +350,11 @@ class CommonService implements CommonInterface
         try {
              switch ($current_status) {
                 case 'FORUP':
-                    $status = 'Internal Approval';
+                    $status = 'For Update';
                     $bgStatus = 'badge rounded-pill bg-primary';
                     break;
                 case 'FORAPP':
-                    $status = 'QA Approval';
+                    $status = 'For Approval';
                     $bgStatus = 'badge rounded-pill bg-warning';
                     break;
                 case 'DIS':
