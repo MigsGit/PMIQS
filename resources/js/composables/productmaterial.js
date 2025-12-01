@@ -8,9 +8,20 @@ export default function useProductMaterial()
         category: '',
         remarks: '',
     });
+    const frmPdfEmailFormat = ref({
+        pdfToGroup: '',
+        pdfAttn: '',
+        pdfCc: '',
+        pdfSubject: '',
+        pdfAdditionalMsg: '',
+        pdfTermsCondition: '',
+    });
     const pmVar = ref({
         controlNo: '',
         ecrApprovalCurrentCount: 0,
+        pdfToGroup: [],
+        pdfAttn: [],
+        pdfCc: [],
     });
     const rowSaveClassifications = ref();
     const tblProductMaterial = ref(null);
@@ -167,12 +178,12 @@ export default function useProductMaterial()
             });
         }
     }
-
     return {
         modalPm,
         pmVar,
         tblProductMaterial,
         frmItem,
+        frmPdfEmailFormat,
         rowSaveDescriptions,
         rowSaveItems,
         rowSaveClassifications,

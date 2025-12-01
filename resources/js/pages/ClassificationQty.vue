@@ -1,15 +1,18 @@
 <template>
     <div class="container-fluid px-4">
-
-
         <div class="row mt-3">
             <div class="col-6 shadow">
                 <div class="row">
+                    <div class="col-sm-2">
+                        <button @click="btnSavePdfEmailFormat" type="submit" style="float: right !important;" class="btn btn-primary"> <font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp; Update Recipients </button>
+                    </div>
+                    <div class="col-sm-10">
+                        <button @click="btnForApproval" type="submit" style="float: right !important;" class="btn btn-info"> <font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp; For Approval </button>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-6">
                         <h4>Items & Description Details</h4>
-                    </div>
-                    <div class="col-6">
-                        <button v-show="pmVar.ecrApprovalCurrentCount === 1" @click="btnForApproval" type="submit" style="float: right !important;" class="btn btn-info"> <font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp; For Approval </button>
                     </div>
                 </div>
                 <div class="row mt-3">
@@ -298,6 +301,73 @@
             <button @click="saveForApproval('APP')" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp;     Approved</button>
         </template>
     </ModalComponent>
+    <ModalComponent icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Recipients & Email Details" ref="modalSavePdfEmailFormat">
+        <template #body>
+            <div class="row mt-3">
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">To:</span>
+                        <Multiselect
+                            v-model="frmPdfEmailFormat.pdfToGroup"
+                            :close-on-select="true"
+                            :searchable="true"
+                            :options="commonVar.pdfToGroup"
+                            placeholder="-Select an Option-">
+                        </Multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Attention:</span>
+                        <Multiselect
+                            v-model="frmPdfEmailFormat.pdfAttn"
+                            :close-on-select="true"
+                            :searchable="true"
+                            :options="commonVar.pdfAttn"
+                            placeholder="-Select an Option-">
+                        </Multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">CC:</span>
+                        <Multiselect
+                            v-model="frmPdfEmailFormat.pdfCc"
+                            :close-on-select="true"
+                            :searchable="true"
+                            :options="commonVar.pdfCc"
+                            placeholder="-Select an Option-">
+                        </Multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Subject:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfSubject" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Additional Message:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfAdditionalMsg" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Terms and Condition:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfTermsCondition" row="5">
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template #footer>
+            <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Saved</button>
+        </template>
+    </ModalComponent>
 </template>
 <script setup>
     import {
@@ -334,6 +404,7 @@
         pmVar,
         tblProductMaterial,
         frmItem,
+        frmPdfEmailFormat,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
@@ -345,6 +416,7 @@
     const selectedItemsId = ref(null);
     const approverRemarks = ref(null);
     const modalSaveApproval = ref(null);
+    const modalSavePdfEmailFormat = ref(null);
     const tblPmApproverSummary = ref(null);
 
     const productMaterialColumns = [
@@ -378,6 +450,7 @@
     ];
     onMounted ( async () =>{
         modalPm.SaveApproval = new Modal(modalSaveApproval.value.modalRef,{ keyboard: false });
+        modalPm.SavePdfEmailFormat = new Modal(modalSavePdfEmailFormat.value.modalRef,{ keyboard: false });
         frmItem.value.status = "FOR UPDATE";
         let itemParams = {
             itemsId : itemsIdParam.value,
@@ -387,6 +460,9 @@
         selectedItemsId.value = itemsIdParam.value;
         tblPmApproverSummary.value.dt.ajax.url("api/load_pm_approval_summary?itemsId="+selectedItemsId.value).draw();
     })
+    const btnSavePdfEmailFormat = () => {
+        modalPm.SavePdfEmailFormat.show();
+    }
     const btnForApproval = () => {
         modalPm.SaveApproval.show();
     }
