@@ -490,47 +490,46 @@ class ProductMaterialController extends Controller
 
     public function viewPmItemRef(Request $request){
         // return 'true' ; //PdfCustomInterface
-
-        $data = [
-            'to' => "Yamaichi Electronics Co.",
-            'attn' => "Mr. Nishi / Ms. Chiba",
-            'cc' => "Ms. Ogawa / Mr. Uchida / Mr. Watanabe",
-            'subject' => "Quotation for TR405-1040 & TR407-1040",
-            'date' => "April 29, 2025",
-
-            'item1' => [
-                [
-                    'description' => "TR405-1040 Base & Cover Tray",
-                    'specs' => "360 x 175 x 40.9",
-                    'material' => "APET 1.0mm",
-                    'price' => "$1.2669",
-                ],
-            ],
-            'item2' => [
-                [
-                    'description' => "TR407-1040 Base & Cover Tray",
-                    'specs' => "360 x 175 x 40.9",
-                    'material' => "APET 1.0mm",
-                    'price' => "$1.2669",
-                ],
-            ],
-
-            'terms' => [
-                "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
-                "Terms of Payment: 30 days after end of month.",
-                "Quotation valid until new quotation is issued.",
-                "Other conditions subject to supplier regulation."
-            ],
-
-            'prepared_by' => "Loida Canponpon, PPC-CN Sr. Supervisor",
-            'checked_by' => "Michelle De Olino, PPC Asst. Manager",
-            'noted_by' => "Ms. Lyn S., PPC Asst. VP",
-        ];
-     $pdf= $this->pdfCustomInterface->generatePdfProductMaterial($data);
-      return response($pdf)
-      ->header('Content-Type', 'application/pdf')
-      ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
         try {
+            $data = [
+                'to' => "Yamaichi Electronics Co.",
+                'attn' => "Mr. Nishi / Ms. Chiba",
+                'cc' => "Ms. Ogawa / Mr. Uchida / Mr. Watanabe",
+                'subject' => "Quotation for TR405-1040 & TR407-1040",
+                'date' => "April 29, 2025",
+
+                'item1' => [
+                    [
+                        'description' => "TR405-1040 Base & Cover Tray",
+                        'specs' => "360 x 175 x 40.9",
+                        'material' => "APET 1.0mm",
+                        'price' => "$1.2669",
+                    ],
+                ],
+                'item2' => [
+                    [
+                        'description' => "TR407-1040 Base & Cover Tray",
+                        'specs' => "360 x 175 x 40.9",
+                        'material' => "APET 1.0mm",
+                        'price' => "$1.2669",
+                    ],
+                ],
+
+                'terms' => [
+                    "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
+                    "Terms of Payment: 30 days after end of month.",
+                    "Quotation valid until new quotation is issued.",
+                    "Other conditions subject to supplier regulation."
+                ],
+
+                'prepared_by' => "Loida Canponpon, PPC-CN Sr. Supervisor",
+                'checked_by' => "Michelle De Olino, PPC Asst. Manager",
+                'noted_by' => "Ms. Lyn S., PPC Asst. VP",
+            ];
+            $generatePdfProductMaterial= $this->pdfCustomInterface->generatePdfProductMaterial($data);
+            return response($generatePdfProductMaterial)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
             throw $e;

@@ -250,11 +250,11 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->SetFont('Arial', '', 10);
         $this->fpdi->Ln(2);
 
-        $this->fpdi->Cell(100, 5, "To: " . $data['to'], 0, 1);
-        $this->fpdi->Cell(100, 5, "Attn.: " . $data['attn'], 0, 1);
-        $this->fpdi->Cell(100, 5, "CC: " . $data['cc'], 0, 1);
-        $this->fpdi->Cell(100, 5, "Subject: " . $data['subject'], 0, 1);
-        $this->fpdi->Cell(100, 5, "Date: " . $data['date'], 0, 1);
+        $this->fpdi->Cell(100, 5, "To:           " . $data['to'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Attn.:        " . $data['attn'], 0, 1);
+        $this->fpdi->Cell(100, 5, "CC:          " . $data['cc'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Subject:   " . $data['subject'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Date:        " . $data['date'], 0, 1);
 
         $this->fpdi->Ln(5);
         $this->fpdi->MultiCell(190, 5, "We are pleased to submit quotation for TR405-1040 and TR407-1040 tray:");
@@ -289,14 +289,21 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, "Prepared by:", 0, 0);
         $this->fpdi->Cell(90, 5, "Checked by:", 0, 1);
-        $this->fpdi->Ln(15);
+        $this->fpdi->Ln(5);
         $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
         $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
-        $this->fpdi->Ln(15);
+        $this->fpdi->Ln(5);
         $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
+
+        $this->fpdi->Ln(10);
+        $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
+        $this->fpdi->Ln(5);
+        $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 0);
+        $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
+
 
         return $this->fpdi->Output("S"); // return as string
     }
