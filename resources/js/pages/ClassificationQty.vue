@@ -311,7 +311,7 @@
                             v-model="frmPdfEmailFormat.pdfToGroup"
                             :close-on-select="true"
                             :searchable="true"
-                            :options="commonVar.pdfToGroup"
+                            :options="settingsVar.pdfToGroup"
                             placeholder="-Select an Option-">
                         </Multiselect>
                     </div>
@@ -323,7 +323,8 @@
                             v-model="frmPdfEmailFormat.pdfAttn"
                             :close-on-select="true"
                             :searchable="true"
-                            :options="commonVar.pdfAttn"
+                            :options="settingsVar.pdfAttn"
+                            :multiple="true"
                             placeholder="-Select an Option-">
                         </Multiselect>
                     </div>
@@ -335,7 +336,8 @@
                             v-model="frmPdfEmailFormat.pdfCc"
                             :close-on-select="true"
                             :searchable="true"
-                            :options="commonVar.pdfCc"
+                            :options="settingsVar.pdfCc"
+                            :multiple="true"
                             placeholder="-Select an Option-">
                         </Multiselect>
                     </div>
@@ -382,6 +384,7 @@
     import useFetch from '../composables/utils/useFetch';
     import useForm from '../composables/utils/useForm';
     import useCommon from '../composables/common';
+    import useSettings from '../composables/settings';
     import useProductMaterial from '../composables/productmaterial';
     import ModalComponent from '../components/ModalComponent.vue';
     import Router from '../routes';
@@ -399,6 +402,10 @@
         modalCommon,
         commonVar,
     } = useCommon();
+    const {
+        getPdfToGroup,
+        settingsVar,
+    } = useSettings();
     const {
         modalPm,
         pmVar,
@@ -462,6 +469,18 @@
     })
     const btnSavePdfEmailFormat = () => {
         modalPm.SavePdfEmailFormat.show();
+        let pdfToGroupParams = {
+            // customer : '' //nmodify
+            globalVarPdfToGroup: settingsVar.pdfToGroup,
+            frmModelPdfToGroup: toRef(frmPdfEmailFormat.value,'pdfToGroup'),
+            globalVarPdfAttn: settingsVar.pdfAttn,
+            frmModelPdfAttn: toRef(frmPdfEmailFormat.value,'pdfAttn'),
+            globalVarPdfCc: settingsVar.pdfCc,
+            frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
+            selectedVal: '',
+        };
+
+        getPdfToGroup(pdfToGroupParams);
     }
     const btnForApproval = () => {
         modalPm.SaveApproval.show();

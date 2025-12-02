@@ -11,8 +11,10 @@ use Illuminate\Support\Facades\DB;
 use App\Interfaces\CommonInterface;
 use App\Models\DropdownMasterDetail;
 use App\Interfaces\ResourceInterface;
+use App\Models\DropdownCustomerGroup;
 use App\Models\ClassificationRequirement;
 use App\Http\Requests\DropdownMasterDetailRequest;
+use App\Http\Resources\DropdownCustomerGroupResource;
 use App\Http\Requests\ClassificationRequirementRequest;
 
 class SettingsController extends Controller
@@ -319,7 +321,6 @@ class SettingsController extends Controller
     }
     public function getNoModuleRapidxUserByIdOpt(Request $request){ //get all users in rapidx
         try {
-            return 'true';
             $rapidxUserById = DB::connection('mysql_rapidx')->select('SELECT users.id,users.name
                 FROM  users users
                 LEFT JOIN user_accesses user_accesses ON user_accesses.user_id = users.id
@@ -383,6 +384,40 @@ class SettingsController extends Controller
             return response()->json(['isSuccess' => 'false','rapidxUserById'=>[],'msg' => 'User Not Found !',],500);
         } catch (Exception $e) {
             return response()->json(['isSuccess' => 'false', 'exceptionError' => $e->getMessage()]);
+        }
+    }
+    public function getPdfToGroup(Request $request){
+        try {
+            $dropdownCustomerGroup= $this->resourceInterface->readCustomEloquent(DropdownCustomerGroup::class,[],[],[]);
+            $dropdownCustomerGroupData = $dropdownCustomerGroup->get();
+            $dropdownCustomerGroupDataResource = DropdownCustomerGroupResource::collection($dropdownCustomerGroupData)->resolve();
+
+
+            $customer = $request->customer;
+            if(filled($dropdownCustomerGroupDataResource) && filled($customer)){
+                $selectedCustomer = collect($dropdownCustomerGroupDataResource)->groupBy('customer');
+                return response()->json([
+                    'isSuccess' => 'true',
+                    'customer' => $selectedCustomer[$customer][0]['customer'],
+                    'recipientsCc' => explode(',',$selectedCustomer[$customer][0]['recipientsCc']),
+                    'recipientsTo' => explode(',',$selectedCustomer[$customer][0]['recipientsTo']),
+                ]);
+            }
+            if(filled($dropdownCustomerGroupDataResource) && blank($customer)){
+                $selectedCustomer = collect($dropdownCustomerGroupDataResource)->map(function($row){
+                    return  $row['customer'];
+                });
+                return response()->json([
+                    'isSuccess' => 'true',
+                    'customer' => $selectedCustomer,
+
+                ]);
+            }
+            return response()->json([
+                'isSuccess' => 'false',
+            ],500);
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }

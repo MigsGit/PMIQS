@@ -423,7 +423,6 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-
     public function getItemsById(Request $request){
         try {
             $itemsId = decrypt($request->itemsId);
@@ -487,7 +486,6 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-
     public function viewPmItemRef(Request $request){
         // return 'true' ; //PdfCustomInterface
         try {

@@ -23,6 +23,9 @@ export default function useSettings(){
             {"value":"NOTEDBY","label":"Noted By"},
             {"value":"APPBY","label":"Approved By"},
         ],
+       pdfToGroup:[],
+       pdfAttn:[],
+       pdfCc:[],
     });
     const frmDropdownMasterDetails = ref({
         dropdownMastersId : '',
@@ -80,6 +83,7 @@ export default function useSettings(){
             let data = response.data;
 
             let rapidxUserById = data.rapidxUserById;
+            console.log('rapidxUserById',rapidxUserById);
             params.globalVar.splice(0, params.globalVar.length,
                 { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
                 { value: 0, label: 'N/A' }, // Push "N/A" option at the start
@@ -103,7 +107,6 @@ export default function useSettings(){
         //Multiselect, needs to pass reactive state of ARRAY, import vueselect with default css, check the data to the component by using console.log
         await axiosFetchData(apiParams, `api/get_no_module_rapidx_user_by_id_opt`, (response) => { //url
             let data = response.data;
-
             let rapidxUserById = data.rapidxUserById;
             params.globalVar.splice(0, params.globalVar.length,
                 { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
@@ -116,6 +119,27 @@ export default function useSettings(){
                 }),
             );
             params.formModel.value = params.selectedVal; //Make sure the data type is correct | String or Array
+        });
+    }
+    const getPdfToGroup = async (params) => {
+        let apiParams = {}
+        //Multiselect, needs to pass reactive state of ARRAY, import vueselect with default css, check the data to the component by using console.log
+        await axiosFetchData(apiParams, `api/get_pdf_to_group`, (response) => { //url
+            let data = response.data;
+            let customer = data.customer;
+            console.log(customer);
+
+            params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
+                { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
+                // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
+                    ...customer.map((val) => {
+                    return {
+                        value: val,
+                        label: val
+                    }
+                }),
+            );
+            params.frmModelPdfToGroup.value = params.selectedVal; //Make sure the data type is correct | String or Array
         });
     }
 
@@ -132,5 +156,6 @@ export default function useSettings(){
         getRapidxUserByIdOpt,
         getNoModuleRapidxUserByIdOpt,
         onUserChange,
+        getPdfToGroup,
     }
 }

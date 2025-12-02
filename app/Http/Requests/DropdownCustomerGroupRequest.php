@@ -25,6 +25,12 @@ class DropdownCustomerGroupRequest extends FormRequest
     {
         return [
             //
+
+            // dropdown_customer_groups_id
+            // customer
+            // recipients_cc
+            // recipients_to
+            // updated_by
         ];
     }
 }
