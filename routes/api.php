@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function(){
         Route::post('save_for_approval', 'saveForApproval')->name('pm.save_for_approval');
         Route::post('save_classification_qty', 'saveClassificationQty')->name('pm.save_classification_qty');
         Route::post('save_item_no', 'saveItemNo')->name('pm.save_item_no');
+        Route::post('save_pdf_email_format', 'savePdfEmailFormat')->name('pm.save_pdf_email_format');
+
         Route::get('load_pm_approval_summary', 'loadPmApprovalSummary')->name('pm.load_pm_approval_summary');
         Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');
         Route::get('get_items_by_id', 'getItemsById')->name('pm.get_items_by_id');

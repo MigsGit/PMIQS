@@ -31,7 +31,9 @@ export default function useSettings(){
         pdfToGroup: '',
         pdfAttn:[],
         pdfCc: [],
+        pdfAttnName: '',
         pdfSubject: '',
+        pdfCcName: '',
         pdfAdditionalMsg: '',
         pdfTermsCondition: '',
     });

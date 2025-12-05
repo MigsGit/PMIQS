@@ -301,7 +301,7 @@
             <button @click="saveForApproval('APP')" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp;     Approved</button>
         </template>
     </ModalComponent>
-    <ModalComponent icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Recipients & Email Details" ref="modalSavePdfEmailFormat">
+    <ModalComponent  @add-event="formSavePdfEmailFormat" icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Recipients & Email Details" ref="modalSavePdfEmailFormat">
         <template #body>
             <div class="row mt-3">
                 <div class="col-sm-6">
@@ -317,7 +317,7 @@
                         </Multiselect>
                     </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 d-none">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
                         <span class="input-group-text" id="addon-wrapping">Attention:</span>
                         <Multiselect
@@ -330,7 +330,7 @@
                         />
                     </div>
                 </div>
-                <div class="col-sm-6">  
+                <div class="col-sm-6 d-none">  
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
                         <span class="input-group-text" id="addon-wrapping">CC:</span>
                         <Multiselect
@@ -341,6 +341,20 @@
                             v-model="frmPdfEmailFormat.pdfCc"
                             :options="settingsVar.pdfCc"
                         />
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Attention:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfAttnName" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">  
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">CC:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfCcName" row="5">
+                        </textarea>
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -567,14 +581,21 @@
             Router.push({ name: 'ProductMaterial'});
         });
     }
-    const addTag =  (newTag) => {
-      const tag = {
-        name: newTag,
-        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
-      }
-      this.options.push(tag)
-      this.value.push(tag)
+    const formSavePdfEmailFormat = async () => {
+        let formData =  new FormData();
+        formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
+        formData.append('pdfToGroup', frmPdfEmailFormat.value.pdfToGroup)
+        formData.append('pdfAttnName', frmPdfEmailFormat.value.pdfAttnName)
+        formData.append('pdfCcName', frmPdfEmailFormat.value.pdfCcName)
+        formData.append('pdfSubject', frmPdfEmailFormat.value.pdfSubject)
+        formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
+        formData.append('pdfTermsCondition', frmPdfEmailFormat.value.pdfTermsCondition)
+        axiosSaveData(formData,'api/save_pdf_email_format', (response) =>{
+            modalPm.SavePdfEmailFormat.hide();
+        });
     }
+
+    
 </script>
 <style lang="scss" scoped>
 
