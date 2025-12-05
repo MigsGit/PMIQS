@@ -27,6 +27,14 @@ export default function useSettings(){
        pdfAttn:[],
        pdfCc:[],
     });
+    const frmPdfEmailFormat = ref({
+        pdfToGroup: '',
+        pdfAttn:[],
+        pdfCc: [],
+        pdfSubject: '',
+        pdfAdditionalMsg: '',
+        pdfTermsCondition: '',
+    });
     const frmDropdownMasterDetails = ref({
         dropdownMastersId : '',
         dropdownMasterDetailsId : '',
@@ -122,24 +130,57 @@ export default function useSettings(){
         });
     }
     const getPdfToGroup = async (params) => {
-        let apiParams = {}
+        let apiParams = {
+           customer : params.customer ?? ''
+        }
         //Multiselect, needs to pass reactive state of ARRAY, import vueselect with default css, check the data to the component by using console.log
         await axiosFetchData(apiParams, `api/get_pdf_to_group`, (response) => { //url
             let data = response.data;
             let customer = data.customer;
-            console.log(customer);
 
-            params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
-                { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
-                // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
-                    ...customer.map((val) => {
-                    return {
-                        value: val,
-                        label: val
-                    }
-                }),
-            );
-            params.frmModelPdfToGroup.value = params.selectedVal; //Make sure the data type is correct | String or Array
+            if(data.isGetEmail === 'false'){
+                params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
+                    { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
+                    // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
+                        ...customer.map((val) => {
+                        return {
+                            value: val,
+                            label: val
+                        }
+                    }),
+                );
+                params.frmModelPdfToGroup.value = params.selectedVal; //Make sure the data type is correct | String or Array
+            }
+            if(data.isGetEmail === 'true'){
+                let recipientsTo = data.recipientsTo;
+                params.globalVarPdfAttn.splice(0, params.globalVarPdfAttn.length,
+                    // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
+                        ...recipientsTo.map((val) => {
+                        params.frmModelPdfAttn.value = params.val; //Make sure the data type is correct | String or Array
+
+                        return {
+                            value: val,
+                            label: val
+                        }
+                    }),
+                );
+                
+                params.frmModelPdfAttn.value = recipientsTo; //Make sure the data type is correct | String or Array
+            }
+            if(data.isGetEmail === 'true'){
+                let recipientsCc = data.recipientsCc;
+                params.globalVarPdfCc.splice(0, params.globalVarPdfCc.length,
+                        ...recipientsCc.map((val) => {
+                        return {
+                            value: val,
+                            label: val
+                        }
+                    }),
+                );
+                
+                params.frmModelPdfCc.value = recipientsCc; //Make sure the data type is correct | String or Array
+            }
+
         });
     }
 
@@ -151,6 +192,7 @@ export default function useSettings(){
         settingsVar,
         frmDropdownMasterDetails,
         frmEcrRequirementDetails,
+        frmPdfEmailFormat,
         axiosFetchData,
         getDropdownMasterByOpt,
         getRapidxUserByIdOpt,

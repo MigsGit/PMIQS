@@ -8,14 +8,7 @@ export default function useProductMaterial()
         category: '',
         remarks: '',
     });
-    const frmPdfEmailFormat = ref({
-        pdfToGroup: '',
-        pdfAttn: '',
-        pdfCc: '',
-        pdfSubject: '',
-        pdfAdditionalMsg: '',
-        pdfTermsCondition: '',
-    });
+    
     const pmVar = ref({
         controlNo: '',
         ecrApprovalCurrentCount: 0,
@@ -63,7 +56,6 @@ export default function useProductMaterial()
             frmItem.value.createdBy = data.createdBy;
             pmVar.value.ecrApprovalCurrentCount = data.ecrApprovalCurrentCount;
             pmVar.value.status = data.status;
-
             //description
             if (data.descriptionCount > 0) {
 
@@ -183,7 +175,6 @@ export default function useProductMaterial()
         pmVar,
         tblProductMaterial,
         frmItem,
-        frmPdfEmailFormat,
         rowSaveDescriptions,
         rowSaveItems,
         rowSaveClassifications,

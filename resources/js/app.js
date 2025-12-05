@@ -14,7 +14,8 @@ library.add(fas) /* add icons to the library */
 //Vue Multi Select
 //Multiselect, needs to pass reactive state of ARRAY, import vueselect with default css, check the data to the component by using console.log
 import Multiselect from '@vueform/multiselect'; //npm i @vueform/multiselect
-
+import TagsElement from '@vueform/multiselect'; //npm i @vueform/multiselect
+import Vueform from '@vueform/multiselect'; //npm i @vueform/multiselect
 // import Multiselect from 'vue-multiselect' // I didnt use this, this is an object type of multiselect
 import '@vueform/multiselect/themes/default.css'; //multiselect css is required
 import 'vue-toast-notification/dist/theme-bootstrap.css';
@@ -37,4 +38,6 @@ createApp(AppTemplate)
 .use(router)
 .component('font-awesome-icon',FontAwesomeIcon)
 .component('Multiselect',Multiselect)
+.component('TagsElement',TagsElement)
+.component('Vueform',Vueform)
 .mount('#app');

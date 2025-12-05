@@ -312,6 +312,7 @@
                             :close-on-select="true"
                             :searchable="true"
                             :options="settingsVar.pdfToGroup"
+                            @change=onChangePdfToGroup($event)
                             placeholder="-Select an Option-">
                         </Multiselect>
                     </div>
@@ -320,26 +321,26 @@
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
                         <span class="input-group-text" id="addon-wrapping">Attention:</span>
                         <Multiselect
-                            v-model="frmPdfEmailFormat.pdfAttn"
-                            :close-on-select="true"
+                            :close-on-select="false"
                             :searchable="true"
+                            placeholder="-Select an Option-"
+                            mode="tags"
+                            v-model="frmPdfEmailFormat.pdfAttn"
                             :options="settingsVar.pdfAttn"
-                            :multiple="true"
-                            placeholder="-Select an Option-">
-                        </Multiselect>
+                        />
                     </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6">  
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
                         <span class="input-group-text" id="addon-wrapping">CC:</span>
                         <Multiselect
-                            v-model="frmPdfEmailFormat.pdfCc"
-                            :close-on-select="true"
+                            :close-on-select="false"
                             :searchable="true"
+                            placeholder="-Select an Option-"
+                            mode="tags"
+                            v-model="frmPdfEmailFormat.pdfCc"
                             :options="settingsVar.pdfCc"
-                            :multiple="true"
-                            placeholder="-Select an Option-">
-                        </Multiselect>
+                        />
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -405,13 +406,13 @@
     const {
         getPdfToGroup,
         settingsVar,
+        frmPdfEmailFormat,
     } = useSettings();
     const {
         modalPm,
         pmVar,
         tblProductMaterial,
         frmItem,
-        frmPdfEmailFormat,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
@@ -425,7 +426,6 @@
     const modalSaveApproval = ref(null);
     const modalSavePdfEmailFormat = ref(null);
     const tblPmApproverSummary = ref(null);
-
     const productMaterialColumns = [
         {   data : 'getActions',
              orderable: false,
@@ -479,7 +479,19 @@
             frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
             selectedVal: '',
         };
-
+        getPdfToGroup(pdfToGroupParams);
+    }
+    const onChangePdfToGroup = (customer) => {
+        let pdfToGroupParams = {
+            // customer : '' //nmodify
+            globalVarPdfToGroup: settingsVar.pdfToGroup,
+            frmModelPdfToGroup: toRef(frmPdfEmailFormat.value,'pdfToGroup'),
+            globalVarPdfAttn: settingsVar.pdfAttn,
+            frmModelPdfAttn: toRef(frmPdfEmailFormat.value,'pdfAttn'),
+            globalVarPdfCc: settingsVar.pdfCc,
+            frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
+            customer: customer,
+        };
         getPdfToGroup(pdfToGroupParams);
     }
     const btnForApproval = () => {
@@ -554,6 +566,14 @@
         axiosSaveData(formData,'api/save_classification_qty', (response) =>{
             Router.push({ name: 'ProductMaterial'});
         });
+    }
+    const addTag =  (newTag) => {
+      const tag = {
+        name: newTag,
+        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
+      }
+      this.options.push(tag)
+      this.value.push(tag)
     }
 </script>
 <style lang="scss" scoped>

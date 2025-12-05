@@ -398,6 +398,7 @@ class SettingsController extends Controller
                 $selectedCustomer = collect($dropdownCustomerGroupDataResource)->groupBy('customer');
                 return response()->json([
                     'isSuccess' => 'true',
+                    'isGetEmail' => 'true',
                     'customer' => $selectedCustomer[$customer][0]['customer'],
                     'recipientsCc' => explode(',',$selectedCustomer[$customer][0]['recipientsCc']),
                     'recipientsTo' => explode(',',$selectedCustomer[$customer][0]['recipientsTo']),
@@ -409,6 +410,7 @@ class SettingsController extends Controller
                 });
                 return response()->json([
                     'isSuccess' => 'true',
+                    'isGetEmail' => 'false',
                     'customer' => $selectedCustomer,
 
                 ]);
