@@ -539,17 +539,17 @@ class ProductMaterialController extends Controller
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
-            $pmCustomerGroupDetailRequestValidated = []; 
+            $pmCustomerGroupDetailRequestValidated = [];
             //pm_customer_group_details_id
             //dd_customer_groups_id
-            $pmCustomerGroupDetailRequestValidated["pm_items_id"] = $request->selectedItemsId;
+            $pmCustomerGroupDetailRequestValidated["pm_items_id"] = decrypt($request->selectedItemsId);
             $pmCustomerGroupDetailRequestValidated["dd_customer_groups_id"] = $request->pdfToGroup;
             $pmCustomerGroupDetailRequestValidated["attention_name"] = $request->pdfAttnName;
             $pmCustomerGroupDetailRequestValidated["cc_name"] = $request->pdfCcName;
             $pmCustomerGroupDetailRequestValidated["subject"] = $request->pdfSubject;
             $pmCustomerGroupDetailRequestValidated["additional_message"] = $request->pdfAdditionalMsg;
             $pmCustomerGroupDetailRequestValidated["terms_condition"] = $request->pdfTermsCondition;
-            $pmCustomerGroupDetailRequestValidated;
+            $pmCustomerGroupDetailRequestValidated["created_at"] = now();
             $this->resourceInterface->create(PmCustomerGroupDetail::class,$pmCustomerGroupDetailRequestValidated);
             DB::commit();
             return response()->json(['is_success' => 'true']);

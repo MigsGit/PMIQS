@@ -93,7 +93,6 @@ export default function useSettings(){
             let data = response.data;
 
             let rapidxUserById = data.rapidxUserById;
-            console.log('rapidxUserById',rapidxUserById);
             params.globalVar.splice(0, params.globalVar.length,
                 { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
                 { value: 0, label: 'N/A' }, // Push "N/A" option at the start
