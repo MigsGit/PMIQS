@@ -14,7 +14,7 @@ class CreateDropdownCustomerGroupDetailsTable extends Migration
     public function up()
     {
         Schema::create('pm_customer_group_details', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('pm_customer_group_details_id');
             $table->foreignId('pm_items_id')->references('pm_items_id')->on('pm_items')->comment ='Pm Items Id';
             $table->foreignId('dd_customer_groups_id')->references('dropdown_customer_groups_id')->on('dropdown_customer_groups')->comment ='Dropdown Customer Group Id';
             $table->longText('attention_name');

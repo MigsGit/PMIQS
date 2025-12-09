@@ -146,12 +146,14 @@ export default function useSettings(){
                     // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
                         ...customer.map((val) => {
                         return {
-                            value: val,
-                            label: val
+                            value: val.id,
+                            label: val.customer
                         }
                     }),
                 );
                 params.frmModelPdfToGroup.value = params.selectedVal; //Make sure the data type is correct | String or Array
+                console.log('true',customer)
+
             }
             if(data.isGetEmail === 'true'){
                 let recipientsTo = data.recipientsTo;
@@ -166,7 +168,7 @@ export default function useSettings(){
                         }
                     }),
                 );
-                
+
                 params.frmModelPdfAttn.value = recipientsTo; //Make sure the data type is correct | String or Array
             }
             if(data.isGetEmail === 'true'){
@@ -179,7 +181,7 @@ export default function useSettings(){
                         }
                     }),
                 );
-                
+
                 params.frmModelPdfCc.value = recipientsCc; //Make sure the data type is correct | String or Array
             }
 

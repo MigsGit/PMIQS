@@ -24,7 +24,13 @@ class PmCustomerGroupDetailRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'selectedItemsId'=> ['required'],
+            'pdfToGroup'=> ['required'],
+            'pdfAttnName'=> ['required'],
+            'pdfCcName'=> ['required'],
+            'pdfSubject'=> ['required'],
+            'pdfAdditionalMsg'=> ['required'],
+            'pdfTermsCondition'=> ['required'],
         ];
     }
 }

@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use DataTables;
 use App\Models\PmItem;
 use App\Models\PmApproval;
-
 use Illuminate\Http\Request;
+
 use App\Models\PmDescription;
 use App\Models\PmClassification;
 use Illuminate\Support\Facades\DB;
@@ -15,11 +15,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PmItemRequest;
 use App\Http\Resources\ItemResource;
 use App\Interfaces\ResourceInterface;
+use App\Models\PmCustomerGroupDetail;
 use Illuminate\Support\Facades\Cache;
 use App\Interfaces\PdfCustomInterface;
 use App\Http\Resources\PmApprovalResource;
 use App\Http\Requests\PmDescriptionRequest;
 use App\Http\Requests\PmClassificationRequest;
+use App\Http\Requests\PmCustomerGroupDetailRequest;
 
 class ProductMaterialController extends Controller
 {
@@ -533,11 +535,22 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-    public function savePdfEmailFormat(Request $request){
-        return 'true' ;
+    public function savePdfEmailFormat(Request $request,PmCustomerGroupDetailRequest $pmCustomerGroupDetailRequest){
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
+            $pmCustomerGroupDetailRequestValidated = []; 
+            //pm_customer_group_details_id
+            //dd_customer_groups_id
+            $pmCustomerGroupDetailRequestValidated["pm_items_id"] = $request->selectedItemsId;
+            $pmCustomerGroupDetailRequestValidated["dd_customer_groups_id"] = $request->pdfToGroup;
+            $pmCustomerGroupDetailRequestValidated["attention_name"] = $request->pdfAttnName;
+            $pmCustomerGroupDetailRequestValidated["cc_name"] = $request->pdfCcName;
+            $pmCustomerGroupDetailRequestValidated["subject"] = $request->pdfSubject;
+            $pmCustomerGroupDetailRequestValidated["additional_message"] = $request->pdfAdditionalMsg;
+            $pmCustomerGroupDetailRequestValidated["terms_condition"] = $request->pdfTermsCondition;
+            $pmCustomerGroupDetailRequestValidated;
+            $this->resourceInterface->create(PmCustomerGroupDetail::class,$pmCustomerGroupDetailRequestValidated);
             DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {

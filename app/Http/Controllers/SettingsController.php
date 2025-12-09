@@ -392,21 +392,15 @@ class SettingsController extends Controller
             $dropdownCustomerGroupData = $dropdownCustomerGroup->get();
             $dropdownCustomerGroupDataResource = DropdownCustomerGroupResource::collection($dropdownCustomerGroupData)->resolve();
 
+            $ddCustomerGroupsId = $request->customer;
 
-            $customer = $request->customer;
-            if(filled($dropdownCustomerGroupDataResource) && filled($customer)){
-                $selectedCustomer = collect($dropdownCustomerGroupDataResource)->groupBy('customer');
-                return response()->json([
-                    'isSuccess' => 'true',
-                    'isGetEmail' => 'true',
-                    'customer' => $selectedCustomer[$customer][0]['customer'],
-                    'recipientsCc' => explode(',',$selectedCustomer[$customer][0]['recipientsCc']),
-                    'recipientsTo' => explode(',',$selectedCustomer[$customer][0]['recipientsTo']),
-                ]);
-            }
-            if(filled($dropdownCustomerGroupDataResource) && blank($customer)){
+            if(filled($dropdownCustomerGroupDataResource) && blank($ddCustomerGroupsId)){
                 $selectedCustomer = collect($dropdownCustomerGroupDataResource)->map(function($row){
-                    return  $row['customer'];
+                    // return  $row['customer'];
+                    return [
+                        'customer' => $row['customer'],
+                        'id' => $row['id'],
+                    ];
                 });
                 return response()->json([
                     'isSuccess' => 'true',
@@ -415,6 +409,18 @@ class SettingsController extends Controller
 
                 ]);
             }
+            if(filled($dropdownCustomerGroupDataResource) && filled($ddCustomerGroupsId)){
+
+                $selectedCustomer = collect($dropdownCustomerGroupDataResource)->groupBy('id');
+                return response()->json([
+                    'isSuccess' => 'true',
+                    'isGetEmail' => 'true',
+                    'customer' => $selectedCustomer[$ddCustomerGroupsId][0]['customer'],
+                    'recipientsCc' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsCc']),
+                    'recipientsTo' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsTo']),
+                ]);
+            }
+
             return response()->json([
                 'isSuccess' => 'false',
             ],500);

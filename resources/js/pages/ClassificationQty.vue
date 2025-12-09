@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 </div>
-                <div class="row overflow-auto">
+                <div class="row">
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
                             <span class="input-group-text" id="addon-wrapping">Category. :</span>
@@ -330,7 +330,7 @@
                         />
                     </div>
                 </div>
-                <div class="col-sm-6 d-none">  
+                <div class="col-sm-6 d-none">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
                         <span class="input-group-text" id="addon-wrapping">CC:</span>
                         <Multiselect
@@ -350,7 +350,7 @@
                         </textarea>
                     </div>
                 </div>
-                <div class="col-sm-6">  
+                <div class="col-sm-6">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
                         <span class="input-group-text" id="addon-wrapping">CC:</span>
                         <textarea class="form-control" v-model="frmPdfEmailFormat.pdfCcName" row="5">
@@ -591,11 +591,11 @@
         formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
         formData.append('pdfTermsCondition', frmPdfEmailFormat.value.pdfTermsCondition)
         axiosSaveData(formData,'api/save_pdf_email_format', (response) =>{
-            modalPm.SavePdfEmailFormat.hide();
+            // modalPm.SavePdfEmailFormat.hide();
         });
     }
 
-    
+
 </script>
 <style lang="scss" scoped>
 
