@@ -199,6 +199,11 @@ class SettingsController extends Controller
                 $result .= '<span class="badge rounded-pill bg-primary"> '.$row->department_name.' </span>';
                 return $result;
             })
+            ->addColumn('get_department_position',function($row){
+                $result = '';
+                $result .= '<span class="badge rounded-pill bg-primary"> '.$row->department_name.' </span>';
+                return $result;
+            })
             ->rawColumns([
                 'get_action',
                 'get_roles',

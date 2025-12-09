@@ -14,7 +14,7 @@ class CreateDropdownCustomerGroupsTable extends Migration
     public function up()
     {
         Schema::create('dropdown_customer_groups', function (Blueprint $table) {
-            $table->bigIncrements('dropdown_customer_groups_id');
+            $table->bigIncrements('dd_customer_groups_id');
             $table->longText('customer');
             $table->longText('recipients_cc' );
             $table->longText('recipients_to');

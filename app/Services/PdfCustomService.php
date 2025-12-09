@@ -328,4 +328,45 @@ class PdfCustomService implements PdfCustomInterface
             $this->fpdi->Cell(40, 6, $row['price'], 1, 1);
         }
     }
+    private function descriptionClassificationTableProduct($newFpdi, $item)
+    {
+        $this->fpdi->SetFont('Arial', 'B', 9);
+        $this->fpdi->SetFillColor(230, 230, 230);
+
+        // TABLE HEADER
+        $this->fpdi->Cell(60, 6, "Item#", 1, 0, "C", true);
+        $this->fpdi->Cell(50, 6, "ProductCode/Type", 1, 0, "C", true);
+        $this->fpdi->Cell(40, 6, "Description/ItemName", 1, 0, "C", true);
+        $this->fpdi->Cell(40, 6, "Classification", 1, 1, "C", true);
+        $this->fpdi->Cell(40, 6, "UOM", 1, 1, "C", true);
+        $this->fpdi->SetFont('Arial', '', 9);
+
+        foreach ($item as $row) {
+            $this->fpdi->Cell(60, 6, $row['description'], 1);
+            $this->fpdi->Cell(50, 6, $row['specs'], 1);
+            $this->fpdi->Cell(40, 6, $row['material'], 1);
+            $this->fpdi->Cell(40, 6, $row['price'], 1, 1);
+            $this->fpdi->Cell(40, 6, $row['price'], 1, 1);
+        }
+    }
+    private function descriptionClassificationTableRawMaterial($newFpdi, $item)
+    {
+        $this->fpdi->SetFont('Arial', 'B', 9);
+        $this->fpdi->SetFillColor(230, 230, 230);
+
+        // TABLE HEADER
+        $this->fpdi->Cell(60, 6, "Description", 1, 0, "C", true);
+        $this->fpdi->Cell(50, 6, "Specs", 1, 0, "C", true);
+        $this->fpdi->Cell(40, 6, "Raw Material", 1, 0, "C", true);
+        $this->fpdi->Cell(40, 6, "Price", 1, 1, "C", true);
+
+        $this->fpdi->SetFont('Arial', '', 9);
+
+        foreach ($item as $row) {
+            $this->fpdi->Cell(60, 6, $row['description'], 1);
+            $this->fpdi->Cell(50, 6, $row['specs'], 1);
+            $this->fpdi->Cell(40, 6, $row['material'], 1);
+            $this->fpdi->Cell(40, 6, $row['price'], 1, 1);
+        }
+    }
 }

@@ -6,6 +6,7 @@ use App\Models\PmApproval;
 use App\Models\RapidxUser;
 use App\Models\PmDescription;
 use App\Models\PmClassification;
+use App\Models\PmCustomerGroupDetail;
 use Illuminate\Database\Eloquent\Model;
 
 class PmItem extends Model
@@ -35,5 +36,9 @@ class PmItem extends Model
     public function pm_approval_pending()
     {
         return $this->hasOne(PmApproval::class, 'pm_items_id', 'pm_items_id')->where('status','PEN')->whereNull('deleted_at');
+    }
+    public function pm_customer_group_detail()
+    {
+        return $this->hasMany(PmCustomerGroupDetail::class, 'pm_items_id', 'pm_items_id')->whereNull('deleted_at');
     }
 }

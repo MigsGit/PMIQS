@@ -648,7 +648,6 @@
             console.log(response);
         });
     }
-
     const btnLinkViewPmItemRef = async (selectedItemsId) =>{
         window.open(`api/view_pm_item_ref?itemsId=${selectedItemsId}`, '_blank');
     }

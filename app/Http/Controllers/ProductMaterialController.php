@@ -22,6 +22,7 @@ use App\Http\Resources\PmApprovalResource;
 use App\Http\Requests\PmDescriptionRequest;
 use App\Http\Requests\PmClassificationRequest;
 use App\Http\Requests\PmCustomerGroupDetailRequest;
+use App\Http\Resources\PmCustomerGroupDetailResource;
 
 class ProductMaterialController extends Controller
 {
@@ -446,7 +447,6 @@ class ProductMaterialController extends Controller
                 PmApproval::class,
                 [],
                 [
-                    'descriptions',
                     'rapidx_user_created_by',
                     'descriptions.classifications',
                     'pm_approvals.rapidx_user_rapidx_user_id',
@@ -482,6 +482,7 @@ class ProductMaterialController extends Controller
     }
     public function getDescriptionByItemsId(Request $request){
         return 'true' ;
+
         try {
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
@@ -489,15 +490,59 @@ class ProductMaterialController extends Controller
         }
     }
     public function viewPmItemRef(Request $request){
-        // return 'true' ; //PdfCustomInterface
         try {
+            $itemsId= decrypt($request->itemsId);
+            $data = $this->resourceInterface->readCustomEloquent(
+                PmItem::class,
+                [],
+                [
+                    'descriptions.classifications',
+                    'rapidx_user_created_by',
+                    'pm_approvals.rapidx_user_rapidx_user_id',
+                    'pm_approvals.pm_user',
+                    'pm_customer_group_detail.dropdown_customer_group',
+                ],
+                ['pm_items_id' => $itemsId],
+            );
+            $pmItems =  $data->get();
+            $itemCollection = ItemResource::collection($pmItems)->resolve();
+            $description = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
+            // department_position
+            $controlNo = $itemCollection[0]['controlNo'];
+            $descriptions = $itemCollection[0]['descriptions'];
+            $pmApprovalsData = $itemCollection[0]['pm_approvals'];
+
+            $preparedBy = $pmApprovalsData[0]['rapidx_user_rapidx_user_id']['name']?? '';
+            $checkedBy = $pmApprovalsData[1]['rapidx_user_rapidx_user_id']['name']?? '';
+            $notedBy = $pmApprovalsData[2]['rapidx_user_rapidx_user_id']['name']?? '';
+            $appovedBy1 = $pmApprovalsData[3]['rapidx_user_rapidx_user_id']['name']?? '';
+            $appovedBy2 = $pmApprovalsData[4]['rapidx_user_rapidx_user_id']['name']?? '';
+
+            $preparedByPosition = $pmApprovalsData[0]['pm_user']['department_position'] ?? '';
+            $checkedByPosition = $pmApprovalsData[1]['pm_user']['department_position'] ?? '';
+            $notedByPosition = $pmApprovalsData[2]['pm_user']['department_position'] ?? '';
+            $appovedBy1Position = $pmApprovalsData[3]['pm_user']['department_position'] ?? '';
+            $appovedBy2Position = $pmApprovalsData[4]['pm_user']['department_position'] ?? '';
+
+            $pmCustomerGroupDetailData = $itemCollection[0]['rapidx_user_created_by']['name'];
+            $pmCustomerGroupDetailData = $itemCollection[0]['pm_customer_group_detail'][0];
+            $customerName = $pmCustomerGroupDetailData['dropdown_customer_group'][0]['customer'];
+            $attentionName = $pmCustomerGroupDetailData['attention_name'];
+            $ccName = $pmCustomerGroupDetailData['cc_name'];
+            $subject = $pmCustomerGroupDetailData['subject'];
+            $additionalMessage = $pmCustomerGroupDetailData['additional_message'];
+            $termsCondition = $pmCustomerGroupDetailData['terms_condition'];
+            //'true' ; //PdfCustomInterface
             $data = [
                 'to' => "Yamaichi Electronics Co.",
-                'attn' => "Mr. Nishi / Ms. Chiba",
-                'cc' => "Ms. Ogawa / Mr. Uchida / Mr. Watanabe",
-                'subject' => "Quotation for TR405-1040 & TR407-1040",
+                'attn' => $attentionName,
+                'cc' => $ccName,
+                'subject' => $subject,
                 'date' => "April 29, 2025",
-
+                'message' => [
+                  $additionalMessage
+                ],
+                'descriptions' => $descriptions,
                 'item1' => [
                     [
                         'description' => "TR405-1040 Base & Cover Tray",
@@ -515,17 +560,29 @@ class ProductMaterialController extends Controller
                     ],
                 ],
 
+                // 'terms' => [
+                //     "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
+                //     "Terms of Payment: 30 days after end of month.",
+                //     "Quotation valid until new quotation is issued.",
+                //     "Other conditions subject to supplier regulation."
+                // ],
                 'terms' => [
-                    "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
-                    "Terms of Payment: 30 days after end of month.",
-                    "Quotation valid until new quotation is issued.",
-                    "Other conditions subject to supplier regulation."
+                    $termsCondition
                 ],
 
-                'prepared_by' => "Loida Canponpon, PPC-CN Sr. Supervisor",
-                'checked_by' => "Michelle De Olino, PPC Asst. Manager",
-                'noted_by' => "Ms. Lyn S., PPC Asst. VP",
+                'prepared_by' => $preparedBy,
+                'checked_by' => $checkedBy,
+                'noted_by' => $notedBy,
+                'approved_by1' => $appovedBy1,
+                'approved_by2' => $appovedBy2,
+
+                'prepared_by_position' => $preparedByPosition,
+                'checked_by_position' => $checkedByPosition,
+                'noted_by_position' => $notedByPosition,
+                'appoved_by1_position' => $appovedBy1Position,
+                'appoved_by2_position' => $appovedBy2Position,
             ];
+            // return $data;
             $generatePdfProductMaterial= $this->pdfCustomInterface->generatePdfProductMaterial($data);
             return response($generatePdfProductMaterial)
             ->header('Content-Type', 'application/pdf')

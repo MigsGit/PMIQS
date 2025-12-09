@@ -15,8 +15,9 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('rapidx_user_id');
-            $table->string('roles')->unique();
+            $table->string('rapidx_user_id')->unique();
+            $table->string('roles');
+            $table->string('department_position');
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
