@@ -172,24 +172,31 @@ class SettingsController extends Controller
             ->addColumn('get_roles',function($row){
                 $user = User::where('rapidx_user_id',$row->id)->first();
                 $isRoles = $user->roles ?? "";
+                //PREPBY-Preparedby |CHCKBY-Checkedby | NOTEDBY-Notedby |  APPBY - Approvedby
                 switch ($isRoles) {
-                    case 'APP':
-                        $roles = 'Approver';
-                        $badgeBg = 'badge rounded-pill bg-warning';
+                    case 'PREPBY':
+                        $roles = 'Prepared By';
                         break;
-                    case 'USER':
-                        $roles = 'User';
-                        $badgeBg = 'badge rounded-pill bg-primary';
+                    case 'CHCKBY':
+                        $roles = 'Checked By';
+                        break;
+                    case 'NOTEDBY':
+                        $roles = 'Noted By';
+                        break;
+                    case 'APPBY':
+                        $roles = 'Approved By';
+                        break;
+                    case 'ADMIN':
+                        $roles = 'ADMIN';
                         break;
                     default:
                         $roles = 'User';
-                        $badgeBg = 'badge rounded-pill bg-primary';
                         break;
                 }
 
                 $result = '';
                 $result .= '<center>';
-                $result .= '<span class="'.$badgeBg.'"> '.$roles.' </span>';
+                $result .= '<span class="badge rounded-pill bg-primary"> '.$roles.' </span>';
                 $result .= '</center>';
                 return $result;
             })
