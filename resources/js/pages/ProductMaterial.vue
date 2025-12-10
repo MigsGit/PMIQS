@@ -6,7 +6,7 @@
                 <div class="table-responsive">
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <button @click="btnAddUser" type="button" ref= "btnAddUser" class="btn btn-primary btn-sm">
+                            <button @click="btnAddNew" type="button" ref= "btnAddUser" class="btn btn-primary btn-sm">
                                 <font-awesome-icon class="nav-icon" icon="fas fa-file" />&nbsp; Add New
                             </button>
                         </div>
@@ -98,6 +98,7 @@
                                 :searchable="true"
                                 :options="commonVar.division"
                                 :change="onChangeDivision(selectedItemsId)"
+                                placeholder="-Select Option-"
                             />
                         </div>
 
@@ -527,6 +528,9 @@
         getRapidxUserByIdOpt(approvedByTwoParams);
 
     })
+    const btnAddNew = () => {
+        modalPm.Quotations.show();
+    }
     const addRowSaveItem = () => {
         const newItemNo = rowSaveItems.value.length + 1;
         rowSaveItems.value.push( {
