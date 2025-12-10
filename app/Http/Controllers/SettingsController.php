@@ -114,7 +114,6 @@ class SettingsController extends Controller
             throw $e;
         }
     }
-
     public function delClassificationRequirements(Request $request){
         try {
             date_default_timezone_set('Asia/Manila');
@@ -196,7 +195,11 @@ class SettingsController extends Controller
             })
             ->addColumn('get_departments',function($row){
                 $result = '';
-                $result .= '<span class="badge rounded-pill bg-primary"> '.$row->department_name.' </span>';
+
+                $user = User::where('rapidx_user_id',$row->id)->first();
+                $departmentPosition = $user->department_position ?? "N/A";
+                // $result .= '<span class="badge rounded-pill bg-primary"> '.$row->department_name.' </span> <br>';
+                $result .= '<span class="badge rounded-pill bg-info"> '.$departmentPosition.' </span>';
                 return $result;
             })
             ->addColumn('get_department_position',function($row){
