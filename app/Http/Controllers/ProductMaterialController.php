@@ -506,10 +506,10 @@ class ProductMaterialController extends Controller
             );
             $pmItems =  $data->get();
             $itemCollection = ItemResource::collection($pmItems)->resolve();
-            $description = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
+            $descriptions = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
             // department_position
             $controlNo = $itemCollection[0]['controlNo'];
-            $descriptions = $itemCollection[0]['descriptions'];
+            // $descriptions = $itemCollection[0]['descriptions'];
             $pmApprovalsData = $itemCollection[0]['pm_approvals'];
 
             $preparedBy = $pmApprovalsData[0]['rapidx_user_rapidx_user_id']['name']?? '';

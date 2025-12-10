@@ -21,7 +21,7 @@ class PmItem extends Model
      */
     public function descriptions()
     {
-        return $this->hasMany(PmDescription::class, 'pm_items_id', 'pm_items_id');
+        return $this->hasMany(PmDescription::class, 'pm_items_id', 'pm_items_id')->whereNull('deleted_at');
     }
 
     public function rapidx_user_created_by()
@@ -31,7 +31,7 @@ class PmItem extends Model
 
     public function pm_approvals()
     {
-        return $this->hasMany(PmApproval::class, 'pm_items_id', 'pm_items_id');
+        return $this->hasMany(PmApproval::class, 'pm_items_id', 'pm_items_id')->whereNull('deleted_at');
     }
     public function pm_approval_pending()
     {

@@ -6,6 +6,7 @@ use Imagick;
 use Exception;
 use setasign\Fpdi\Fpdi;
 use App\Models\Document;
+use Illuminate\Support\Str;
 use App\Models\ApproverOrdinates;
 use App\Interfaces\ResourceInterface;
 use App\Interfaces\PdfCustomInterface;
@@ -244,7 +245,124 @@ class PdfCustomService implements PdfCustomInterface
         ];
         return $ApproverOrdinates = $this->resource_interface->readOnlyRelationsAndConditions(Document::class,[],$relations,$conditions);
     }
+    public function generatePdfProductMaterialFPDF($data)
+    {
+        // return 'true';
+        // Sample product data
+        $products = [
+            [
+                "description" => "TR405-1040 Base & Cover Tray",
+                "length"      => 360,
+                "width"       => 175,
+                "height"      => 40.9,
+                "material"    => "APET",
+                "thickness"   => 1.0,
+                "material_w"  => 445,
+                "prices" => [
+                    [500,  "pcs", "$ 1.2689"],
+                    [1000, "pcs", "$ 1.2195"],
+                    [2000, "pcs", "$ 1.1886"],
+                    [3000, "pcs", "$ 1.1618"],
+                ]
+            ],
+            [
+                "description" => "Cover Tray",
+                "length"      => 100,
+                "width"       => 100,
+                "height"      => 100,
+                "material"    => "Cover Tray",
+                "thickness"   => 100,
+                "material_w"  => 100,
+                "prices" => [
+                    [500,  "pcs", "$ 0.95"],
+                    [1000, "pcs", "$ 0.92"],
+                    [2000, "pcs", "$ 0.90"],
+                    [3000, "pcs", "$ 0.88"],
+                ]
+            ]
+        ];
 
+        // Initialize PDF
+        $pdf = new FPDF('P', 'mm', 'A4');
+        $pdf->AddPage();
+        $usableWidth = 190;
+
+        // Column widths
+        $wDesc = $usableWidth * 0.30;
+        $wSpecs = $usableWidth * 0.22;
+        $wRawMat = $usableWidth * 0.22;
+        $wLoopCols = $usableWidth * 0.26;
+        $wMoq = $wLoopCols * 0.34;
+        $wUom = $wLoopCols * 0.28;
+        $wPrice = $wLoopCols * 0.38;
+
+        // HEADER
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell($wDesc, 7, "DESCRIPTION", 1, 0, 'C');
+        $pdf->Cell($wSpecs, 7, "SPECS", 1, 0, 'C');
+        $pdf->Cell($wRawMat, 7, "RAW MATERIAL", 1, 0, 'C');
+        $pdf->Cell($wMoq, 7, "MOQ", 1, 0, 'C');
+        $pdf->Cell($wUom, 7, "UOM", 1, 0, 'C');
+        $pdf->Cell($wPrice, 7, "Price/Pc", 1, 1, 'C');
+
+        // SUB-HEADERS
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($wDesc, 7, "", 1);
+        $pdf->Cell($wSpecs / 3, 7, "Length", 1, 0, 'C');
+        $pdf->Cell($wSpecs / 3, 7, "Width", 1, 0, 'C');
+        $pdf->Cell($wSpecs / 3, 7, "Height", 1, 0, 'C');
+
+        $pdf->Cell($wRawMat / 3, 7, "Type", 1, 0, 'C');
+        $pdf->Cell($wRawMat / 3, 7, "Thick", 1, 0, 'C');
+        $pdf->Cell($wRawMat / 3, 7, "Width", 1, 0, 'C');
+
+        $pdf->Cell($wMoq, 7, "MOQ", 1, 0, 'C');
+        $pdf->Cell($wUom, 7, "UOM", 1, 0, 'C');
+        $pdf->Cell($wPrice, 7, "Price/Pc", 1, 1, 'C');
+
+        // PRODUCTS LOOP
+        foreach ($products as $product) {
+            $prices = $product["prices"];
+            $firstPrice = $prices[0];
+
+            $startX = $pdf->GetX();
+            $startY = $pdf->GetY();
+
+            // DESCRIPTION
+            $pdf->MultiCell($wDesc, 6, $product["description"], 1);
+            $rowHeight = $pdf->GetY() - $startY;
+
+            $pdf->SetXY($startX + $wDesc, $startY);
+
+            // SPECS
+            $pdf->Cell($wSpecs / 3, $rowHeight, $product['length'], 1, 0, 'C');
+            $pdf->Cell($wSpecs / 3, $rowHeight, $product['width'], 1, 0, 'C');
+            $pdf->Cell($wSpecs / 3, $rowHeight, $product['height'], 1, 0, 'C');
+
+            // RAW MATERIAL
+            $pdf->Cell($wRawMat / 3, $rowHeight, $product['material'], 1, 0, 'C');
+            $pdf->Cell($wRawMat / 3, $rowHeight, $product['thickness'], 1, 0, 'C');
+            $pdf->Cell($wRawMat / 3, $rowHeight, $product['material_w'], 1, 0, 'C');
+
+            // FIRST PRICE ROW
+            $pdf->Cell($wMoq, $rowHeight, $firstPrice[0], 1, 0, 'C');
+            $pdf->Cell($wUom, $rowHeight, $firstPrice[1], 1, 0, 'C');
+            $pdf->Cell($wPrice, $rowHeight, $firstPrice[2], 1, 1, 'C');
+
+            // REMAINING PRICE ROWS
+            for ($i = 1; $i < count($prices); $i++) {
+                $p = $prices[$i];
+                $pdf->Cell($wDesc + $wSpecs + $wRawMat, 8, "", 1, 0);
+                $pdf->Cell($wMoq, 8, $p[0], 1, 0, 'C');
+                $pdf->Cell($wUom, 8, $p[1], 1, 0, 'C');
+                $pdf->Cell($wPrice, 8, $p[2], 1, 1, 'C');
+            }
+        }
+
+        // Output PDF to browser
+        return response($pdf->Output('S'), 200)
+            ->header('Content-Type', 'application/pdf');
+    }
     public function generatePdfProductMaterial($data)
     {
         // return 'true';
@@ -269,26 +387,69 @@ class PdfCustomService implements PdfCustomInterface
 
         $this->fpdi->Ln(5);
         $this->fpdi->MultiCell(190, 5, "We are pleased to submit quotation for TR405-1040 and TR407-1040 tray:");
-        echo json_encode($data);
-        exit;
-        $product = [
-            "description" => "TR405-1040 Base & Cover Tray",
-            "length"      => 360,
-            "width"       => 175,
-            "height"      => 40.9,
-            "material"    => "APET",
-            "thickness"   => "1.0",
-            "material_w"  => 445,
-            "prices" => [
-                [500,  "pcs", "$ 1.2689"],
-                [1000, "pcs", "$ 1.2195"],
-                [2000, "pcs", "$ 1.1886"],
-                [3000, "pcs", "$ 1.1618"],
+        $arrDescriptions = $data['descriptions'];
+        // echo json_encode($arrDescriptions);
+        // exit;
+
+        $products = [
+            [
+                "description" => "TR405-1040 Base & Cover Tray",
+                "length"      => 360,
+                "width"       => 175,
+                "height"      => 40.9,
+                "material"    => "APET",
+                "thickness"   => 1.0,
+                "material_w"  => 445,
+                "prices" => [
+                    [500,  "pcs", "$ 1.2689"],
+                    [1000, "pcs", "$ 1.2195"],
+                    [2000, "pcs", "$ 1.1886"],
+                    [3000, "pcs", "$ 1.1618"],
+                ]
+            ],
+            [
+                "description" => "Cover Tray",
+                "length"      => 100,
+                "width"       => 100,
+                "height"      => 100,
+                "material"    => "Cover Tray",
+                "thickness"   => 100,
+                "material_w"  => 100,
+                "prices" => [
+                    [500,  "pcs", "$ 0.95"],
+                    [1000, "pcs", "$ 0.92"],
+                    [2000, "pcs", "$ 0.90"],
+                    [3000, "pcs", "$ 0.88"],
+                ]
             ]
         ];
 
-        $this->buildRawMaterialTable($product);
-        $this->fpdi->Ln(6);
+        $test = $this->buildProductTable($products);
+        // $ctrRawMat = 1;
+        // for ($indexRawMat=0; $indexRawMat < count($arrDescriptions); $indexRawMat++) {
+        //     $valDescriptions = $arrDescriptions[$ctrRawMat];
+        //     $product = [
+        //         "description" => $ctrRawMat,
+        //         "length"      => 360,
+        //         "width"       => 175,
+        //         "height"      => 40.9,
+        //         "material"    => "APET",
+        //         "thickness"   => "1.0",
+        //         "material_w"  => 445,
+        //         "prices" => [
+        //             [500,  "pcs", "$ 1.2689"],
+        //             [1000, "pcs", "$ 1.2195"],
+        //             [2000, "pcs", "$ 1.1886"],
+        //             [3000, "pcs", "$ 1.1618"],
+        //         ]
+        //     ];
+        //     $test = $this->buildRawMaterialTable($valDescriptions);
+        //     // echo json_encode($test);
+        //     $this->fpdi->Ln(6);
+        //     $ctrRawMat++;
+
+        // }
+        // exit;
 
         // ===== TERMS AND CONDITIONS =====
         $this->fpdi->Ln(6);
@@ -324,10 +485,194 @@ class PdfCustomService implements PdfCustomInterface
 
         return $this->fpdi->Output("S"); // return as string
     }
+    private function buildProductTable($products) {
+        // PROPORTIONAL COLUMN WIDTHS (fit inside A4)
+        $wDesc = $this->usableWidth * 0.30;
+        $wSpecs = $this->usableWidth * 0.22;
+        $wRawMat = $this->usableWidth * 0.22;
+        $wLoopCols = $this->usableWidth * 0.26;
+        $wMoq = $wLoopCols * 0.34;
+        $wUom = $wLoopCols * 0.28;
+        $wPrice = $wLoopCols * 0.38;
+
+        // =============================== 1) HEADER ROW ===============================
+        $this->headerCell($wDesc, "DESCRIPTION");
+        $this->headerCell($wSpecs, "SPECS");
+        $this->headerCell($wRawMat, "RAW MATERIAL");
+        $this->headerCell($wMoq, "MOQ");
+        $this->headerCell($wUom, "UOM");
+        $this->headerCell($wPrice, "Price/Pc", true);
+
+        // =============================== 2) SUB HEADERS ===============================
+        $this->fpdi->Cell($wDesc, 7, "", 1);
+        $this->fpdi->Cell($wSpecs / 3, 7, "Length", 1, 0, 'C');
+        $this->fpdi->Cell($wSpecs / 3, 7, "Width", 1, 0, 'C');
+        $this->fpdi->Cell($wSpecs / 3, 7, "Height", 1, 0, 'C');
+
+        $this->fpdi->Cell($wRawMat / 3, 7, "Type", 1, 0, 'C');
+        $this->fpdi->Cell($wRawMat / 3, 7, "Thick", 1, 0, 'C');
+        $this->fpdi->Cell($wRawMat / 3, 7, "Width", 1, 0, 'C');
+
+        $this->fpdi->Cell($wMoq, 7, "MOQ", 1, 0, 'C');
+        $this->fpdi->Cell($wUom, 7, "UOM", 1, 0, 'C');
+        $this->fpdi->Cell($wPrice, 7, "Price/Pc", 1, 1, 'C');
+
+        // =============================== 3) LOOP THROUGH PRODUCTS ===============================
+        foreach ($products as $product) {
+            $prices = $product["prices"];
+            $firstPrice = $prices[0];
+
+            $startX = $this->fpdi->GetX();
+            $startY = $this->fpdi->GetY();
+
+            // DESCRIPTION
+            $this->fpdi->MultiCell($wDesc, 6, $product["description"], 1);
+            // $this->fpdi->Cell($wSpecs, $rowHeight, $product['length'], 1, 0, 'C');
+
+            $rowHeight = $this->fpdi->GetY() - $startY;
+
+            // Restore position after MultiCell
+            $this->fpdi->SetXY($startX + $wDesc, $startY);
+
+            // SPECS
+            $this->fpdi->Cell($wSpecs / 3, $rowHeight, $product['length'], 1, 0, 'C');
+            $this->fpdi->Cell($wSpecs / 3, $rowHeight, $product['width'], 1, 0, 'C');
+            $this->fpdi->Cell($wSpecs / 3, $rowHeight, $product['height'], 1, 0, 'C');
+
+            // RAW MATERIAL
+            // $this->fpdi->Cell($wRawMat / 3, $rowHeight,Str::wordWrap($product['material'], 5, "\n", false), 1, 0, 'C');
+            // $this->fpdi->Cell($wRawMat / 3, $rowHeight, wordwrap($product['material'], 5, "\n", true), 1, 0, 'C');
+            $this->fpdi->Cell($wRawMat / 3, $rowHeight, wordwrap($product['material'], 5, "\n", true), 1, 0, 'C');
+            // RAW MATERIAL: calculate max height for Material MultiCell
+            $this->fpdi->Cell($wRawMat / 3, $rowHeight, $product['thickness'], 1, 0, 'C');
+            $this->fpdi->Cell($wRawMat / 3, $rowHeight, $product['material_w'], 1, 0, 'C');
+
+            // FIRST PRICE ROW
+            $this->fpdi->Cell($wMoq, $rowHeight, $firstPrice[0], 1, 0, 'C');
+            $this->fpdi->Cell($wUom, $rowHeight, $firstPrice[1], 1, 0, 'C');
+            $this->fpdi->Cell($wPrice, $rowHeight, $firstPrice[2], 1, 1, 'C');
+
+            // REMAINING PRICE ROWS
+            for ($i = 1; $i < count($prices); $i++) {
+                $p = $prices[$i];
+                $this->fpdi->Cell($wDesc + $wSpecs + $wRawMat, 8, "", 2, 0);
+                $this->fpdi->Cell($wMoq, 8, $p[0], 1, 0, 'C');
+                $this->fpdi->Cell($wUom, 8, $p[1], 1, 0, 'C');
+                $this->fpdi->Cell($wPrice, 8, $p[2], 1, 1, 'C');
+            }
+        }
+    }
+    /** ------------------------------------------------------------
+     * Header Cell Helper
+     * -------------------------------------------------------------- */
+    private function headerCell($width, $label, $endRow = false)
+    {
+        $this->fpdi->SetFillColor(230, 230, 230);
+        $this->fpdi->Cell($width, 8, $label, 1, $endRow ? 1 : 0, 'C', true);
+        $this->fpdi->SetFillColor(255, 255, 255);
+    }
+
     /** ------------------------------------------------------------
      * Build Product Table (Best Practice)
      * -------------------------------------------------------------- */
-    private function buildRawMaterialTable($product)
+    private function buildRawMaterialTable($valDescriptions)
+    {
+
+        // PROPORTIONAL COLUMN WIDTHS (fit inside A4)
+        $wDesc     = $this->usableWidth * 0.30;
+        $wSpecs    = $this->usableWidth * 0.22;
+        $wRawMat   = $this->usableWidth * 0.22;
+        $wLoopCols = $this->usableWidth * 0.26;
+
+        $wMoq      = $wLoopCols * 0.34;
+        $wUom      = $wLoopCols * 0.28;
+        $wPrice    = $wLoopCols * 0.38;
+
+        /* ===============================
+        1) HEADER ROW
+        =============================== */
+        $this->headerCell($wDesc,  "DESCRIPTION");
+        $this->headerCell($wSpecs, "SPECS");
+        $this->headerCell($wRawMat, "RAW MATERIAL");
+        $this->headerCell($wMoq,   "MOQ");
+        $this->headerCell($wUom,   "UOM");
+        $this->headerCell($wPrice, "Price/Pc", true);
+
+        /* ===============================
+        2) SUB HEADERS
+        =============================== */
+        $this->fpdi->Cell($wDesc, 7, "", 1);
+
+        $this->fpdi->Cell($wSpecs / 3, 7, "Length", 1, 0, 'C');
+        $this->fpdi->Cell($wSpecs / 3, 7, "Width", 1, 0, 'C');
+        $this->fpdi->Cell($wSpecs / 3, 7, "Height", 1, 0, 'C');
+
+        $this->fpdi->Cell($wRawMat / 3, 7, "Type", 1, 0, 'C');
+        $this->fpdi->Cell($wRawMat / 3, 7, "Thick", 1, 0, 'C');
+        $this->fpdi->Cell($wRawMat / 3, 7, "Width", 1, 0, 'C');
+
+        // Sub-header for first price row
+        $this->fpdi->Cell($wMoq,   7, "", 1, 0, 'C');
+        $this->fpdi->Cell($wUom,   7, "", 1, 0, 'C');
+        $this->fpdi->Cell($wPrice, 7, "", 1, 1, 'C');
+
+        /* ===============================
+        3) MAIN ROW (aligned with first price)
+        =============================== */
+
+        // $prices = $valDescriptions["prices"];
+
+        // // FIRST ROW OF THE PRICE TABLE (to align inside main row)
+        // $firstPrice = $prices[0];
+
+
+
+        // DESCRIPTION MultiCell
+        for ($indexRawMatRow=0; $indexRawMatRow < count($valDescriptions); $indexRawMatRow++) {
+            $startX = $this->fpdi->GetX();
+            $startY = $this->fpdi->GetY();
+            // echo json_encode($valDescriptions[$indexRawMatRow]);
+            $rawMatRow = $valDescriptions[$indexRawMatRow];
+            $this->fpdi->MultiCell($wDesc, 6, $rawMatRow['partCode'], 1);
+
+            $rowHeight = $this->fpdi->GetY() - $startY;
+            // // Restore after MultiCell
+            // $this->fpdi->SetXY($startX + $wDesc, $startY);
+
+            // // SPECS (3 columns)
+            $this->fpdi->Cell($wSpecs / 3, $rowHeight, $rawMatRow['matSpecsLength'], 1, 0, 'C');
+            // $this->fpdi->Cell($wSpecs / 3, $rowHeight, $rawMatRow['matSpecsWidth'], 1, 0, 'C');
+            // $this->fpdi->Cell($wSpecs / 3, $rowHeight, $rawMatRow['matSpecsHeight'], 1, 0, 'C');
+
+            // // RAW MATERIAL (3 columns)
+            // $this->fpdi->Cell($wRawMat / 3, $rowHeight, $rawMatRow['matRawType'], 1, 0, 'C');
+            // $this->fpdi->Cell($wRawMat / 3, $rowHeight, $rawMatRow['matRawThickness'], 1, 0, 'C');
+            // $this->fpdi->Cell($wRawMat / 3, $rowHeight, $rawMatRow['matRawWidth'], 1, 0, 'C');
+
+        }
+
+
+        // // 🔥 FIRST PRICE ROW ALIGNED EXACTLY HERE
+        // $this->fpdi->Cell($wMoq,   $rowHeight, $firstPrice[0], 1, 0, 'C');
+        // $this->fpdi->Cell($wUom,   $rowHeight, $firstPrice[1], 1, 0, 'C');
+        // $this->fpdi->Cell($wPrice, $rowHeight, $firstPrice[2], 1, 1, 'C');
+
+        // /* ===============================
+        // 4) REMAINING PRICE ROWS BELOW
+        // =============================== */
+        // for ($i = 1; $i < count($prices); $i++) {
+        //     $p = $prices[$i];
+
+        //     // Left side blank (DESC + SPECS + RAW MAT)
+        //     $this->fpdi->Cell($wDesc + $wSpecs + $wRawMat, 8, "", 1, 0);
+
+        //     // Loop cells
+        //     $this->fpdi->Cell($wMoq,   8, $p[0], 1, 0, 'C');
+        //     $this->fpdi->Cell($wUom,   8, $p[1], 1, 0, 'C');
+        //     $this->fpdi->Cell($wPrice, 8, $p[2], 1, 1, 'C');
+        // }
+    }
+    private function buildRawMaterialTableOne($product)
     {
         // PROPORTIONAL COLUMN WIDTHS (fit inside A4)
         $wDesc     = $this->usableWidth * 0.30;
@@ -415,16 +760,6 @@ class PdfCustomService implements PdfCustomInterface
             $this->fpdi->Cell($wUom,   8, $p[1], 1, 0, 'C');
             $this->fpdi->Cell($wPrice, 8, $p[2], 1, 1, 'C');
         }
-    }
-
-    /** ------------------------------------------------------------
-     * Header Cell Helper
-     * -------------------------------------------------------------- */
-    private function headerCell($width, $label, $endRow = false)
-    {
-        $this->fpdi->SetFillColor(230, 230, 230);
-        $this->fpdi->Cell($width, 8, $label, 1, $endRow ? 1 : 0, 'C', true);
-        $this->fpdi->SetFillColor(255, 255, 255);
     }
     private function buildSpecsTable($newFpdi, $item)
     {
