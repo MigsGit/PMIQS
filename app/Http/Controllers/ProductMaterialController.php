@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use DataTables;
 use App\Models\PmItem;
 use App\Models\PmApproval;
-use Illuminate\Http\Request;
+use App\Services\PdfService;
 
+use Illuminate\Http\Request;
 use App\Models\PmDescription;
 use App\Models\PmClassification;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,7 @@ class ProductMaterialController extends Controller
 {
     protected $resourceInterface;
     protected $pdfCustomInterface;
+    protected $commonInterface;
     public function __construct(ResourceInterface $resourceInterface, CommonInterface $commonInterface,PdfCustomInterface $pdfCustomInterface){
         $this->resourceInterface = $resourceInterface;
         $this->commonInterface = $commonInterface;
@@ -491,6 +493,47 @@ class ProductMaterialController extends Controller
     }
     public function viewPmItemRef(Request $request){
         try {
+
+
+           $products = [
+                [
+                    "description" => ["TR405-1040 Base & Cover Tray", "Cover Tray"],
+                    "length"      => [360, 360],
+                    "width"       => [175, 175],
+                    "height"      => [40.9, 40.9],
+                    "material"    => ["APET", "APET"],
+                    "thickness"   => [1.0, 1.0],
+                    "material_w"  => [445, 445],
+                    "prices" => [
+                        [500,  "pcs", "$ 1.2689"],
+                        [1000, "pcs", "$ 1.2195"],
+                        [2000, "pcs", "$ 1.1886"],
+                        [3000, "pcs", "$ 1.1618"],
+                    ],
+                ],
+                [
+                    "description" => ["Cover Tray"],
+                    "length"      => [100],
+                    "width"       => [100],
+                    "height"      => [100],
+                    "material"    => ["Cover Tray"],
+                    "thickness"   => [100],
+                    "material_w"  => [100],
+                    "prices" => [
+                        [500,  "pcs", "$ 0.95"],
+                        [1000, "pcs", "$ 0.92"],
+                        [2000, "pcs", "$ 0.90"],
+                        [3000, "pcs", "$ 0.88"],
+                    ],
+                ]
+            ];
+
+            $pdfContent = $this->pdfCustomInterface->generatePdfProductMaterial($products);
+
+            return response($pdfContent)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
+
             $itemsId= decrypt($request->itemsId);
             $data = $this->resourceInterface->readCustomEloquent(
                 PmItem::class,

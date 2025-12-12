@@ -1,13 +1,15 @@
 <?php
 namespace App\Providers;
 
-use App\Services\FileService;
+use App\Services\PdfService;
 
+use App\Services\FileService;
 use App\Services\EmailService;
 use App\Services\CommonService;
+use App\Interfaces\PdfInterface;
 use App\Interfaces\FileInterface;
-use App\Services\ResourceService;
 
+use App\Services\ResourceService;
 use App\Interfaces\EmailInterface;
 use App\Services\PdfCustomService;
 use App\Interfaces\CommonInterface;
@@ -29,6 +31,7 @@ class SolidServiceProvider extends ServiceProvider
         $this->app->bind(PdfCustomInterface::class, PdfCustomService::class);
         $this->app->bind(FileInterface::class, FileService::class);
         $this->app->bind(EmailInterface::class, EmailService::class);
+        $this->app->bind(PdfInterface::class, PdfService::class);
     }
 
     /**
