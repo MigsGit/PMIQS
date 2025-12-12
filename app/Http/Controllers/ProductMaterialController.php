@@ -637,30 +637,8 @@ class ProductMaterialController extends Controller
             $additionalMessage = $pmCustomerGroupDetailData['additional_message'];
             $termsCondition = $pmCustomerGroupDetailData['terms_condition'];
 
-           $descriptions = collect($descriptions)->map(function ($item) {
-                return [
-                     "itemsId" =>    [$item['itemsId']],
-                    "itemNo" =>      [$item['itemNo']],
-                    "partCode" =>    [$item['partCode']],
-                    "description" => [$item['descriptionPartName']],
-                    "length"      => [$item['matSpecsLength']],
-                    "width"       => [$item['matSpecsWidth']],
-                    "height"      => [$item['matSpecsHeight']],
-                    "material"    => [$item['matRawType']],
-                    "thickness"   => [$item['matRawThickness']],
-                    "material_w"  => [$item['matRawWidth']],
-
-                    // Transform nested prices → [qty, "pcs", "$ 0.00"]
-                    "prices" => collect($item['classifications'])->map(function ($p) {
-                        return [
-                            $p['qty'],
-                            "pcs",
-                            "$ " . number_format($p['unitPrice'], 4)
-                        ];
-                    })->values()->toArray(),
-                ];
-            })->values()->groupBy('itemNo');
-            return $data = [
+           
+            $data = [
                 'to' => "Yamaichi Electronics Co.",
                 'attn' => $attentionName,
                 'cc' => $ccName,

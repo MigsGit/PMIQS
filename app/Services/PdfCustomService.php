@@ -396,8 +396,8 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Ln(5);
         $this->fpdi->MultiCell(190, 5, "We are pleased to submit quotation for TR405-1040 and TR407-1040 tray:");
 
-        echo json_encode($data);
-        exit;
+        // echo json_encode($data['descriptions']);
+        // exit;
         // Table header once
         $products = [
             [
@@ -431,9 +431,50 @@ class PdfCustomService implements PdfCustomInterface
                 ],
             ]
         ];
-        $this->buildProductTable($products);
-        $this->fpdi->Ln(5);
+        // echo json_encode( $products);
+        // echo json_encode( $data['descriptions'][3]);
+        // exit;
+        $ctrMaterial = 1;
+        $descriptions = collect($data['descriptions'])->map(function ($item) {
+            return [
+                 "itemsId" =>    [$item['itemsId']],
+                "itemNo" =>      [$item['itemNo']],
+                "partCode" =>    [$item['partCode']],
+                "description" => [$item['descriptionPartName']],
+                "length"      => [$item['matSpecsLength']],
+                "width"       => [$item['matSpecsWidth']],
+                "height"      => [$item['matSpecsHeight']],
+                "material"    => [$item['matRawType']],
+                "thickness"   => [$item['matRawThickness']],
+                "material_w"  => [$item['matRawWidth']],
 
+                // Transform nested prices → [qty, "pcs", "$ 0.00"]
+                "prices" => collect($item['classifications'])->map(function ($p) {
+                    return [
+                        $p['qty'],
+                        "pcs",
+                        "$ " . number_format($p['unitPrice'], 4)
+                    ];
+                })->values()->toArray(),
+            ];
+        })->values()->groupBy('itemNo')->toArray();
+        // echo json_encode($descriptions[1]);
+
+        // foreach ($descriptions as $key => $value) {
+        //     echo json_encode($value);
+        //     // echo json_encode($ctrMaterial);
+        //     $ctrMaterial++;
+        // }
+        // exit;
+
+
+        $ctrMaterialctrMaterial = 1;
+        for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
+            // echo json_encode($descriptions[$ctrMaterial]);
+            $this->buildProductTable($descriptions[$ctrMaterial]);
+            $ctrMaterial++;
+        }
+        $this->fpdi->Ln(5);
         $this->fpdi->SetFont('Arial', 'B', 10);
         $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);
         $this->fpdi->SetFont('Arial', '', 10);
@@ -517,7 +558,8 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->SetFont('Arial', '', 9);
 
         // For each product draw merged left block + price rows
-        foreach ($products as $product) {
+        foreach ($products as $key  => $product) {
+            // return $products;
             // Normalize arrays: if values are scalars, wrap into array
             $descArr = is_array($product['description']) ? $product['description'] : [$product['description']];
             $lenArr  = is_array($product['length']) ? $product['length'] : [$product['length']];
