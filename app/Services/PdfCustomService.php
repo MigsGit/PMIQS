@@ -373,11 +373,96 @@ class PdfCustomService implements PdfCustomInterface
      * Public entry. $products is an array of product arrays.
      * Returns PDF binary string (you can stream or download it).
      */
-    public function generatePdfProductMaterial(array $products)
+    public function generatePdfProductMaterial(array $data)
     {
-        
+        // return $data;
+        // === FONT SETTINGS ===
+        $this->fpdi->SetFont('Arial', '', 10);
+
+        // === HEADER DETAILS ===
+        $this->fpdi->SetXY(10, 10);
+        $this->fpdi->SetFont('Arial', 'B', 12);
+        $this->fpdi->Cell(190, 6, "PMI-CN-2504-022", 0, 1, "L");
+
+        $this->fpdi->SetFont('Arial', '', 10);
+        $this->fpdi->Ln(2);
+
+        $this->fpdi->Cell(100, 5, "To:           " . $data['to'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Attn.:        " . $data['attn'], 0, 1);
+        $this->fpdi->Cell(100, 5, "CC:          " . $data['cc'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Subject:   " . $data['subject'], 0, 1);
+        $this->fpdi->Cell(100, 5, "Date:        " . $data['date'], 0, 1);
+
+        $this->fpdi->Ln(5);
+        $this->fpdi->MultiCell(190, 5, "We are pleased to submit quotation for TR405-1040 and TR407-1040 tray:");
+
+        echo json_encode($data);
+        exit;
         // Table header once
+        $products = [
+            [
+                "description" => ["TR405-1040 Base & Cover Tray", "Cover Tray"],
+                "length"      => [360, 360],
+                "width"       => [175, 175],
+                "height"      => [40.9, 40.9],
+                "material"    => ["APET", "APET"],
+                "thickness"   => [1.0, 1.0],
+                "material_w"  => [445, 445],
+                "prices" => [
+                    [500,  "pcs", "$ 1.2689"],
+                    [1000, "pcs", "$ 1.2195"],
+                    [2000, "pcs", "$ 1.1886"],
+                    [3000, "pcs", "$ 1.1618"],
+                ],
+            ],
+            [
+                "description" => ["Cover Tray"],
+                "length"      => [100],
+                "width"       => [100],
+                "height"      => [100],
+                "material"    => ["Cover Tray"],
+                "thickness"   => [100],
+                "material_w"  => [100],
+                "prices" => [
+                    [500,  "pcs", "$ 0.95"],
+                    [1000, "pcs", "$ 0.92"],
+                    [2000, "pcs", "$ 0.90"],
+                    [3000, "pcs", "$ 0.88"],
+                ],
+            ]
+        ];
         $this->buildProductTable($products);
+        $this->fpdi->Ln(5);
+
+        $this->fpdi->SetFont('Arial', 'B', 10);
+        $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);
+        $this->fpdi->SetFont('Arial', '', 10);
+        foreach ($data['terms'] as $i => $term) {
+            $this->fpdi->Cell(190, 5, ($i + 1) . ". " . $term, 0, 1);
+        }
+        // ===== SIGNATORY SECTION =====
+        $this->fpdi->Ln(10);
+        $this->fpdi->SetFont('Arial', '', 10);
+        $this->fpdi->Cell(190, 5, "For your information and acceptance.", 0, 1);
+
+        $this->fpdi->Ln(10);
+        $this->fpdi->Cell(90, 5, "Prepared by:", 0, 0);
+        $this->fpdi->Cell(90, 5, "Checked by:", 0, 1);
+        $this->fpdi->Ln(5);
+        $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
+        $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
+
+        $this->fpdi->Ln(10);
+        $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
+        $this->fpdi->Ln(5);
+        $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
+
+        $this->fpdi->Ln(10);
+        $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
+        $this->fpdi->Ln(5);
+        $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 0);
+        $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
+
 
         return $this->fpdi->Output('S');
 

@@ -491,49 +491,8 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-    public function viewPmItemRef(Request $request){
+    public function viewPmItemRefv1(Request $request){
         try {
-
-
-           $products = [
-                [
-                    "description" => ["TR405-1040 Base & Cover Tray", "Cover Tray"],
-                    "length"      => [360, 360],
-                    "width"       => [175, 175],
-                    "height"      => [40.9, 40.9],
-                    "material"    => ["APET", "APET"],
-                    "thickness"   => [1.0, 1.0],
-                    "material_w"  => [445, 445],
-                    "prices" => [
-                        [500,  "pcs", "$ 1.2689"],
-                        [1000, "pcs", "$ 1.2195"],
-                        [2000, "pcs", "$ 1.1886"],
-                        [3000, "pcs", "$ 1.1618"],
-                    ],
-                ],
-                [
-                    "description" => ["Cover Tray"],
-                    "length"      => [100],
-                    "width"       => [100],
-                    "height"      => [100],
-                    "material"    => ["Cover Tray"],
-                    "thickness"   => [100],
-                    "material_w"  => [100],
-                    "prices" => [
-                        [500,  "pcs", "$ 0.95"],
-                        [1000, "pcs", "$ 0.92"],
-                        [2000, "pcs", "$ 0.90"],
-                        [3000, "pcs", "$ 0.88"],
-                    ],
-                ]
-            ];
-
-            $pdfContent = $this->pdfCustomInterface->generatePdfProductMaterial($products);
-
-            return response($pdfContent)
-                ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
-
             $itemsId= decrypt($request->itemsId);
             $data = $this->resourceInterface->readCustomEloquent(
                 PmItem::class,
@@ -603,6 +562,114 @@ class ProductMaterialController extends Controller
                     ],
                 ],
 
+                // 'terms' => [
+                //     "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
+                //     "Terms of Payment: 30 days after end of month.",
+                //     "Quotation valid until new quotation is issued.",
+                //     "Other conditions subject to supplier regulation."
+                // ],
+                'terms' => [
+                    $termsCondition
+                ],
+
+                'prepared_by' => $preparedBy,
+                'checked_by' => $checkedBy,
+                'noted_by' => $notedBy,
+                'approved_by1' => $appovedBy1,
+                'approved_by2' => $appovedBy2,
+
+                'prepared_by_position' => $preparedByPosition,
+                'checked_by_position' => $checkedByPosition,
+                'noted_by_position' => $notedByPosition,
+                'appoved_by1_position' => $appovedBy1Position,
+                'appoved_by2_position' => $appovedBy2Position,
+            ];
+            // return $data;
+            $generatePdfProductMaterial= $this->pdfCustomInterface->generatePdfProductMaterial($data);
+            return response($generatePdfProductMaterial)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+    public function viewPmItemRef(Request $request){
+        try {
+            $itemsId= decrypt($request->itemsId);
+            $data = $this->resourceInterface->readCustomEloquent(
+                PmItem::class,
+                [],
+                [
+                    'descriptions.classifications',
+                    'rapidx_user_created_by',
+                    'pm_approvals.rapidx_user_rapidx_user_id',
+                    'pm_approvals.pm_user',
+                    'pm_customer_group_detail.dropdown_customer_group',
+                ],
+                ['pm_items_id' => $itemsId],
+            );
+            $pmItems =  $data->get();
+            $itemCollection = ItemResource::collection($pmItems)->resolve();
+            $descriptions = collect($itemCollection[0]['descriptions']);
+            $controlNo = $itemCollection[0]['controlNo'];
+            // $descriptions = $itemCollection[0]['descriptions'];
+            $pmApprovalsData = $itemCollection[0]['pm_approvals'];
+
+            $preparedBy = $pmApprovalsData[0]['rapidx_user_rapidx_user_id']['name']?? '';
+            $checkedBy = $pmApprovalsData[1]['rapidx_user_rapidx_user_id']['name']?? '';
+            $notedBy = $pmApprovalsData[2]['rapidx_user_rapidx_user_id']['name']?? '';
+            $appovedBy1 = $pmApprovalsData[3]['rapidx_user_rapidx_user_id']['name']?? '';
+            $appovedBy2 = $pmApprovalsData[4]['rapidx_user_rapidx_user_id']['name']?? '';
+
+            $preparedByPosition = $pmApprovalsData[0]['pm_user']['department_position'] ?? '';
+            $checkedByPosition = $pmApprovalsData[1]['pm_user']['department_position'] ?? '';
+            $notedByPosition = $pmApprovalsData[2]['pm_user']['department_position'] ?? '';
+            $appovedBy1Position = $pmApprovalsData[3]['pm_user']['department_position'] ?? '';
+            $appovedBy2Position = $pmApprovalsData[4]['pm_user']['department_position'] ?? '';
+
+            $pmCustomerGroupDetailData = $itemCollection[0]['rapidx_user_created_by']['name'];
+            $pmCustomerGroupDetailData = $itemCollection[0]['pm_customer_group_detail'][0];
+            $customerName = $pmCustomerGroupDetailData['dropdown_customer_group'][0]['customer'];
+            $attentionName = $pmCustomerGroupDetailData['attention_name'];
+            $ccName = $pmCustomerGroupDetailData['cc_name'];
+            $subject = $pmCustomerGroupDetailData['subject'];
+            $additionalMessage = $pmCustomerGroupDetailData['additional_message'];
+            $termsCondition = $pmCustomerGroupDetailData['terms_condition'];
+
+           $descriptions = collect($descriptions)->map(function ($item) {
+                return [
+                     "itemsId" =>    [$item['itemsId']],
+                    "itemNo" =>      [$item['itemNo']],
+                    "partCode" =>    [$item['partCode']],
+                    "description" => [$item['descriptionPartName']],
+                    "length"      => [$item['matSpecsLength']],
+                    "width"       => [$item['matSpecsWidth']],
+                    "height"      => [$item['matSpecsHeight']],
+                    "material"    => [$item['matRawType']],
+                    "thickness"   => [$item['matRawThickness']],
+                    "material_w"  => [$item['matRawWidth']],
+
+                    // Transform nested prices → [qty, "pcs", "$ 0.00"]
+                    "prices" => collect($item['classifications'])->map(function ($p) {
+                        return [
+                            $p['qty'],
+                            "pcs",
+                            "$ " . number_format($p['unitPrice'], 4)
+                        ];
+                    })->values()->toArray(),
+                ];
+            })->values()->groupBy('itemNo');
+            return $data = [
+                'to' => "Yamaichi Electronics Co.",
+                'attn' => $attentionName,
+                'cc' => $ccName,
+                'subject' => $subject,
+                'date' => "April 29, 2025",
+                'message' => [
+                  $additionalMessage
+                ],
+                'descriptions' => $descriptions,
                 // 'terms' => [
                 //     "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
                 //     "Terms of Payment: 30 days after end of month.",
