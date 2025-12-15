@@ -213,7 +213,6 @@ class ProductMaterialController extends Controller
     }
     public function saveClassificationQty(Request $request,PmClassificationRequest $pmClassificationRequest){
         try {
-            return 'true';
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
             PmClassification::whereIn('pm_descriptions_id',$request->descriptionsId)->delete();
@@ -221,12 +220,12 @@ class ProductMaterialController extends Controller
                 $rowClassificationData = [
                     'pm_descriptions_id' => $item,
                     'classification' => $request->classification[$key],
-                    // 'qty' => $request->qty[$key],
                     'qty' => $request->qty[$key],
                     'uom' => $request->uom[$key],
                     'unit_price' => $request->unitPrice[$key],
                     'remarks' => $request->remarks[$key],
                 ];
+
                 $this->resourceInterface->create
                 (
                     PmClassification::class,
@@ -297,11 +296,11 @@ class ProductMaterialController extends Controller
             $itemResource = ItemResource::collection($pmItems)->resolve();
             $itemResourceCollection = json_decode(json_encode($itemResource), true);
 
-           $itemResourceCollectionCache = Cache::remember('pmItemCache', now()->addMinutes(10), function () use ($itemResourceCollection) {
-                return collect($itemResourceCollection);
-            });
+        //    $itemResourceCollectionCache = Cache::remember('pmItemCache', now()->addMinutes(10), function () use ($itemResourceCollection) {
+        //         return collect($itemResourceCollection);
+        //     });
 
-            return DataTables::of($itemResourceCollectionCache)
+            return DataTables::of($itemResourceCollection)
             ->addColumn('getActions',function ($row){
                 $result = "";
                 // $result .= '<center>';
@@ -611,6 +610,7 @@ class ProductMaterialController extends Controller
             );
             $pmItems =  $data->get();
             $itemCollection = ItemResource::collection($pmItems)->resolve();
+            $category = $itemCollection[0]['category'];
             $descriptions = collect($itemCollection[0]['descriptions']);
             $controlNo = $itemCollection[0]['controlNo'];
             // $descriptions = $itemCollection[0]['descriptions'];
@@ -637,7 +637,31 @@ class ProductMaterialController extends Controller
             $additionalMessage = $pmCustomerGroupDetailData['additional_message'];
             $termsCondition = $pmCustomerGroupDetailData['terms_condition'];
 
-           
+           $arrDescriptions = collect($descriptions)->map(function ($item) use ($category) {
+                return [
+                    "itemsId"     => [$item['itemsId']],
+                    "category"    => $category,
+                    "itemNo"      => [$item['itemNo']],
+                    "part_code"    => [$item['partCode']],
+                    "description" => [$item['descriptionPartName']],
+                    "length"      => [$item['matSpecsLength']],
+                    "width"       => [$item['matSpecsWidth']],
+                    "height"      => [$item['matSpecsHeight']],
+                    "material"    => [$item['matRawType']],
+                    "thickness"   => [$item['matRawThickness']],
+                    "material_w"  => [$item['matRawWidth']],
+                    // Transform nested prices → [qty, "pcs", "$ 0.00"]
+                    "prices" => collect($item['classifications'])->map(function ($p) {
+                        return [
+                            $p['classification'],
+                            $p['qty'],
+                            "pcs",
+                            "$ " . number_format($p['unitPrice'], 4)
+                        ];
+                    })->values()->toArray(),
+                ];
+            })->values()->groupBy('itemNo')->toArray();
+
             $data = [
                 'to' => "Yamaichi Electronics Co.",
                 'attn' => $attentionName,
@@ -647,7 +671,7 @@ class ProductMaterialController extends Controller
                 'message' => [
                   $additionalMessage
                 ],
-                'descriptions' => $descriptions,
+                'descriptions' => $arrDescriptions,
                 // 'terms' => [
                 //     "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
                 //     "Terms of Payment: 30 days after end of month.",
@@ -675,7 +699,6 @@ class ProductMaterialController extends Controller
             return response($generatePdfProductMaterial)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
-            return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
             throw $e;
         }

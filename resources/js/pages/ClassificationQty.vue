@@ -184,11 +184,11 @@
                 <div class="row">
                     <div class="col-6">
                         <h4>Classification Details</h4>
-                        <!-- nmodify {{ pmVar.ecrApprovalCurrentCount }} -->
+                       {{ pmItemStatusParam }}
                     </div>
 
                     <div class="col-6 mb-3">
-                        <button v-show="pmItemStatusParam === 'FORUP'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save</button>
+                        <button v-show="pmItemStatusParam === 'FORUP'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save </button>
                     </div>
                 </div>
                  <!-- Classification Cards -->
