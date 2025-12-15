@@ -274,47 +274,23 @@ class PdfCustomService implements PdfCustomInterface
 
         $this->fpdi->Ln(5);
         $this->fpdi->MultiCell(190, 5, "We are pleased to submit quotation for TR405-1040 and TR407-1040 tray:");
-
-        $products = [[
-            'part_code'  => ['TR405-1040'],
-            'description'=> ['Base & Cover Tray'],
-            'length'     => [360],
-            'width'      => [175],
-            'height'     => [40.9],
-            'material'   => ['APET'],
-            'thickness'  => [1.0],
-            'material_w' => [445],
-            'prices'     => [
-                ['Classification', 500,  'pcs', '$1.26'],
-                ['Classification', 500,  'pcs', '$1.26'],
-                ['Classification', 1000, 'pcs', '$1.21'],
-            ],
-        ],['part_code'  => ['TR405-1040'],
-            'description'=> ['Base & Cover Tray'],
-            'length'     => [360],
-            'width'      => [175],
-            'height'     => [40.9],
-            'material'   => ['APET'],
-            'thickness'  => [1.0],
-            'material_w' => [445],
-            'prices'     => [
-                ['Classification', 500,  'pcs', '$1.26'],
-                ['Classification', 1000, 'pcs', '$1.21'],
-            ],
-            ]
-         ] ;
         $descriptions = $data['descriptions'];
-        // echo json_encode($descriptions);
-        // exit;
 
         $ctrMaterial = 1;
-        //    echo $this->buildProductTable($products);
-
-        for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
-           echo $this->buildProductTable($descriptions[$ctrMaterial]);
-            $ctrMaterial++;
-        }
-        // exit;
+        // if($data['category'] === "PRO"){
+        //     for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
+        //         $this->buildProductTable($descriptions[$ctrMaterial]);
+        //         $ctrMaterial++;
+        //         $this->fpdi->Ln(3);
+        //     }
+        // }
+        // if($data['category'] === "RM"){
+            for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
+                $this->buildRawMatTable($descriptions[$ctrMaterial]);
+                $ctrMaterial++;
+                $this->fpdi->Ln(3);
+            }
+        // }
         $this->fpdi->Ln(5);
         $this->fpdi->SetFont('Arial', 'B', 10);
         $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);
@@ -349,157 +325,246 @@ class PdfCustomService implements PdfCustomInterface
         return $this->fpdi->Output('S');
 
     }
-    private function buildProductTable(array $products)
-{
-    // Column width strategy (proportional)
-    $wPartCode = $this->usableWidth * 0.10; // new Part Code column
-    $wDesc     = $this->usableWidth * 0.15; // DESCRIPTION block
-    $wSpecs    = $this->usableWidth * 0.18; // SPECS group total
-    $wRawMat   = $this->usableWidth * 0.22; // RAW MATERIAL group total
-    $wLoopCols = $this->usableWidth * 0.40; // MOQ/UOM/Price group total
+    private function buildRawMatTable(array $products){
+        // Column width strategy (proportional)
+        $wPartCode = $this->usableWidth * 0.10; // new Part Code column
+        $wDesc     = $this->usableWidth * 0.15; // DESCRIPTION block
+        $wSpecs    = $this->usableWidth * 0.18; // SPECS group total
+        $wRawMat   = $this->usableWidth * 0.22; // RAW MATERIAL group total
+        $wLoopCols = $this->usableWidth * 0.40; // MOQ/UOM/Price group total
 
-    // Split group columns
-    $wSpecsSub = $wSpecs / 3; // Length / Width / Height
-    $wRawSub   = $wRawMat / 3; // Type / Thick / Width
+        // Split group columns
+        $wSpecsSub = $wSpecs / 3; // Length / Width / Height
+        $wRawSub   = $wRawMat / 3; // Type / Thick / Width
 
-    $wClassification = $wLoopCols * 0.30;
-    $wMoq   = $wLoopCols * 0.25;
-    $wUom   = $wLoopCols * 0.20;
-    $wPrice = $wLoopCols * 0.25;
+        $wClassification = $wLoopCols * 0.30;
+        $wMoq   = $wLoopCols * 0.12;
+        $wUom   = $wLoopCols * 0.12;
+        $wPrice = $wLoopCols * 0.20;
 
-    // Draw header
-    $this->fpdi->SetFillColor(230, 230, 230);
-    $this->fpdi->SetDrawColor(120);
-    $this->fpdi->SetLineWidth(0.2);
-
-    $this->headerCell($wPartCode, 'Part Code');
-    $this->headerCell($wDesc, 'DESCRIPTION');
-    $this->headerCell($wSpecs, 'SPECS');
-    $this->headerCell($wRawMat, 'RAW MATERIAL');
-    $this->headerCell($wClassification, 'Classification');
-    $this->headerCell($wMoq, 'MOQ');
-    $this->headerCell($wUom, 'UOM');
-    $this->headerCell($wPrice, 'Price/Pc', true);
-
-    // Sub-headers row
-    $rowH = 7;
-    $this->fpdi->SetFont('Arial', 'B', 9);
-
-    $this->fpdi->Cell($wPartCode, $rowH, '', 1, 0, 'C'); // empty for Part Code
-    $this->fpdi->Cell($wDesc, $rowH, '', 1, 0, 'C'); // DESCRIPTION
-    $this->fpdi->Cell($wSpecsSub, $rowH, 'Length', 1, 0, 'C');
-    $this->fpdi->Cell($wSpecsSub, $rowH, 'Width', 1, 0, 'C');
-    $this->fpdi->Cell($wSpecsSub, $rowH, 'Height', 1, 0, 'C');
-
-    $this->fpdi->Cell($wRawSub, $rowH, 'Type', 1, 0, 'C');
-    $this->fpdi->Cell($wRawSub, $rowH, 'Thick', 1, 0, 'C');
-    $this->fpdi->Cell($wRawSub, $rowH, 'Width', 1, 0, 'C');
-
-    $this->fpdi->Cell($wClassification, $rowH, '', 1, 0, 'C'); // empty for sub-row
-    $this->fpdi->Cell($wMoq, $rowH, 'MOQ', 1, 0, 'C');
-    $this->fpdi->Cell($wUom, $rowH, 'UOM', 1, 0, 'C');
-    $this->fpdi->Cell($wPrice, $rowH, 'Price/Pc', 1, 1, 'C');
-
-    // Reset font for body
-    $this->fpdi->SetFont('Arial', '', 9);
-
-    foreach ($products as $product) {
-        // Normalize arrays
-        $partCodeArr = is_array($product['part_code']) ? $product['part_code'] : [$product['part_code']];
-        $descArr = is_array($product['description']) ? $product['description'] : [$product['description']];
-        $lenArr  = is_array($product['length']) ? $product['length'] : [$product['length']];
-        $widArr  = is_array($product['width']) ? $product['width'] : [$product['width']];
-        $hgtArr  = is_array($product['height']) ? $product['height'] : [$product['height']];
-        $matArr  = is_array($product['material']) ? $product['material'] : [$product['material']];
-        $thkArr  = is_array($product['thickness']) ? $product['thickness'] : [$product['thickness']];
-        $mwArr   = is_array($product['material_w']) ? $product['material_w'] : [$product['material_w']];
-        $prices  = $product['prices'] ?? [];
-
-        $subRows = max(count($descArr), count($lenArr), count($widArr), count($hgtArr), count($matArr), count($thkArr), count($mwArr));
-        $priceRows = max(1, count($prices));
-
-        $subRowHeight = 6;
-        $minBlockHeight = $subRows * $subRowHeight;
-        $priceRowHeight = 7;
-        $minPriceBlockHeight = $priceRows * $priceRowHeight;
-        $blockHeight = max($minBlockHeight, $minPriceBlockHeight);
-        $actualPriceRowH = $blockHeight / $priceRows;
-
-        $x = $this->fpdi->GetX();
-        $y = $this->fpdi->GetY();
-
-        // Part Code box
-        $this->fpdi->Rect($x, $y, $wPartCode, $blockHeight);
-        $this->drawRectText($x, $y, $wPartCode, $blockHeight, $partCodeArr, $subRowHeight);
-
-        // DESCRIPTION
-        $dx = $x + $wPartCode;
-        $this->fpdi->Rect($dx, $y, $wDesc, $blockHeight);
-        $this->drawRectText($dx, $y, $wDesc, $blockHeight, $descArr, $subRowHeight);
-
-        // SPECS
-        $sx = $dx + $wDesc;
-        $this->fpdi->Rect($sx, $y, $wSpecs, $blockHeight);
-        $curY = $y;
-        for ($r = 0; $r < $subRows; $r++) {
-            $this->fpdi->SetXY($sx, $curY);
-            $this->fpdi->Cell($wSpecsSub, $subRowHeight, $lenArr[$r] ?? '', 0, 0, 'C');
-            $this->fpdi->Cell($wSpecsSub, $subRowHeight, $widArr[$r] ?? '', 0, 0, 'C');
-            $this->fpdi->Cell($wSpecsSub, $subRowHeight, $hgtArr[$r] ?? '', 0, 0, 'C');
-            $curY += $subRowHeight;
-        }
-        // draw vertical separators for SPECS subcols
+        // Draw header
+        $this->fpdi->SetFillColor(230, 230, 230);
         $this->fpdi->SetDrawColor(120);
-        $this->fpdi->Line($sx + $wSpecsSub, $y, $sx + $wSpecsSub, $y + $blockHeight);
-        $this->fpdi->Line($sx + 2*$wSpecsSub, $y, $sx + 2*$wSpecsSub, $y + $blockHeight);
+        $this->fpdi->SetLineWidth(0.2);
 
-        $rx = $sx + $wSpecs;
-        $this->fpdi->Rect($rx, $y, $wRawMat, $blockHeight);
-        $curY = $y;
-        for ($r = 0; $r < $subRows; $r++) {
-            $this->fpdi->SetXY($rx, $curY);
-            $this->fpdi->Cell($wRawSub, $subRowHeight, $matArr[$r] ?? '', 0, 0, 'C');
-            $this->fpdi->Cell($wRawSub, $subRowHeight, $thkArr[$r] ?? '', 0, 0, 'C');
-            $this->fpdi->Cell($wRawSub, $subRowHeight, $mwArr[$r] ?? '', 0, 0, 'C');
-            $curY += $subRowHeight;
+        $this->headerCell($wPartCode, 'Part Code');
+        $this->headerCell($wDesc, 'DESCRIPTION');
+        $this->headerCell($wSpecs, 'SPECS');
+        $this->headerCell($wRawMat, 'RAW MATERIAL');
+        $this->headerCell($wClassification, 'Classification');
+        $this->headerCell($wMoq, 'MOQ');
+        $this->headerCell($wUom, 'UOM');
+        $this->headerCell($wPrice, 'Price/Pc', true);
+
+        // Sub-headers row
+        $rowH = 7;
+        $this->fpdi->SetFont('Arial', 'B', 9);
+
+        $this->fpdi->Cell($wPartCode, $rowH, '', 1, 0, 'C');
+        $this->fpdi->Cell($wDesc, $rowH, '', 1, 0, 'C');
+        $this->fpdi->Cell($wSpecsSub, $rowH, 'Length', 1, 0, 'C');
+        $this->fpdi->Cell($wSpecsSub, $rowH, 'Width', 1, 0, 'C');
+        $this->fpdi->Cell($wSpecsSub, $rowH, 'Height', 1, 0, 'C');
+
+        $this->fpdi->Cell($wRawSub, $rowH, 'Type', 1, 0, 'C');
+        $this->fpdi->Cell($wRawSub, $rowH, 'Thick', 1, 0, 'C');
+        $this->fpdi->Cell($wRawSub, $rowH, 'Width', 1, 0, 'C');
+
+        $this->fpdi->Cell($wClassification, $rowH, '', 1, 0, 'C');
+        $this->fpdi->Cell($wMoq, $rowH, '', 1, 0, 'C');
+        $this->fpdi->Cell($wUom, $rowH, '', 1, 0, 'C');
+        $this->fpdi->Cell($wPrice, $rowH, '', 1, 1, 'C');
+
+        // Reset font for body
+        $this->fpdi->SetFont('Arial', '', 9);
+
+        foreach ($products as $product) {
+            // Normalize arrays
+            $partCodeArr = is_array($product['part_code']) ? $product['part_code'] : [$product['part_code']];
+            $descArr = is_array($product['description']) ? $product['description'] : [$product['description']];
+            $lenArr  = is_array($product['length']) ? $product['length'] : [$product['length']];
+            $widArr  = is_array($product['width']) ? $product['width'] : [$product['width']];
+            $hgtArr  = is_array($product['height']) ? $product['height'] : [$product['height']];
+            $matArr  = is_array($product['material']) ? $product['material'] : [$product['material']];
+            $thkArr  = is_array($product['thickness']) ? $product['thickness'] : [$product['thickness']];
+            $mwArr   = is_array($product['material_w']) ? $product['material_w'] : [$product['material_w']];
+            $prices  = $product['prices'] ?? [];
+
+            $subRows = max(count($descArr), count($lenArr), count($widArr), count($hgtArr), count($matArr), count($thkArr), count($mwArr));
+            $priceRows = max(1, count($prices));
+
+            $subRowHeight = 6;
+            $minBlockHeight = $subRows * $subRowHeight;
+            $priceRowHeight = 7;
+            $minPriceBlockHeight = $priceRows * $priceRowHeight;
+            $blockHeight = max($minBlockHeight, $minPriceBlockHeight);
+            $actualPriceRowH = $blockHeight / $priceRows;
+
+            $x = $this->fpdi->GetX();
+            $y = $this->fpdi->GetY();
+
+            // Part Code box
+            $this->fpdi->Rect($x, $y, $wPartCode, $blockHeight);
+            $this->drawRectText($x, $y, $wPartCode, $blockHeight, $partCodeArr, $subRowHeight);
+
+            // DESCRIPTION
+            $dx = $x + $wPartCode;
+            $this->fpdi->Rect($dx, $y, $wDesc, $blockHeight);
+            $this->drawRectText($dx, $y, $wDesc, $blockHeight, $descArr, $subRowHeight);
+
+            // SPECS
+            $sx = $dx + $wDesc;
+            $this->fpdi->Rect($sx, $y, $wSpecs, $blockHeight);
+            $curY = $y;
+            for ($r = 0; $r < $subRows; $r++) {
+                $this->fpdi->SetXY($sx, $curY);
+                $this->fpdi->Cell($wSpecsSub, $subRowHeight, $lenArr[$r] ?? '', 0, 0, 'C');
+                $this->fpdi->Cell($wSpecsSub, $subRowHeight, $widArr[$r] ?? '', 0, 0, 'C');
+                $this->fpdi->Cell($wSpecsSub, $subRowHeight, $hgtArr[$r] ?? '', 0, 0, 'C');
+                $curY += $subRowHeight;
+            }
+            // draw vertical separators for SPECS subcols
+            $this->fpdi->SetDrawColor(120);
+            $this->fpdi->Line($sx + $wSpecsSub, $y, $sx + $wSpecsSub, $y + $blockHeight);
+            $this->fpdi->Line($sx + 2*$wSpecsSub, $y, $sx + 2*$wSpecsSub, $y + $blockHeight);
+
+            $rx = $sx + $wSpecs;
+            $this->fpdi->Rect($rx, $y, $wRawMat, $blockHeight);
+            $curY = $y;
+            for ($r = 0; $r < $subRows; $r++) {
+                $this->fpdi->SetXY($rx, $curY);
+                $this->fpdi->Cell($wRawSub, $subRowHeight, $matArr[$r] ?? '', 0, 0, 'C');
+                $this->fpdi->Cell($wRawSub, $subRowHeight, $thkArr[$r] ?? '', 0, 0, 'C');
+                $this->fpdi->Cell($wRawSub, $subRowHeight, $mwArr[$r] ?? '', 0, 0, 'C');
+                $curY += $subRowHeight;
+            }
+            // draw vertical separators for RAW MATERIAL subcols
+            $this->fpdi->Line($rx + $wRawSub, $y, $rx + $wRawSub, $y + $blockHeight);
+            $this->fpdi->Line($rx + 2*$wRawSub, $y, $rx + 2*$wRawSub, $y + $blockHeight);
+            // RIGHT: Classification + Price
+            $px = $rx + $wRawMat;
+            $curPY = $y;
+            for ($pr = 0; $pr < $priceRows; $pr++) {
+                // Classification
+                $this->fpdi->Rect($px, $curPY, $wClassification, $actualPriceRowH);
+                $this->fpdi->SetXY($px, $curPY);
+                $class = $prices[$pr][0] ?? '';
+                $this->fpdi->Cell($wClassification, $actualPriceRowH, $class, 0, 0, 'C');
+
+                // MOQ
+                $this->fpdi->Rect($px + $wClassification, $curPY, $wMoq, $actualPriceRowH);
+                $this->fpdi->SetXY($px + $wClassification, $curPY);
+                $moq = $prices[$pr][1] ?? '';
+                $this->fpdi->Cell($wMoq, $actualPriceRowH, $moq, 0, 0, 'C');
+
+                // UOM
+                $this->fpdi->Rect($px + $wClassification + $wMoq, $curPY, $wUom, $actualPriceRowH);
+                $this->fpdi->SetXY($px + $wClassification + $wMoq, $curPY);
+                $uom = $prices[$pr][2] ?? '';
+                $this->fpdi->Cell($wUom, $actualPriceRowH, $uom, 0, 0, 'C');
+
+                // Price
+                $this->fpdi->Rect($px + $wClassification + $wMoq + $wUom, $curPY, $wPrice, $actualPriceRowH);
+                $this->fpdi->SetXY($px + $wClassification + $wMoq + $wUom, $curPY);
+                $priceText = $prices[$pr][3] ?? '';
+                $this->fpdi->Cell($wPrice, $actualPriceRowH, $priceText, 0, 0, 'C');
+
+                $curPY += $actualPriceRowH;
+            }
+
+            $this->fpdi->SetY($y + $blockHeight + 2);
         }
-        // draw vertical separators for RAW MATERIAL subcols
-        $this->fpdi->Line($rx + $wRawSub, $y, $rx + $wRawSub, $y + $blockHeight);
-        $this->fpdi->Line($rx + 2*$wRawSub, $y, $rx + 2*$wRawSub, $y + $blockHeight);
-        // RIGHT: Classification + Price
-        $px = $rx + $wRawMat;
-        $curPY = $y;
-        for ($pr = 0; $pr < $priceRows; $pr++) {
-            // Classification
-            $this->fpdi->Rect($px, $curPY, $wClassification, $actualPriceRowH);
-            $this->fpdi->SetXY($px, $curPY);
-            $class = $prices[$pr][0] ?? '';
-            $this->fpdi->Cell($wClassification, $actualPriceRowH, $class, 0, 0, 'C');
-
-            // MOQ
-            $this->fpdi->Rect($px + $wClassification, $curPY, $wMoq, $actualPriceRowH);
-            $this->fpdi->SetXY($px + $wClassification, $curPY);
-            $moq = $prices[$pr][1] ?? '';
-            $this->fpdi->Cell($wMoq, $actualPriceRowH, $moq, 0, 0, 'C');
-
-            // UOM
-            $this->fpdi->Rect($px + $wClassification + $wMoq, $curPY, $wUom, $actualPriceRowH);
-            $this->fpdi->SetXY($px + $wClassification + $wMoq, $curPY);
-            $uom = $prices[$pr][2] ?? '';
-            $this->fpdi->Cell($wUom, $actualPriceRowH, $uom, 0, 0, 'C');
-
-            // Price
-            $this->fpdi->Rect($px + $wClassification + $wMoq + $wUom, $curPY, $wPrice, $actualPriceRowH);
-            $this->fpdi->SetXY($px + $wClassification + $wMoq + $wUom, $curPY);
-            $priceText = $prices[$pr][3] ?? '';
-            $this->fpdi->Cell($wPrice, $actualPriceRowH, $priceText, 0, 0, 'C');
-
-            $curPY += $actualPriceRowH;
-        }
-
-        $this->fpdi->SetY($y + $blockHeight + 2);
     }
-}
+    private function buildProductTable(array $products){
+
+        // Column width strategy (proportional)
+        $wPartCode = $this->usableWidth * 0.20; // Part Code
+        $wDesc     = $this->usableWidth * 0.30; // DESCRIPTION
+        $wClassification = $this->usableWidth * 0.20; // Classification
+        $wMoq   = $this->usableWidth * 0.10;
+        $wUom   = $this->usableWidth * 0.10;
+        $wPrice = $this->usableWidth * 0.10;
+
+        // Draw header
+        $this->fpdi->SetFillColor(230, 230, 230);
+        $this->fpdi->SetDrawColor(120);
+        $this->fpdi->SetLineWidth(0.2);
+
+        $this->headerCell($wPartCode, 'Part Code');
+        $this->headerCell($wDesc, 'DESCRIPTION');
+        $this->headerCell($wClassification, 'Classification');
+        $this->headerCell($wMoq, 'MOQ');
+        $this->headerCell($wUom, 'UOM');
+        $this->headerCell($wPrice, 'Price/Pc', true);
+
+        // Reset font for body
+        $this->fpdi->SetFont('Arial', '', 9);
+
+        foreach ($products as $product) {
+
+            // Normalize arrays
+            $partCodeArr = is_array($product['part_code']) ? $product['part_code'] : [$product['part_code']];
+
+            $descArr = is_array($product['description']) ? $product['description'] : [$product['description']];
+
+            $prices  = $product['prices'] ?? [];
+
+            // return gettype($descArr);
+            // return gettype($descArr);
+            $subRows = max(count($descArr),0);
+
+            $priceRows = max(1, count($prices));
+
+            $subRowHeight = 6;
+            $blockHeight = max($subRows * $subRowHeight, $priceRows * 7);
+            $actualPriceRowH = $blockHeight / $priceRows;
+
+            $x = $this->fpdi->GetX();
+            $y = $this->fpdi->GetY();
+
+            // Part Code box
+            $this->fpdi->Rect($x, $y, $wPartCode, $blockHeight);
+            $this->drawRectText($x, $y, $wPartCode, $blockHeight, $partCodeArr, $subRowHeight);
+
+            // DESCRIPTION
+            $dx = $x + $wPartCode;
+            $this->fpdi->Rect($dx, $y, $wDesc, $blockHeight);
+            $this->drawRectText($dx, $y, $wDesc, $blockHeight, $descArr, $subRowHeight);
+
+            // RIGHT: Classification + Price
+            $px = $dx + $wDesc;
+            $curPY = $y;
+            for ($pr = 0; $pr < $priceRows; $pr++) {
+                // Classification
+                $this->fpdi->Rect($px, $curPY, $wClassification, $actualPriceRowH);
+                $this->fpdi->SetXY($px, $curPY);
+                $class = $prices[$pr][0] ?? '';
+                $this->fpdi->Cell($wClassification, $actualPriceRowH, $class, 0, 0, 'C');
+
+                // MOQ
+                $this->fpdi->Rect($px + $wClassification, $curPY, $wMoq, $actualPriceRowH);
+                $this->fpdi->SetXY($px + $wClassification, $curPY);
+                $moq = $prices[$pr][1] ?? '';
+                $this->fpdi->Cell($wMoq, $actualPriceRowH, $moq, 0, 0, 'C');
+
+                // UOM
+                $this->fpdi->Rect($px + $wClassification + $wMoq, $curPY, $wUom, $actualPriceRowH);
+                $this->fpdi->SetXY($px + $wClassification + $wMoq, $curPY);
+                $uom = $prices[$pr][2] ?? '';
+                $this->fpdi->Cell($wUom, $actualPriceRowH, $uom, 0, 0, 'C');
+
+                // Price
+                $this->fpdi->Rect($px + $wClassification + $wMoq + $wUom, $curPY, $wPrice, $actualPriceRowH);
+                $this->fpdi->SetXY($px + $wClassification + $wMoq + $wUom, $curPY);
+                $priceText = $prices[$pr][3] ?? '';
+                $this->fpdi->Cell($wPrice, $actualPriceRowH, $priceText, 0, 0, 'C');
+
+                $curPY += $actualPriceRowH;
+            }
+
+            $this->fpdi->SetY($y + $blockHeight + 2);
+        }
+    }
 
 
 

@@ -637,10 +637,9 @@ class ProductMaterialController extends Controller
             $additionalMessage = $pmCustomerGroupDetailData['additional_message'];
             $termsCondition = $pmCustomerGroupDetailData['terms_condition'];
 
-           $arrDescriptions = collect($descriptions)->map(function ($item) use ($category) {
+           $arrDescriptions = collect($descriptions)->map(function ($item) {
                 return [
                     "itemsId"     => [$item['itemsId']],
-                    "category"    => $category,
                     "itemNo"      => [$item['itemNo']],
                     "part_code"    => [$item['partCode']],
                     "description" => [$item['descriptionPartName']],
@@ -656,7 +655,7 @@ class ProductMaterialController extends Controller
                             $p['classification'],
                             $p['qty'],
                             "pcs",
-                            "$ " . number_format($p['unitPrice'], 4)
+                            "$" . number_format($p['unitPrice'], 4)
                         ];
                     })->values()->toArray(),
                 ];
@@ -664,6 +663,7 @@ class ProductMaterialController extends Controller
 
             $data = [
                 'to' => "Yamaichi Electronics Co.",
+                "category"    => $category,
                 'attn' => $attentionName,
                 'cc' => $ccName,
                 'subject' => $subject,
