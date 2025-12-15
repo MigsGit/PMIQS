@@ -8,7 +8,11 @@ export default function useProductMaterial()
         category: '',
         remarks: '',
     });
-    
+
+    const frmSendDispo = ref({
+
+    });
+
     const pmVar = ref({
         controlNo: '',
         ecrApprovalCurrentCount: 0,
@@ -175,6 +179,7 @@ export default function useProductMaterial()
         pmVar,
         tblProductMaterial,
         frmItem,
+        frmSendDispo,
         rowSaveDescriptions,
         rowSaveItems,
         rowSaveClassifications,

@@ -338,6 +338,64 @@
             <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
         </template>
     </ModalComponent>
+    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSendDispo">
+        <template #body>
+            <div class="row mt-3">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Control No. :</span>
+                            <input v-model="frmSendDispo.ControlNo" type="text" class="form-control" id="inlineFormInputGroup" readonly>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm" v-html="pmVar.status">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Additional Message:</span>
+                            <input v-model="frmSendDispo.AdditionalMessage" type="text" class="form-control" id="inlineFormInputGroup" readonly>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Supplier. :</span>
+                            <Multiselect
+                                v-model="frmSendDispo.Supplier"
+                                :close-on-select="true"
+                                :searchable="true"
+                                :options="commonVar.supplier"
+                                :change="onChangeDivision(selectedItemsId)"
+                                placeholder="-Select Option-"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">To Email. :</span>
+                            <textarea v-model="frmSendDispo.ToEmail" type="text" class="form-control" id="inlineFormInputGroup" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">CC Email :</span>
+                            <input v-model="frmSendDispo.CcEmail" type="text" class="form-control" id="inlineFormInputGroup" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template #footer>
+            <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
+        </template>
+    </ModalComponent>
+
     <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
         <template #body>
             <div class="row mt-3">
@@ -408,6 +466,7 @@
         modalPm,
         pmVar,
         frmItem,
+        frmSendDispo,
         cardSaveClassifications,
         rowSaveClassifications,
         rowSaveDescriptions,
@@ -427,6 +486,7 @@
     const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
     const modalViewPmRef = ref(null);
+    const modalSendDispo = ref(null);
     const isModalView = ref(false);
 
     const preparedByParams = {
@@ -461,6 +521,7 @@
             createdCell(cell){
                 let btnGetMaterialById = cell.querySelector('#btnGetMaterialById');
                 let btnGetClassificationQtyByItemsId = cell.querySelector('#btnGetClassificationQtyByItemsId');
+                let btnSendProductMaterial = cell.querySelector('#btnSendProductMaterial');
                 if(btnGetMaterialById !=null){
                     btnGetMaterialById.addEventListener('click',function(){
                         let itemsId = this.getAttribute('items-id')
@@ -470,6 +531,18 @@
                         }
                         // Router.push({ name: 'ClassificationQty', params: { itemsId } });
                         getItemsById(itemParams);
+                        selectedItemsId.value = itemsId;
+                    });
+                }
+                if(btnSendProductMaterial !=null){
+                    btnSendProductMaterial.addEventListener('click',function(){
+                        let itemsId = this.getAttribute('items-id')
+                        let pmItemStatus = this.getAttribute('pm-item-status')
+                        let itemParams = {
+                            itemsId : itemsId
+                        }
+                        modalPm.modalSendDispo.show();
+                        // getItemsById(itemParams);
                         selectedItemsId.value = itemsId;
                     });
                 }
@@ -519,6 +592,7 @@
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         modalPm.ViewPmRef = new Modal(modalViewPmRef.value.modalRef,{ keyboard: false });
+        modalPm.modalSendDispo = new Modal(modalSendDispo.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
         getRapidxUserByIdOpt(preparedByParams);

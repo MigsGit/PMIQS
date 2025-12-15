@@ -311,6 +311,7 @@ class ProductMaterialController extends Controller
                 $result .= '<ul class="dropdown-menu">';
                 $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> Edit Items</button> </li>";
                 $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetClassificationQtyByItemsId'> <i class='fa-solid fa-pen-to-square'></i> Edit Qty</button> </li>";
+                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnSendProductMaterial'> <i class='fa-solid fa-paper-plane'></i> Send Disposition</button> </li>";
                 $result .= '</ul>';
                 $result .= '</div>';
                 // $result .= '</center>';
