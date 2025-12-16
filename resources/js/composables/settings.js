@@ -32,10 +32,11 @@ export default function useSettings(){
         pdfAttn:[],
         pdfCc: [],
         pdfAttnName: '',
-        pdfSubject: '',
         pdfCcName: '',
+        pdfSubject: '',
         pdfAdditionalMsg: '',
         pdfTermsCondition: '',
+        controlNo : '',
     });
     const frmDropdownMasterDetails = ref({
         dropdownMastersId : '',
@@ -152,10 +153,11 @@ export default function useSettings(){
                 );
                 params.frmModelPdfToGroup.value = params.selectedVal; //Make sure the data type is correct | String or Array
                 console.log('true',customer)
-
             }
+
             if(data.isGetEmail === 'true'){
                 let recipientsTo = data.recipientsTo;
+                console.log('recipientsTo',params.frmModelPdfAttn);
                 params.globalVarPdfAttn.splice(0, params.globalVarPdfAttn.length,
                     // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
                         ...recipientsTo.map((val) => {
@@ -186,9 +188,82 @@ export default function useSettings(){
 
         });
     }
+    const getPdfEmailFormatv1 = (params) => {
+        let apiParams = {
+            itemsId : params.itemsId
+        }
+        axiosFetchData(apiParams,'api/get_pdf_email_format',function(response){
+            let data = response.data;
+            console.log(data);
+        });
+    }
 
     const onUserChange = async (selectedParams)=>{
         await getRapidxUserByIdOpt(selectedParams);
+    }
+    const onChangePdfToGroup = (customer) => {
+        let pdfToGroupParams = {
+            globalVarPdfToGroup: settingsVar.pdfToGroup,
+            frmModelPdfToGroup: toRef(frmPdfEmailFormat.value,'pdfToGroup'),
+            globalVarPdfAttn: settingsVar.pdfAttn,
+            frmModelPdfAttn: toRef(frmPdfEmailFormat.value,'pdfAttn'),
+            globalVarPdfCc: settingsVar.pdfCc,
+            frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
+            customer: customer,
+        };
+        getPdfToGroup(pdfToGroupParams);
+    }
+    const getPdfEmailFormat = (params) => {
+        let apiParams = {
+            itemsId : params.itemsId
+        }
+        axiosFetchData(apiParams,'api/get_pdf_email_format',function(response){
+            let data = response.data;
+            let pmCustomerGroupDetailResource = data.pmCustomerGroupDetailResource[0];
+            let customer = data.dropdownCustomerGroupDataResource;
+            let customerSelected = pmCustomerGroupDetailResource.dropdown_customer_group;
+            frmPdfEmailFormat.value.pdfSubject = pmCustomerGroupDetailResource.subject;
+            frmPdfEmailFormat.value.pdfAdditionalMsg = pmCustomerGroupDetailResource.additionalMessage;
+            // frmPdfEmailFormat.value.additionalMessage = pmCustomerGroupDetailResource.additionalMessage;
+            params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
+                { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
+                // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
+                    ...customer.map((val) => {
+                    return {
+                        value: val.id,
+                        label: val.customer
+                    }
+                }),
+            );
+            params.frmModelPdfToGroup.value = customerSelected[0].id; //Make sure the data type is correct | String or Array
+
+            let recipientsTo = data.recipientsTo;
+
+            params.globalVarPdfAttn.splice(0, params.globalVarPdfAttn.length,
+                // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
+                    ...recipientsTo.map((val) => {
+                    params.frmModelPdfAttn.value = params.val; //Make sure the data type is correct | String or Array
+
+                    return {
+                        value: val,
+                        label: val
+                    }
+                }),
+            );
+            params.frmModelPdfAttn.value = recipientsTo; //Make sure the data type is correct | String or Array
+
+            let recipientsCc = data.recipientsCc;
+            params.globalVarPdfCc.splice(0, params.globalVarPdfCc.length,
+                    ...recipientsCc.map((val) => {
+                    return {
+                        value: val,
+                        label: val
+                    }
+                }),
+            );
+
+            params.frmModelPdfCc.value = recipientsCc; //Make sure the data type is correct | String or Array
+        });
     }
     return {
         modalSettings,
@@ -201,6 +276,7 @@ export default function useSettings(){
         getRapidxUserByIdOpt,
         getNoModuleRapidxUserByIdOpt,
         onUserChange,
-        getPdfToGroup,
+        onChangePdfToGroup,
+        getPdfEmailFormat,
     }
 }

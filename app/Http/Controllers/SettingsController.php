@@ -12,9 +12,11 @@ use App\Interfaces\CommonInterface;
 use App\Models\DropdownMasterDetail;
 use App\Interfaces\ResourceInterface;
 use App\Models\DropdownCustomerGroup;
+use App\Models\PmCustomerGroupDetail;
 use App\Models\ClassificationRequirement;
 use App\Http\Requests\DropdownMasterDetailRequest;
 use App\Http\Resources\DropdownCustomerGroupResource;
+use App\Http\Resources\PmCustomerGroupDetailResource;
 use App\Http\Requests\ClassificationRequirementRequest;
 
 class SettingsController extends Controller
@@ -430,6 +432,45 @@ class SettingsController extends Controller
                 return response()->json([
                     'isSuccess' => 'true',
                     'isGetEmail' => 'true',
+                    'customer' => $selectedCustomer[$ddCustomerGroupsId][0]['customer'],
+                    'recipientsCc' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsCc']),
+                    'recipientsTo' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsTo']),
+                ]);
+            }
+
+            return response()->json([
+                'isSuccess' => 'false',
+            ],500);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getPdfEmailFormat(Request $request){
+
+        try {
+            $itemsId = decrypt($request->itemsId);
+            $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[
+                'pm_items_id' => $itemsId
+            ]);
+            $pmCustomerGroupDetail = $pmCustomerGroupDetail
+            ->get();
+            $pmCustomerGroupDetailResource = PmCustomerGroupDetailResource::collection($pmCustomerGroupDetail)->resolve();
+
+            $ddCustomerGroupsId = $pmCustomerGroupDetailResource[0]['ddCustomerGroupsId'];
+            // $dropdownCustomerGroupDataResource = $pmCustomerGroupDetailResource[0]['dropdown_customer_group'];
+
+            $dropdownCustomerGroup= $this->resourceInterface->readCustomEloquent(DropdownCustomerGroup::class,[],[],[]);
+            $dropdownCustomerGroupData = $dropdownCustomerGroup->get();
+            $dropdownCustomerGroupDataResource = DropdownCustomerGroupResource::collection($dropdownCustomerGroupData)->resolve();
+
+            if(filled($dropdownCustomerGroupDataResource) && filled($ddCustomerGroupsId)){
+                $selectedCustomer = collect($dropdownCustomerGroupDataResource)->groupBy('id');
+                return response()->json([
+                    'isSuccess' => 'true',
+                    'isGetEmail' => 'true',
+                    'pmCustomerGroupDetailResource' => $pmCustomerGroupDetailResource,
+                    'dropdownCustomerGroupDataResource' => $dropdownCustomerGroupDataResource,
                     'customer' => $selectedCustomer[$ddCustomerGroupsId][0]['customer'],
                     'recipientsCc' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsCc']),
                     'recipientsTo' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsTo']),

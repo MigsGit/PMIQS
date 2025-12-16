@@ -10,7 +10,12 @@ export default function useProductMaterial()
     });
 
     const frmSendDispo = ref({
-
+        ControlNo : '',
+        subject : '',
+        additionalMessage : '',
+        pdfToGroup : '',
+        ToEmail : [],
+        CcEmail : [],
     });
 
     const pmVar = ref({
@@ -174,6 +179,8 @@ export default function useProductMaterial()
             });
         }
     }
+
+
     return {
         modalPm,
         pmVar,

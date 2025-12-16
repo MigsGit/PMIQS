@@ -497,7 +497,6 @@
     }
     const onChangePdfToGroup = (customer) => {
         let pdfToGroupParams = {
-            // customer : '' //nmodify
             globalVarPdfToGroup: settingsVar.pdfToGroup,
             frmModelPdfToGroup: toRef(frmPdfEmailFormat.value,'pdfToGroup'),
             globalVarPdfAttn: settingsVar.pdfAttn,

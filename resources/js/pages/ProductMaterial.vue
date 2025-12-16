@@ -338,65 +338,7 @@
             <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
         </template>
     </ModalComponent>
-    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSendDispo">
-        <template #body>
-            <div class="row mt-3">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">Control No. :</span>
-                            <input v-model="frmSendDispo.ControlNo" type="text" class="form-control" id="inlineFormInputGroup" readonly>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm" v-html="pmVar.status">
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">Additional Message:</span>
-                            <input v-model="frmSendDispo.AdditionalMessage" type="text" class="form-control" id="inlineFormInputGroup" readonly>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">Supplier. :</span>
-                            <Multiselect
-                                v-model="frmSendDispo.Supplier"
-                                :close-on-select="true"
-                                :searchable="true"
-                                :options="commonVar.supplier"
-                                :change="onChangeDivision(selectedItemsId)"
-                                placeholder="-Select Option-"
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">To Email. :</span>
-                            <textarea v-model="frmSendDispo.ToEmail" type="text" class="form-control" id="inlineFormInputGroup" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">CC Email :</span>
-                            <input v-model="frmSendDispo.CcEmail" type="text" class="form-control" id="inlineFormInputGroup" readonly>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-        <template #footer>
-            <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
-        </template>
-    </ModalComponent>
-
-    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
+    <ModalComponent @add-event="frmSendDisposition" icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
         <template #body>
             <div class="row mt-3">
                 <table class="table">
@@ -433,8 +375,86 @@
         <template #footer>
         </template>
     </ModalComponent>
-</template>
+    <ModalComponent icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSendDispo">
+        <template #body>
+            <div class="row mt-3">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <text class="input-group-text" id="addon-wrapping">Subject. :</text>
+                            <textarea v-model="frmPdfEmailFormat.pdfSubject" type="text" class="form-control" id="inlineFormInputGroup"> </textarea>
+                        </div>
+                    </div>
 
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <text class="input-group-text" id="addon-wrapping">Additional Message:</text>
+                            <textarea v-model="frmPdfEmailFormat.pdfAdditionalMsg" type="text" class="form-control" id="inlineFormInputGroup">
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">To:</span>
+                            <Multiselect
+                                v-model="frmPdfEmailFormat.pdfToGroup"
+                                :close-on-select="true"
+                                :searchable="true"
+                                :options="settingsVar.pdfToGroup"
+                                @change=onChangePdfToGroup($event)
+                                placeholder="-Select an Option-">
+                            </Multiselect>
+                            <!-- @change=onChangePdfToGroup($event) -->
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+
+                            <a class="icon-link icon-link-hover" style="--bs-link-hover-color-rgb: 25, 135, 84;" href="#"> Download
+                                <font-awesome-icon class="nav-icon" icon="fas fa-download" />&nbsp;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">Attention:</span>
+                            <Multiselect
+                                :close-on-select="false"
+                                :searchable="true"
+                                placeholder="-Select an Option-"
+                                mode="tags"
+                                v-model="frmPdfEmailFormat.pdfAttn"
+                                :options="settingsVar.pdfAttn"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group flex-nowrap mb-2 input-group-sm">
+                            <span class="input-group-text" id="addon-wrapping">CC:</span>
+                            <Multiselect
+                                :close-on-select="false"
+                                :searchable="true"
+                                placeholder="-Select an Option-"
+                                mode="tags"
+                                v-model="frmPdfEmailFormat.pdfCc"
+                                :options="settingsVar.pdfCc"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </template>
+        <template #footer>
+            <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            <button  @click="formSendDispo" type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
+        </template>
+    </ModalComponent>
+</template>
 <script setup>
      import {
         onMounted,
@@ -442,6 +462,16 @@
         reactive,
         toRef,
     } from 'vue'
+    // const frmPdfEmailFormat = ref({
+    //     pdfToGroup: '',
+    //     pdfAttn:[],
+    //     pdfCc: [],
+    //     pdfAttnName: '',
+    //     pdfSubject: '',
+    //     pdfCcName: '',
+    //     pdfAdditionalMsg: '',
+    //     pdfTermsCondition: '',
+    // });
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
     import useFetch from '../composables/utils/useFetch';
@@ -478,7 +508,10 @@
 
     const {
         settingsVar,
+        frmPdfEmailFormat,
         getRapidxUserByIdOpt,
+        onChangePdfToGroup,
+        getPdfEmailFormat,
     } = useSettings();
 
     DataTable.use(DataTablesCore);
@@ -539,11 +572,17 @@
                         let itemsId = this.getAttribute('items-id')
                         let pmItemStatus = this.getAttribute('pm-item-status')
                         let itemParams = {
-                            itemsId : itemsId
+                            itemsId : itemsId,
+                            globalVarPdfToGroup: settingsVar.pdfToGroup,
+                            frmModelPdfToGroup: toRef(frmPdfEmailFormat.value,'pdfToGroup'),
+                            globalVarPdfAttn: settingsVar.pdfAttn,
+                            frmModelPdfAttn: toRef(frmPdfEmailFormat.value,'pdfAttn'),
+                            globalVarPdfCc: settingsVar.pdfCc,
+                            frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
                         }
-                        modalPm.modalSendDispo.show();
-                        // getItemsById(itemParams);
                         selectedItemsId.value = itemsId;
+                        getPdfEmailFormat(itemParams);
+                        modalPm.modalSendDispo.show();
                     });
                 }
                 if(btnGetClassificationQtyByItemsId !=null){
@@ -580,7 +619,6 @@
                         }
                         selectedItemsId.value = itemsId;
                         modalPm.ViewPmRef.show();
-                        // getViewPmItemRef(itemParams);
                     });
                 }
             }
@@ -602,6 +640,7 @@
         getRapidxUserByIdOpt(approvedByTwoParams);
 
     })
+
     const btnAddNew = () => {
         modalPm.Quotations.show();
     }
