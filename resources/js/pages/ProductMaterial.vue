@@ -338,7 +338,7 @@
             <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
         </template>
     </ModalComponent>
-    <ModalComponent @add-event="frmSendDisposition" icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
+    <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
         <template #body>
             <div class="row mt-3">
                 <table class="table">
@@ -375,7 +375,7 @@
         <template #footer>
         </template>
     </ModalComponent>
-    <ModalComponent icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSendDispo">
+    <ModalComponent @add-event="frmSendDisposition" icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSendDispo">
         <template #body>
             <div class="row mt-3">
                 <div class="row">
@@ -451,7 +451,7 @@
         </template>
         <template #footer>
             <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button  @click="formSendDispo" type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
+            <button type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
         </template>
     </ModalComponent>
 </template>
@@ -725,6 +725,20 @@
             }
         }
         axiosSaveData(formData,'api/save_item', (response) =>{
+            console.log(response);
+            tblProductMaterial.value.dt.draw();
+        });
+    }
+    const frmSendDisposition = async () => {
+        let formData =  new FormData();
+        alert('asdas')
+        formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
+        formData.append('pdfToGroup', frmPdfEmailFormat.value.pdfToGroup)
+        // formData.append('pdfAttnName', frmPdfEmailFormat.value.pdfAttnName)
+        // formData.append('pdfCcName', frmPdfEmailFormat.value.pdfCcName)
+        formData.append('pdfSubject', frmPdfEmailFormat.value.pdfSubject)
+        formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
+        axiosSaveData(formData,'api/send_disposition', (response) =>{
             console.log(response);
             tblProductMaterial.value.dt.draw();
         });

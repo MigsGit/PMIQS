@@ -447,7 +447,6 @@ class SettingsController extends Controller
     }
 
     public function getPdfEmailFormat(Request $request){
-
         try {
             $itemsId = decrypt($request->itemsId);
             $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[

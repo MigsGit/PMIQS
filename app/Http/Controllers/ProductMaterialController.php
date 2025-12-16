@@ -727,4 +727,16 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
+    public function sendDisposition(Request $request){
+        return 'true' ;
+        try {
+            date_default_timezone_set('Asia/Manila');
+            DB::beginTransaction();
+            DB::commit();
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
 }

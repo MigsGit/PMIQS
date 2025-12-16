@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function(){
         Route::get('get_rapidx_user_by_id_opt', 'getRapidxUserByIdOpt')->name('get_rapidx_user_by_id_opt');
         Route::get('get_pdf_to_group', 'getPdfToGroup')->name('get_pdf_to_group');
         Route::get('get_pdf_email_format', 'getPdfEmailFormat')->name('get_pdf_email_format');
+        Route::get('send_disposition', 'sendDisposition')->name('send_disposition');
     });
 
     Route::controller(ProductMaterialController::class)->group(function (): void{
@@ -61,6 +62,7 @@ Route::middleware('auth')->group(function(){
         Route::post('save_classification_qty', 'saveClassificationQty')->name('pm.save_classification_qty');
         Route::post('save_item_no', 'saveItemNo')->name('pm.save_item_no');
         Route::post('save_pdf_email_format', 'savePdfEmailFormat')->name('pm.save_pdf_email_format');
+        Route::post('send_disposition','sendDisposition')->name('send_disposition');
 
         Route::get('load_pm_approval_summary', 'loadPmApprovalSummary')->name('pm.load_pm_approval_summary');
         Route::get('load_product_material', 'loadProductMaterial')->name('pm.load_product_material');
