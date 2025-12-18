@@ -20,6 +20,7 @@ use App\Interfaces\ResourceInterface;
 use App\Models\PmCustomerGroupDetail;
 use Illuminate\Support\Facades\Cache;
 use App\Interfaces\PdfCustomInterface;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\PmApprovalResource;
 use App\Http\Requests\PmDescriptionRequest;
 use App\Http\Requests\PmClassificationRequest;
@@ -734,32 +735,53 @@ class ProductMaterialController extends Controller
     public function sendDisposition(Request $request){
         try {
             date_default_timezone_set('Asia/Manila');
+            $itemsId =  decrypt($request->selectedItemsId);
             $msg =  $this->emailInterface->ecrEmailMsg($request->pdfAdditionalMsg);
             $subject =  $request->pdfSubject;
             $pmAttachment =  $request->pmAttachment;
             $pdfAttn =  $request->pdfAttn;
-           return  $pdfCc =  $request->pdfCc;
+             $pdfCc =  $request->pdfCc;
             DB::beginTransaction();
-            return   $emailData = [
-                // "to" =>$to,
-                "to" =>'cdcasuyon@pricon.ph',
-                "cc" =>"",
-                "bcc" =>"mclegaspi@pricon.ph",
-                // "from" => $from,
-                "from" => "cbretusto@pricon.ph",
-                "from_name" =>$from_name ?? "PMI Quotation System",
-                "subject" =>$subject,
-                "message" =>  $msg,
-                "attachment_filename" => "",
-                "attachment" => "",
-                "send_date_time" => now(),
-                "date_time_sent" => "",
-                "date_created" => now(),
-                "created_by" => session('rapidx_username'),
-                "system_name" => "rapidx_PMIQS",
-            ];
-            // $this->emailInterface->sendEmail($emailData);
-            DB::commit();
+            $path = "public/product_material/$itemsId/";
+            if($request->hasfile('pmAttachment')){
+
+                $arrUploadFile = $this->commonInterface->uploadFileEcrRequirement($pmAttachment,$path);
+                $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
+                $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);
+                return;
+                // return $url = Storage::url('PQS/filename.ext');
+                $contents = Storage::get($path.'/1_wbs_double_data.pdf'); //
+                // Check if the file exists before attempting to read it
+                if (file_exists($contents)) {
+                    return $fileContents = file_get_contents($contents);
+                    // Use $fileContents...
+                } else {
+                    // Handle the case where the file is not found
+                }
+            //  return   $contents = Storage::disk('public')->get($path);
+
+                $emailData = [
+                    // "to" =>$to,
+                    "to" =>'cdcasuyon@pricon.ph',
+                    "cc" =>"",
+                    "bcc" =>"mclegaspi@pricon.ph",
+                    // "from" => $from,
+                    "from" => "cbretusto@pricon.ph",
+                    "from_name" =>$from_name ?? "PMI Quotation System",
+                    "subject" =>$subject,
+                    "message" =>  $msg,
+                    "attachment_filename" => "",
+                    "attachment" => "",
+                    "send_date_time" => now(),
+                    "date_time_sent" => "",
+                    "date_created" => now(),
+                    "created_by" => session('rapidx_username'),
+                    "system_name" => "rapidx_PMIQS",
+                ];
+               return $this->emailInterface->sendEmail($emailData);
+                DB::commit();
+            }
+
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
             DB::rollback();

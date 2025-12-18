@@ -23,8 +23,8 @@ class CommonService implements CommonInterface
     public function uploadFileEcrRequirement($txtDocuReference,$path)
     {
         try {
-            $currentPath= 'public/'.$path;
-            $newFolderPath= 'public/'.$path.time();
+            $currentPath= $path;
+            $newFolderPath= $path.time();
             if (Storage::exists($currentPath)) {
                 Storage::deleteDirectory($currentPath);
                 // Storage::move($currentPath, $newFolderPath); //change file name if exist
@@ -43,6 +43,7 @@ class CommonService implements CommonInterface
             return [
                 'arr_filtered_document_name' => $arr_filtered_filename,
                 'arr_original_filename' => $arr_original_filename,
+                'current_path' => $currentPath,
             ];
         } catch (\Throwable $th) {
             throw $th;
