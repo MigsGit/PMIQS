@@ -247,7 +247,6 @@ class PdfCustomService implements PdfCustomInterface
         ];
         return $ApproverOrdinates = $this->resource_interface->readOnlyRelationsAndConditions(Document::class,[],$relations,$conditions);
     }
-
     /**
      * Public entry. $products is an array of product arrays.
      * Returns PDF binary string (you can stream or download it).
@@ -277,20 +276,20 @@ class PdfCustomService implements PdfCustomInterface
         $descriptions = $data['descriptions'];
 
         $ctrMaterial = 1;
-        // if($data['category'] === "PRO"){
-        //     for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
-        //         $this->buildProductTable($descriptions[$ctrMaterial]);
-        //         $ctrMaterial++;
-        //         $this->fpdi->Ln(3);
-        //     }
-        // }
-        // if($data['category'] === "RM"){
+        if($data['category'] === "PRO"){
+            for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
+                $this->buildProductTable($descriptions[$ctrMaterial]);
+                $ctrMaterial++;
+                $this->fpdi->Ln(3);
+            }
+        }
+        if($data['category'] === "RM"){
             for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
                 $this->buildRawMatTable($descriptions[$ctrMaterial]);
                 $ctrMaterial++;
                 $this->fpdi->Ln(3);
             }
-        // }
+        }
         $this->fpdi->Ln(5);
         $this->fpdi->SetFont('Arial', 'B', 10);
         $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);
@@ -565,10 +564,6 @@ class PdfCustomService implements PdfCustomInterface
             $this->fpdi->SetY($y + $blockHeight + 2);
         }
     }
-
-
-
-
     /**
      * Helper: draw a header cell with fill and optional line break
      */

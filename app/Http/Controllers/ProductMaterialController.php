@@ -10,6 +10,7 @@ use App\Services\PdfService;
 use Illuminate\Http\Request;
 use App\Models\PmDescription;
 use App\Models\PmClassification;
+use App\Interfaces\EmailInterface;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\CommonInterface;
 use App\Http\Controllers\Controller;
@@ -30,10 +31,13 @@ class ProductMaterialController extends Controller
     protected $resourceInterface;
     protected $pdfCustomInterface;
     protected $commonInterface;
-    public function __construct(ResourceInterface $resourceInterface, CommonInterface $commonInterface,PdfCustomInterface $pdfCustomInterface){
+    protected $emailInterface;
+    public function __construct(ResourceInterface $resourceInterface, CommonInterface $commonInterface,PdfCustomInterface $pdfCustomInterface,EmailInterface $emailInterface){
         $this->resourceInterface = $resourceInterface;
         $this->commonInterface = $commonInterface;
         $this->pdfCustomInterface = $pdfCustomInterface;
+        $this->emailInterface = $emailInterface;
+
     }
     public function generateControlNumber(Request $request){
         try {
@@ -728,10 +732,33 @@ class ProductMaterialController extends Controller
         }
     }
     public function sendDisposition(Request $request){
-        return 'true' ;
         try {
             date_default_timezone_set('Asia/Manila');
+            $msg =  $this->emailInterface->ecrEmailMsg($request->pdfAdditionalMsg);
+            $subject =  $request->pdfSubject;
+            $pmAttachment =  $request->pmAttachment;
+            $pdfAttn =  $request->pdfAttn;
+           return  $pdfCc =  $request->pdfCc;
             DB::beginTransaction();
+            return   $emailData = [
+                // "to" =>$to,
+                "to" =>'cdcasuyon@pricon.ph',
+                "cc" =>"",
+                "bcc" =>"mclegaspi@pricon.ph",
+                // "from" => $from,
+                "from" => "cbretusto@pricon.ph",
+                "from_name" =>$from_name ?? "PMI Quotation System",
+                "subject" =>$subject,
+                "message" =>  $msg,
+                "attachment_filename" => "",
+                "attachment" => "",
+                "send_date_time" => now(),
+                "date_time_sent" => "",
+                "date_created" => now(),
+                "created_by" => session('rapidx_username'),
+                "system_name" => "rapidx_PMIQS",
+            ];
+            // $this->emailInterface->sendEmail($emailData);
             DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {

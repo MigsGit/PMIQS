@@ -13,7 +13,6 @@ interface EmailInterface
 
     public function ecrEmailMsgWithStatus(array $data);
     public function sendEmail(array $data);
-    public function ecrEmailMsgByCategory(array $data,$category);
     public function sendEmailWithAttachment(array $data);
     public function sendEmailWithSchedule(array $data);
 }

@@ -411,12 +411,11 @@
                     </div>
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
-
-                            <a class="icon-link icon-link-hover" style="--bs-link-hover-color-rgb: 25, 135, 84;" href="#"> Download
-                                <font-awesome-icon class="nav-icon" icon="fas fa-download" />&nbsp;
-                            </a>
+                            <span class="input-group-text" id="addon-wrapping">Attachment</span>
+                            <input @change="changePmAttachment" multiple type="file" accept=".pdf" class="form-control form-control-lg" aria-describedby="addon-wrapping">
                         </div>
                     </div>
+
                 </div>
                 <div class="row">
                     <div class="col-6">
@@ -521,6 +520,7 @@
     const modalViewPmRef = ref(null);
     const modalSendDispo = ref(null);
     const isModalView = ref(false);
+    const pmAttachment = ref(null);
 
     const preparedByParams = {
         globalVar: settingsVar.preparedBy,
@@ -640,6 +640,9 @@
         getRapidxUserByIdOpt(approvedByTwoParams);
 
     })
+    const changePmAttachment = async (event)  => {
+        pmAttachment.value =  Array.from(event.target.files) ?? [];
+    }
 
     const btnAddNew = () => {
         modalPm.Quotations.show();
@@ -731,11 +734,15 @@
     }
     const frmSendDisposition = async () => {
         let formData =  new FormData();
-        alert('asdas')
         formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
         formData.append('pdfToGroup', frmPdfEmailFormat.value.pdfToGroup)
-        // formData.append('pdfAttnName', frmPdfEmailFormat.value.pdfAttnName)
-        // formData.append('pdfCcName', frmPdfEmailFormat.value.pdfCcName)
+        if(pmAttachment.value){
+            pmAttachment.value.forEach((file, index) => {
+                formData.append('pmAttachment[]', file);
+            });
+        }
+        formData.append('pdfAttn', frmPdfEmailFormat.value.pdfAttn)
+        formData.append('pdfCc', frmPdfEmailFormat.value.pdfCc)
         formData.append('pdfSubject', frmPdfEmailFormat.value.pdfSubject)
         formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
         axiosSaveData(formData,'api/send_disposition', (response) =>{
