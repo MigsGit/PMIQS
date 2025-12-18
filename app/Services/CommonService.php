@@ -202,7 +202,6 @@ class CommonService implements CommonInterface
         }
     }
     public function getEcrStatus($current_status){
-
         try {
              switch ($current_status) {
                  case 'IA':

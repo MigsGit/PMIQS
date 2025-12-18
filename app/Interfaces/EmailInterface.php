@@ -6,6 +6,7 @@ interface EmailInterface
 {
     public function getEmailByRapidxUserId($userId);
     public function ecrEmailMsg($ecrsId);
+    public function pmApprovalEmailMsg($itemsId);
 
     public function ecrEmailMsgEcrRequirement($ecrsId);
 

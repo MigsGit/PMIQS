@@ -173,11 +173,10 @@ class ProductMaterialController extends Controller
                 return response()->json(['isSuccess' => 'true']);
             }
 
-            if(filled($pmApprovalNext)){ //<<<<<<< HEAD
-                DB::commit();
-                return response()->json(['isSuccess' => 'true']);
-
-            }
+            // if(filled($pmApprovalNext)){ //<<<<<<< HEAD
+            //     DB::commit();
+            //     return response()->json(['isSuccess' => 'true']);
+            // }
 
             if(filled($pmApprovalNext)){ //Update APPROVED and Next PENDING Approval
                 $pmApprovalCurrent->update([
@@ -195,6 +194,12 @@ class ProductMaterialController extends Controller
                     'status' => 'FORAPP',
                     'approval_status' => $pmApprovalNext->approval_status,
                 ]);
+                $to = $ecrCurrentApproval['email'] ?? '';
+                $from = 'issinfoservice@pricon.ph';
+                $subject = "FOR APPROVAL: Engineering Change Request (ECR)";
+                $from_name = "4M Change Control Management System";
+                return $msg = $this->emailInterface->pmApprovalEmailMsg($selectedItemsId);
+
             }
 
             if(blank($pmApprovalNext)){  //Update APPROVED status of Item
@@ -209,7 +214,26 @@ class ProductMaterialController extends Controller
                     'remarks' => $request->approverRemarks,
                 ]);
             }
-            DB::commit();
+            $emailData = [
+                // "to" =>$to,
+                "to" =>'cdcasuyon@pricon.ph',
+                "cc" =>"",
+                "bcc" =>"mclegaspi@pricon.ph",
+                // "from" => $from,
+                "from" => "cbretusto@pricon.ph",
+                "from_name" =>$from_name ?? "PMI Quotation System",
+                "subject" =>$subject,
+                "message" =>  $msg,
+                "attachment_filename" => "",
+                "attachment" => "",
+                "send_date_time" => now(),
+                "date_time_sent" => "",
+                "date_created" => now(),
+                "created_by" => session('rapidx_username'),
+                "system_name" => "rapidx_PMIQS",
+            ];
+            return $this->emailInterface->sendEmail($emailData);
+            // DB::commit();
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
