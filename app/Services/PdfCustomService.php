@@ -306,24 +306,71 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Cell(90, 5, "Prepared by:", 0, 0);
         $this->fpdi->Cell(90, 5, "Checked by:", 0, 1);
         $this->fpdi->Ln(5);
+        // $imagePath ='../RapidX_E-Signature/R152.png';
+
+        // //TODO: get esignature based on emp_id save the path to the database also
+        // $this->fpdi->Image($imagePath, 90, 5, 0, 0);
+
+        // $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
+        // $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
+
+        // $this->fpdi->Ln(10);
+        // $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
+        // $this->fpdi->Ln(5);
+        // $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
+
+        // $this->fpdi->Ln(10);
+        // $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
+        // $this->fpdi->Ln(5);
+        // $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 0);
+        // $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
+
+
+        // Add images for prepared_by and checked_by
+        $preparedByImagePath = '../RapidX_E-Signature/R152.png'; // Replace with actual path
+        $checkedByImagePath = '../RapidX_E-Signature/R153.png'; // Replace with actual path
+
+        $this->addSignatureImage($preparedByImagePath, 10, $this->fpdi->GetY(), 30, 10); // Adjust X, Y, Width, Height
+        $this->addSignatureImage($checkedByImagePath, 100, $this->fpdi->GetY(), 30, 10); // Adjust X, Y, Width, Height
+
+        $this->fpdi->Ln(15);
         $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
         $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
         $this->fpdi->Ln(5);
+
+        // Add image for noted_by
+        $notedByImagePath = '../RapidX_E-Signature/R154.png'; // Replace with actual path
+        $this->addSignatureImage($notedByImagePath, 10, $this->fpdi->GetY(), 30, 10);
+
+        $this->fpdi->Ln(15);
         $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
         $this->fpdi->Ln(5);
-        $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 0);
-        $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
 
+        // Add image for approved_by
+        $approvedByImagePath = '../RapidX_E-Signature/R155.png'; // Replace with actual path
+        $this->addSignatureImage($approvedByImagePath, 10, $this->fpdi->GetY(), 30, 10);
+
+        $this->fpdi->Ln(15);
+        $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
 
         return $this->fpdi->Output('S');
 
     }
+    private function addSignatureImage($imagePath, $x, $y, $width, $height)
+{
+    if (file_exists($imagePath)) {
+        $this->fpdi->Image($imagePath, $x, $y, $width, $height);
+    } else {
+        $this->fpdi->SetXY($x, $y);
+        $this->fpdi->Cell($width, $height, 'No Signature', 1, 0, 'C');
+    }
+}
     private function buildRawMatTable(array $products){
         // Column width strategy (proportional)
         $wPartCode = $this->usableWidth * 0.10; // new Part Code column
