@@ -8,6 +8,7 @@ use App\Models\PmApproval;
 use App\Services\PdfService;
 
 use Illuminate\Http\Request;
+use App\Jobs\SendPdfEmailJob;
 use App\Models\PmDescription;
 use App\Models\PmClassification;
 use App\Interfaces\EmailInterface;
@@ -16,6 +17,7 @@ use App\Interfaces\CommonInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PmItemRequest;
 use App\Http\Resources\ItemResource;
+use Illuminate\Support\Facades\Mail;
 use App\Interfaces\ResourceInterface;
 use App\Models\PmCustomerGroupDetail;
 use Illuminate\Support\Facades\Cache;
@@ -803,18 +805,44 @@ class ProductMaterialController extends Controller
                 $arrUploadFile = $this->commonInterface->uploadFileEcrRequirement($pmAttachment,$path);
                 $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
                 $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);
-                return;
                 // return $url = Storage::url('PQS/filename.ext');
-                $contents = Storage::get($path.'/1_wbs_double_data.pdf'); //
-                // Check if the file exists before attempting to read it
-                if (file_exists($contents)) {
-                    return $fileContents = file_get_contents($contents);
-                    // Use $fileContents...
-                } else {
-                    // Handle the case where the file is not found
+                $cont = $path.'/0_the_increment_v0.1_1.pdf';
+                $contents = Storage::exists($cont);
+                if (!$contents) {
+                    return response()->json([
+                        'message' => 'PDF file not found.'
+                    ], 404);
                 }
-            //  return   $contents = Storage::disk('public')->get($path);
+                //     SendPdfEmailJob::dispatch(
+                //    'cdcasuyon@pricon.ph',
+                //     'cbretusto@pricon.ph',
+                //     // ['cdcasuyon@pricon.ph','cbretusto@pricon.ph'],
+                //     // ['mclegaspi@pricon.ph','cdcasuyon@pricon.ph'],
+                //     $subject,
+                //     $msg,
+                //     $contents
+                // )->onQueue('emails');
 
+                return Mail::send('test.mailer', [], function ($mail) use ($subject, $contents,$msg,$cont) {
+                    $mail->to('cdcasuyon@pricon.ph')
+                         ->cc('cbretusto@pricon.ph')
+                         ->bcc('mclegaspi@pricon.ph')
+                         ->subject($subject)
+                         ->setBody($msg, 'text/html');
+
+                    // if (!empty($request->email_cc)) {
+                    //     $mail->cc($request->email_cc);
+                    // }
+
+                    $mail->attach( Storage::path($cont), [
+                        'as'   => 'attachment.pdf',
+                        'mime' => 'application/pdf',
+                    ]);
+                });
+
+                return 'dsadas';
+
+               response()->json(['message' => 'Email job dispatched successfully.'], 200);
                 $emailData = [
                     // "to" =>$to,
                     "to" =>'cdcasuyon@pricon.ph',
