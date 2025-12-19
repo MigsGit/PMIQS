@@ -522,7 +522,6 @@ class EmailService implements EmailInterface
     }
 
     public function pmApprovalEmailMsg($itemsId)
-
     {
         $pmItem = $this->resourceInterface->readCustomEloquent(PmItem::class,
             [],
@@ -549,7 +548,9 @@ class EmailService implements EmailInterface
         }
         $category = $itemResource[0]['category'] === "RM" ? 'Raw Material' : 'Product';
         $customer = $itemResource[0]['pm_customer_group_detail'][0]['dropdown_customer_group'][0]['customer'];
-        return $msg = '<!DOCTYPE html>
+
+
+        $msg = '<!DOCTYPE html>
             <html>
                 <head>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -620,6 +621,10 @@ class EmailService implements EmailInterface
                     </div>
                 </body>
             </html>';
+            return [
+                'msg' => $msg,
+                'itemResource' => $itemResource[0]
+            ];
     }
 
     public function pmFooter(){

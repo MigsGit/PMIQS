@@ -169,15 +169,39 @@ class ProductMaterialController extends Controller
                     'status' => 'DIS',
                     'approval_status' => 'DIS',
                 ]);
-                DB::commit();
+                //Send DISAPPROVED Email to Requestor
+                $currentSession = $this->emailInterface->getEmailByRapidxUserId( session('rapidx_user_id'));
+                $pmApprovalEmailMsg = $this->emailInterface->pmApprovalEmailMsg($selectedItemsId);
+                $msg = $pmApprovalEmailMsg['msg'];
+                $to = $pmApprovalEmailMsg['itemResource']['rapidx_user_created_by']['email'] ?? '';
+                $from =$currentSession['email'] ?? '';
+                $from_name = $currentSession['fullName'];
+                $subject = "DISAPPROVED: PMI Quotation Request";
+
+                //Reset EcrRequirement
+                $emailData = [
+
+                     // "to" =>$to,
+                    "to" =>'cdcasuyon@pricon.ph',
+                    "cc" =>"",
+                    "bcc" =>"mclegaspi@pricon.ph",
+                    // "from" => $from,
+                    "from" => "cbretusto@pricon.ph",
+                    "from_name" =>$from_name ?? "PMI Quotation System",
+                    "subject" =>$subject,
+                    "message" =>  $msg,
+                    "attachment_filename" => "",
+                    "attachment" => "",
+                    "send_date_time" => now(),
+                    "date_time_sent" => "",
+                    "date_created" => now(),
+                    "created_by" => session('rapidx_username'),
+                    "system_name" => "rapidx_4M",
+                ];
+                // $this->emailInterface->sendEmail($emailData);
+                // DB::commit();
                 return response()->json(['isSuccess' => 'true']);
             }
-
-            // if(filled($pmApprovalNext)){ //<<<<<<< HEAD
-            //     DB::commit();
-            //     return response()->json(['isSuccess' => 'true']);
-            // }
-
             if(filled($pmApprovalNext)){ //Update APPROVED and Next PENDING Approval
                 $pmApprovalCurrent->update([
                     'status' => $status,
@@ -194,14 +218,15 @@ class ProductMaterialController extends Controller
                     'status' => 'FORAPP',
                     'approval_status' => $pmApprovalNext->approval_status,
                 ]);
-                $to = $ecrCurrentApproval['email'] ?? '';
+                // $to = $ecrCurrentApproval['email'] ?? '';
+
+                $pmApprovalEmailMsg = $this->emailInterface->pmApprovalEmailMsg($selectedItemsId);
+                $msg = $pmApprovalEmailMsg['msg'];
                 $from = 'issinfoservice@pricon.ph';
-                $subject = "FOR APPROVAL: Engineering Change Request (ECR)";
-                $from_name = "4M Change Control Management System";
-                return $msg = $this->emailInterface->pmApprovalEmailMsg($selectedItemsId);
-
+                $subject = "FOR APPROVAL: PMI Quotation System";
+                $from_name = "PMI Quotation System (PMIQS)";
+                //Send For Approval Email to Next Approver
             }
-
             if(blank($pmApprovalNext)){  //Update APPROVED status of Item
                 $this->resourceInterface->updateConditions(pmItem::class,[
                     'pm_items_id' => $selectedItemsId
@@ -213,6 +238,14 @@ class ProductMaterialController extends Controller
                     'status' => $status,
                     'remarks' => $request->approverRemarks,
                 ]);
+
+                $pmApprovalEmailMsg = $this->emailInterface->pmApprovalEmailMsg($selectedItemsId);
+                //Send APPROVED Email to Requestor
+                $msg    = $pmApprovalEmailMsg['msg'];
+                $to     = $pmApprovalEmailMsg['itemResource']['rapidx_user_created_by']['email'] ?? '';
+                $from   = 'issinfoservice@pricon.ph';
+                $subject = "APPROVED: PMI Quotation Request";
+                $from_name = "PMI Quotation System (PMIQS)";
             }
             $emailData = [
                 // "to" =>$to,
@@ -221,7 +254,7 @@ class ProductMaterialController extends Controller
                 "bcc" =>"mclegaspi@pricon.ph",
                 // "from" => $from,
                 "from" => "cbretusto@pricon.ph",
-                "from_name" =>$from_name ?? "PMI Quotation System",
+                "from_name" =>$from_name ?? "PMI Quotation System (PMIQS)",
                 "subject" =>$subject,
                 "message" =>  $msg,
                 "attachment_filename" => "",
@@ -232,9 +265,7 @@ class ProductMaterialController extends Controller
                 "created_by" => session('rapidx_username'),
                 "system_name" => "rapidx_PMIQS",
             ];
-            return $this->emailInterface->sendEmail($emailData);
-            // DB::commit();
-            return response()->json(['isSuccess' => 'true']);
+            // return $this->emailInterface->sendEmail($emailData);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -791,7 +822,7 @@ class ProductMaterialController extends Controller
                     "bcc" =>"mclegaspi@pricon.ph",
                     // "from" => $from,
                     "from" => "cbretusto@pricon.ph",
-                    "from_name" =>$from_name ?? "PMI Quotation System",
+                    "from_name" =>$from_name ?? "PMI Quotation System (PMIQS)",
                     "subject" =>$subject,
                     "message" =>  $msg,
                     "attachment_filename" => "",
@@ -802,7 +833,7 @@ class ProductMaterialController extends Controller
                     "created_by" => session('rapidx_username'),
                     "system_name" => "rapidx_PMIQS",
                 ];
-               return $this->emailInterface->sendEmail($emailData);
+            //    return $this->emailInterface->sendEmail($emailData);
                 DB::commit();
             }
 
