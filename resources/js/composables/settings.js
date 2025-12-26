@@ -214,6 +214,7 @@ export default function useSettings(){
         getPdfToGroup(pdfToGroupParams);
     }
     const getPdfEmailFormat = (params) => {
+
         let apiParams = {
             itemsId : params.itemsId
         }
@@ -224,7 +225,10 @@ export default function useSettings(){
             let customerSelected = pmCustomerGroupDetailResource.dropdown_customer_group;
             frmPdfEmailFormat.value.pdfSubject = pmCustomerGroupDetailResource.subject;
             frmPdfEmailFormat.value.pdfAdditionalMsg = pmCustomerGroupDetailResource.additionalMessage;
-            // frmPdfEmailFormat.value.additionalMessage = pmCustomerGroupDetailResource.additionalMessage;
+            frmPdfEmailFormat.value.pdfAttnName = pmCustomerGroupDetailResource.attentionName;
+            frmPdfEmailFormat.value.pdfCcName = pmCustomerGroupDetailResource.ccName;
+            frmPdfEmailFormat.value.pdfTermsCondition = pmCustomerGroupDetailResource.termsCondition;
+
             params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
                 { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
                 // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
@@ -278,5 +282,6 @@ export default function useSettings(){
         onUserChange,
         onChangePdfToGroup,
         getPdfEmailFormat,
+        getPdfToGroup,
     }
 }

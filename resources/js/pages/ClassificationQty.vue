@@ -421,6 +421,7 @@
         getPdfToGroup,
         settingsVar,
         frmPdfEmailFormat,
+        getPdfEmailFormat,
     } = useSettings();
     const {
         modalPm,
@@ -482,18 +483,21 @@
         tblPmApproverSummary.value.dt.ajax.url("api/load_pm_approval_summary?itemsId="+selectedItemsId.value).draw();
     })
     const btnSavePdfEmailFormat = () => {
-        modalPm.SavePdfEmailFormat.show();
         let pdfToGroupParams = {
-            // customer : '' //nmodify
+            itemsId : selectedItemsId.value,
             globalVarPdfToGroup: settingsVar.pdfToGroup,
             frmModelPdfToGroup: toRef(frmPdfEmailFormat.value,'pdfToGroup'),
             globalVarPdfAttn: settingsVar.pdfAttn,
             frmModelPdfAttn: toRef(frmPdfEmailFormat.value,'pdfAttn'),
             globalVarPdfCc: settingsVar.pdfCc,
             frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
+
             selectedVal: '',
         };
         getPdfToGroup(pdfToGroupParams);
+        getPdfEmailFormat(pdfToGroupParams);
+        modalPm.SavePdfEmailFormat.show();
+
     }
     const onChangePdfToGroup = (customer) => {
         let pdfToGroupParams = {
