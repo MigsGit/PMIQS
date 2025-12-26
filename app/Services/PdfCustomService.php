@@ -305,59 +305,48 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, "Prepared by:", 0, 0);
         $this->fpdi->Cell(90, 5, "Checked by:", 0, 1);
-        $this->fpdi->Ln(5);
+        // $this->fpdi->Ln(5);
         // $imagePath ='../RapidX_E-Signature/R152.png';
 
         // //TODO: get esignature based on emp_id save the path to the database also
-        // $this->fpdi->Image($imagePath, 90, 5, 0, 0);
-
-        // $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
-        // $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
-
-        // $this->fpdi->Ln(10);
-        // $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
-        // $this->fpdi->Ln(5);
-        // $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
-
-        // $this->fpdi->Ln(10);
-        // $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
-        // $this->fpdi->Ln(5);
-        // $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 0);
-        // $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
-
-
         // Add images for prepared_by and checked_by
-        $preparedByImagePath = '../RapidX_E-Signature/R152.png'; // Replace with actual path
-        $checkedByImagePath = '../RapidX_E-Signature/R153.png'; // Replace with actual path
+        $preparedByImagePath = '../RapidX_E-Signature/'.$data['prepared_by_emp_no'].'.png'; // Replace with actual path
+        $checkedByImagePath = '../RapidX_E-Signature/'.$data['checked_by_emp_no'].'.png'; // Replace with actual path
 
         $this->addSignatureImage($preparedByImagePath, 10, $this->fpdi->GetY(), 30, 10); // Adjust X, Y, Width, Height
         $this->addSignatureImage($checkedByImagePath, 100, $this->fpdi->GetY(), 30, 10); // Adjust X, Y, Width, Height
 
-        $this->fpdi->Ln(15);
+        $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
         $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
-        $this->fpdi->Ln(5);
+        // $this->fpdi->Ln(5);
 
         // Add image for noted_by
-        $notedByImagePath = '../RapidX_E-Signature/R154.png'; // Replace with actual path
+        $notedByImagePath = '../RapidX_E-Signature/'.$data['noted_by_emp_no'].'.png'; // Replace with actual path
         $this->addSignatureImage($notedByImagePath, 10, $this->fpdi->GetY(), 30, 10);
 
-        $this->fpdi->Ln(15);
+        $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
-        $this->fpdi->Ln(5);
+        // $this->fpdi->Ln(5);
+
 
         // Add image for approved_by
-        $approvedByImagePath = '../RapidX_E-Signature/R155.png'; // Replace with actual path
+        $approvedByImagePath = '../RapidX_E-Signature'.$data['appoved_by1_emp_no'].'.png'; // Replace with actual path
+        $approvedByImagePath2 = '../RapidX_E-Signature/'.$data['appoved_by2_emp_no'].'.png'; // Replace with actual path
         $this->addSignatureImage($approvedByImagePath, 10, $this->fpdi->GetY(), 30, 10);
+        $this->addSignatureImage($approvedByImagePath2, 100, $this->fpdi->GetY(), 30, 10);
 
-        $this->fpdi->Ln(15);
-        $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
+        $this->fpdi->Ln(10);
+        $this->fpdi->Cell(90, 5, $data['approved_by1'], 0, 0);
+        $this->fpdi->Cell(90, 5, $data['approved_by2'], 0, 1);
+        // echo json_encode($data);
+        // exit;
 
         return $this->fpdi->Output('S');
 
@@ -443,7 +432,7 @@ class PdfCustomService implements PdfCustomInterface
             $minBlockHeight = $subRows * $subRowHeight;
             $priceRowHeight = 7;
             $minPriceBlockHeight = $priceRows * $priceRowHeight;
-            $blockHeight = max($minBlockHeight, $minPriceBlockHeight);
+            $blockHeight = max($minBlockHeight, $minPriceBlockHeight)+10;
             $actualPriceRowH = $blockHeight / $priceRows;
 
             $x = $this->fpdi->GetX();

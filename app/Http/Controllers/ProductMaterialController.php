@@ -685,6 +685,12 @@ class ProductMaterialController extends Controller
             $appovedBy1 = $pmApprovalsData[3]['rapidx_user_rapidx_user_id']['name']?? '';
             $appovedBy2 = $pmApprovalsData[4]['rapidx_user_rapidx_user_id']['name']?? '';
 
+            $preparedByEmpNo = $pmApprovalsData[0]['rapidx_user_rapidx_user_id']['employee_number']?? '';
+            $checkedByEmpNo = $pmApprovalsData[1]['rapidx_user_rapidx_user_id']['employee_number']?? '';
+            $notedByEmpNo = $pmApprovalsData[2]['rapidx_user_rapidx_user_id']['employee_number']?? '';
+            $appovedBy1EmpNo = $pmApprovalsData[3]['rapidx_user_rapidx_user_id']['employee_number']?? '';
+            $appovedBy2EmpNo = $pmApprovalsData[4]['rapidx_user_rapidx_user_id']['employee_number']?? '';
+
             $preparedByPosition = $pmApprovalsData[0]['pm_user']['department_position'] ?? '';
             $checkedByPosition = $pmApprovalsData[1]['pm_user']['department_position'] ?? '';
             $notedByPosition = $pmApprovalsData[2]['pm_user']['department_position'] ?? '';
@@ -750,6 +756,12 @@ class ProductMaterialController extends Controller
                 'noted_by' => $notedBy,
                 'approved_by1' => $appovedBy1,
                 'approved_by2' => $appovedBy2,
+
+                'prepared_by_emp_no' => $preparedByEmpNo,
+                'checked_by_emp_no' => $checkedByEmpNo,
+                'noted_by_emp_no' => $notedByEmpNo,
+                'appoved_by1_emp_no' => $appovedBy1EmpNo,
+                'appoved_by2_emp_no' => $appovedBy2EmpNo,
 
                 'prepared_by_position' => $preparedByPosition,
                 'checked_by_position' => $checkedByPosition,
