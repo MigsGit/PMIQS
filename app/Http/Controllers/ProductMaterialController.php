@@ -810,24 +810,7 @@ class ProductMaterialController extends Controller
     public function sendDisposition(Request $request){
         date_default_timezone_set('Asia/Manila');
         $itemsId =  decrypt($request->selectedItemsId);
-
-        $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[
-            'pm_items_id' => $itemsId
-        ]);
-        $pmCustomerGroupDetail = $pmCustomerGroupDetail
-        ->get();
-       $pmCustomerGroupDetailResource = PmCustomerGroupDetailResource::collection($pmCustomerGroupDetail)->resolve();
-
-       $arrParams = [
-            'pmCustomerGroupDetails' => $pmCustomerGroupDetailResource[0],
-            'customAdditionalMsg' => $request->pdfAdditionalMsg,
-        ];
-       $msg =  $this->emailInterface->pmExternalEmailMsg($arrParams);
-
-        $subject =  $request->pdfSubject;
         $pmAttachment =  $request->pmAttachment;
-        $pdfAttn =  $request->pdfAttn;
-        $pdfCc =  $request->pdfCc;
         DB::beginTransaction();
         $path = "public/product_material/$itemsId/";
         if($request->hasfile('pmAttachment')){
@@ -835,38 +818,55 @@ class ProductMaterialController extends Controller
             $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
             $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);
             // return $url = Storage::url('PQS/filename.ext');
-           $cont = $path.'0_the_increment_v0.1_1.pdf';
+            $cont = $path.$impFilteredDocumentName;
             $contents = Storage::exists($cont);
             if (!$contents) {
                 return response()->json([
                     'message' => 'PDF file not found.'
                 ], 404);
             }
-           Mail::send([], [], function ($mail) use ($subject, $contents,$impOriginalFilename,$msg,$cont) {
+            $arrParams = [
+                'customAdditionalMsg' => $request->pdfAdditionalMsg,
+                'attnEmail' => $request->pdfAttn,
+                'ccEmail'   => $request->pdfCc,
+                'attnName'  => $request->pdfAttnName,
+                'ccName'    => $request->pdfCcName,
+                'subject'   => $request->pdfSubject,
+                'pdfFile'   => $cont,
+                'fileName'  => $impOriginalFilename,
+
+            ];
+            $msg =  $this->emailInterface->pmExternalEmailMsg($arrParams);
+            Mail::send([], [], function ($mail) use ($arrParams,$msg) {
                 $mail->from(
-                    'mclegaspi@pricon.ph' ?? 'issinfoservice@pricon.ph',
-                    'Miguel Legaspi' ?? 'PMI Quotation System'
+                   'issinfoservice@pricon.ph',
+                   'PMI Quotation System'
                 );
-                $mail->to('cdcasuyon@pricon.ph')
-                     ->cc('cbretusto@pricon.ph')
+                $mail->to(explode(',', $arrParams['attnEmail']))
                      ->bcc('mclegaspi@pricon.ph')
-                     ->subject($subject)
+                     ->subject($arrParams['subject'])
                      ->setBody($msg, 'text/html');
 
-                // if (!empty($request->email_cc)) {
-                //     $mail->cc($request->email_cc);
-                // }
+                if (!empty($arrParams['ccEmail'])) {
+                    $mail->cc(explode(',', $arrParams['ccEmail']));
+                }
 
-                $mail->attach( Storage::path($cont), [
-                    'as'   => $impOriginalFilename,
+                $mail->attach( Storage::path($arrParams['pdfFile']), [
+                    'as'   => $arrParams['fileName'],
                     'mime' => 'application/pdf',
                 ]);
             });
+            if (Storage::exists($path)) {
+                Storage::deleteDirectory($path);
+                // Storage::move($currentPath, $newFolderPath); //change file name if exist
+            }
         }else{
             return response()->json([
                 'message' => 'PDF file not found.'
             ], 500);
         }
+
+
         return response()->json(['is_success' => 'true']);
     }
 }

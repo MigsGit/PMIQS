@@ -794,6 +794,8 @@
                 formData.append('pmAttachment[]', file);
             });
         }
+        formData.append('pdfAttnName', frmPdfEmailFormat.value.pdfAttnName)
+        formData.append('pdfCcName', frmPdfEmailFormat.value.pdfCcName)
         formData.append('pdfAttn', frmPdfEmailFormat.value.pdfAttn)
         formData.append('pdfCc', frmPdfEmailFormat.value.pdfCc)
         formData.append('pdfSubject', frmPdfEmailFormat.value.pdfSubject)

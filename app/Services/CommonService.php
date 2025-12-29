@@ -26,7 +26,7 @@ class CommonService implements CommonInterface
             $currentPath= $path;
             $newFolderPath= $path.time();
             if (Storage::exists($currentPath)) {
-                // Storage::deleteDirectory($currentPath);
+                Storage::deleteDirectory($currentPath);
                 // Storage::move($currentPath, $newFolderPath); //change file name if exist
             }
             $arr_filtered_filename = [];
@@ -36,7 +36,7 @@ class CommonService implements CommonInterface
                 $filtered_filename = $key.'_'.$this->fileInterface->Slug($original_filename, '_', '.');	 // _etc_hosts_alix_axel_likes_beer.pdf //Interface
 
                 // $file->storeAs($folderPath, $filtered_filename, 'public'); // 'storage' disk is used for storing files // not active
-                // Storage::putFileAs($currentPath, $file, $filtered_filename);//change file to storage //active
+                Storage::putFileAs($currentPath, $file, $filtered_filename);//change file to storage //active
                 $arr_original_filename[] =$original_filename;
                 $arr_filtered_filename[] =$filtered_filename;
             }

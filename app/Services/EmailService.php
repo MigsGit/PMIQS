@@ -79,9 +79,8 @@ class EmailService implements EmailInterface
             throw $e;
         }
     }
-   
+
     public function pmExternalEmailMsg($dataParams){
-       $pmCustomerGroupDetails =$dataParams['pmCustomerGroupDetails'];
         // return $dropdownCustomerGroupDetails =$dataParams['customAdditionalMsg'];
         return $msg = '<!DOCTYPE html>
             <html>
@@ -105,11 +104,12 @@ class EmailService implements EmailInterface
                             <div class="row" style="margin: 1px 10px;">
                                 <div class="col-sm-12">
                                         <div class="col-sm-12">
-                                            <label style="font-size:12px;">Dear '.$pmCustomerGroupDetails['attentionName'].'</label><br>
+
+                                            <label style="font-size:12px;">Dear '.$dataParams['attnName'].'</label><br>
                                             <br>
                                         </div>
                                         <div class="col-sm-12">
-                                            <label style="font-size:12px;">CC: '.$pmCustomerGroupDetails['ccName'].'</label><br>
+                                            <label style="font-size:12px;">CC: '.$dataParams['ccName'].'</label><br>
                                             <br>
                                         </div>
                                         <div class="col-sm-12">
