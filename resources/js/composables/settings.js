@@ -28,6 +28,7 @@ export default function useSettings(){
        pdfCc:[],
     });
     const frmPdfEmailFormat = ref({
+        pdfPmCustomerGroupDetailsId: '',
         pdfToGroup: '',
         pdfAttn:[],
         pdfCc: [],
@@ -35,9 +36,14 @@ export default function useSettings(){
         pdfCcName: '',
         pdfSubject: '',
         pdfAdditionalMsg: '',
-        pdfTermsCondition: '',
+        pdfTermsCondition: [],
         controlNo : '',
     });
+    const frmPdfEmailFormatRows = ref([
+        {
+            pdfTermsCondition: [],
+        }
+    ]);
     const frmDropdownMasterDetails = ref({
         dropdownMastersId : '',
         dropdownMasterDetailsId : '',
@@ -227,7 +233,18 @@ export default function useSettings(){
             frmPdfEmailFormat.value.pdfAdditionalMsg = pmCustomerGroupDetailResource.additionalMessage;
             frmPdfEmailFormat.value.pdfAttnName = pmCustomerGroupDetailResource.attentionName;
             frmPdfEmailFormat.value.pdfCcName = pmCustomerGroupDetailResource.ccName;
-            frmPdfEmailFormat.value.pdfTermsCondition = pmCustomerGroupDetailResource.termsCondition;
+            // frmPdfEmailFormat.value.pdfTermsCondition = pmCustomerGroupDetailResource.termsCondition;
+            frmPdfEmailFormat.value.pdfPmCustomerGroupDetailsId = pmCustomerGroupDetailResource.id;
+
+            frmPdfEmailFormatRows.value = [];
+            if (data.termsCondition.length != 0){
+                data.termsCondition.forEach((ecrDetailsEl,index) =>{
+                    // console.log('ecrDetailsEl',ecrDetailsEl);
+                    frmPdfEmailFormatRows.value.push({
+                        pdfTermsCondition : ecrDetailsEl,
+                    });
+                })
+            }
 
             params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
                 { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
@@ -269,12 +286,23 @@ export default function useSettings(){
             params.frmModelPdfCc.value = recipientsCc; //Make sure the data type is correct | String or Array
         });
     }
+
+    //Functions
+    const addFrmPdfEmailFormatRows = async () => {
+        frmPdfEmailFormatRows.value.push({
+            pdfTermsCondition: '',
+        });
+    }
+    const removeFrmPdfEmailFormatRows = async (index) => {
+        frmPdfEmailFormatRows.value.splice(index,1);
+    }
     return {
         modalSettings,
         settingsVar,
         frmDropdownMasterDetails,
         frmEcrRequirementDetails,
         frmPdfEmailFormat,
+        frmPdfEmailFormatRows,
         axiosFetchData,
         getDropdownMasterByOpt,
         getRapidxUserByIdOpt,
@@ -283,5 +311,7 @@ export default function useSettings(){
         onChangePdfToGroup,
         getPdfEmailFormat,
         getPdfToGroup,
+        addFrmPdfEmailFormatRows,
+        removeFrmPdfEmailFormatRows,
     }
 }

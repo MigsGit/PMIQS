@@ -378,74 +378,118 @@
     <ModalComponent @add-event="frmSendDisposition" icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSendDispo">
         <template #body>
             <div class="row mt-3">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <text class="input-group-text" id="addon-wrapping">Subject. :</text>
-                            <textarea v-model="frmPdfEmailFormat.pdfSubject" type="text" class="form-control" id="inlineFormInputGroup"> </textarea>
-                        </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">To:</span>
+                        <Multiselect
+                            v-model="frmPdfEmailFormat.pdfToGroup"
+                            :close-on-select="true"
+                            :searchable="true"
+                            :options="settingsVar.pdfToGroup"
+                            @change=onChangePdfToGroup($event)
+                            placeholder="-Select an Option-">
+                        </Multiselect>
                     </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Attention Email:</span>
+                        <Multiselect
+                            :close-on-select="false"
+                            :searchable="true"
+                            placeholder="-Select an Option-"
+                            mode="tags"
+                            v-model="frmPdfEmailFormat.pdfAttn"
+                            :options="settingsVar.pdfAttn"
+                        />
+                    </div>
+                </div>
+                <div class="col-sm-6 ">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">CC Email:</span>
+                        <Multiselect
+                            :close-on-select="false"
+                            :searchable="true"
+                            placeholder="-Select an Option-"
+                            mode="tags"
+                            v-model="frmPdfEmailFormat.pdfCc"
+                            :options="settingsVar.pdfCc"
+                        />
+                    </div>
+                </div>
+                <div class="col-sm-6 d-none">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Attention:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfAttnName" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6 d-none">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">CC:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfCcName" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Subject:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfSubject" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Additional Message:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfAdditionalMsg" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Terms and Condition</h5>
+                        </div>
+                        <div class="col-sm-12 mt-3">
+                            <button @click="addFrmPdfEmailFormatRows" type="button" class="btn btn-primary btn-sm mb-2" style="float: right !important;"><i class="fas fa-plus"></i> Add Terms & Conditions</button>
+                        </div>
+                        <div class="card-body shadow">
+                            <table class="table table-responsive">
+                                <thead>
+                                    <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col" style="width: 75%;"> Document Affected</th>
+                                    <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr  v-for="(frmPdfEmailFormatRow, index) in frmPdfEmailFormatRows" :key="frmPdfEmailFormatRow.index">
+                                        <td>
+                                            {{ index+1 }}
+                                        </td>
+                                        <td>
+                                            <textarea class="form-control" v-model="frmPdfEmailFormatRow.pdfTermsCondition" row="5">
+                                            </textarea>
+                                        </td>
+                                        <td>
 
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <text class="input-group-text" id="addon-wrapping">Additional Message:</text>
-                            <textarea v-model="frmPdfEmailFormat.pdfAdditionalMsg" type="text" class="form-control" id="inlineFormInputGroup">
-                            </textarea>
+                                            <button  @click="removeFrmPdfEmailFormatRows(index)" class="btn btn-outline-danger btn-sm" type="button" data-item-process="add">
+                                                <font-awesome-icon class="nav-icon" icon="fas fa-trash" />
+                                            </button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- <div v-for="frmPdfEmailFormatRow in frmPdfEmailFormatRows" :key="frmPdfEmailFormatRow.pdfTermsCondition">
+                                <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                    <textarea class="form-control" v-model="frmPdfEmailFormatRow.pdfTermsCondition" row="5">
+                                    </textarea>
+                                </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">To:</span>
-                            <Multiselect
-                                v-model="frmPdfEmailFormat.pdfToGroup"
-                                :close-on-select="true"
-                                :searchable="true"
-                                :options="settingsVar.pdfToGroup"
-                                @change=onChangePdfToGroup($event)
-                                placeholder="-Select an Option-">
-                            </Multiselect>
-                            <!-- @change=onChangePdfToGroup($event) -->
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">Attachment</span>
-                            <input @change="changePmAttachment" multiple type="file" accept=".pdf" class="form-control form-control-lg" aria-describedby="addon-wrapping">
-                        </div>
-                    </div>
-
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">Attention:</span>
-                            <Multiselect
-                                :close-on-select="false"
-                                :searchable="true"
-                                placeholder="-Select an Option-"
-                                mode="tags"
-                                v-model="frmPdfEmailFormat.pdfAttn"
-                                :options="settingsVar.pdfAttn"
-                            />
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="input-group flex-nowrap mb-2 input-group-sm">
-                            <span class="input-group-text" id="addon-wrapping">CC:</span>
-                            <Multiselect
-                                :close-on-select="false"
-                                :searchable="true"
-                                placeholder="-Select an Option-"
-                                mode="tags"
-                                v-model="frmPdfEmailFormat.pdfCc"
-                                :options="settingsVar.pdfCc"
-                            />
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </template>
         <template #footer>
@@ -511,6 +555,9 @@
         getRapidxUserByIdOpt,
         onChangePdfToGroup,
         getPdfEmailFormat,
+        frmPdfEmailFormatRows,
+        addFrmPdfEmailFormatRows,
+        removeFrmPdfEmailFormatRows,
     } = useSettings();
 
     DataTable.use(DataTablesCore);

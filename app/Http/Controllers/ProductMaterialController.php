@@ -780,20 +780,25 @@ class ProductMaterialController extends Controller
     }
     public function savePdfEmailFormat(Request $request,PmCustomerGroupDetailRequest $pmCustomerGroupDetailRequest){
         try {
+
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
             $pmCustomerGroupDetailRequestValidated = [];
-            //pm_customer_group_details_id
-            //dd_customer_groups_id
             $pmCustomerGroupDetailRequestValidated["pm_items_id"] = decrypt($request->selectedItemsId);
             $pmCustomerGroupDetailRequestValidated["dd_customer_groups_id"] = $request->pdfToGroup;
             $pmCustomerGroupDetailRequestValidated["attention_name"] = $request->pdfAttnName;
             $pmCustomerGroupDetailRequestValidated["cc_name"] = $request->pdfCcName;
             $pmCustomerGroupDetailRequestValidated["subject"] = $request->pdfSubject;
             $pmCustomerGroupDetailRequestValidated["additional_message"] = $request->pdfAdditionalMsg;
-            $pmCustomerGroupDetailRequestValidated["terms_condition"] = $request->pdfTermsCondition;
-            $pmCustomerGroupDetailRequestValidated["created_at"] = now();
-            $this->resourceInterface->create(PmCustomerGroupDetail::class,$pmCustomerGroupDetailRequestValidated);
+            $pmCustomerGroupDetailRequestValidated["terms_condition"] = implode(' | ',$request->pdfTermsCondition);
+            if( isset( $request->pdfPmCustomerGroupDetailsId )){
+                $this->resourceInterface->updateConditions(PmCustomerGroupDetail::class,[
+                    'pm_customer_group_details_id' => $request->pdfPmCustomerGroupDetailsId
+                ],$pmCustomerGroupDetailRequestValidated);
+            }else{
+                $pmCustomerGroupDetailRequestValidated["created_at"] = now();
+                $this->resourceInterface->create(PmCustomerGroupDetail::class,$pmCustomerGroupDetailRequestValidated);
+            }
             DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
@@ -813,7 +818,6 @@ class ProductMaterialController extends Controller
             DB::beginTransaction();
             $path = "public/product_material/$itemsId/";
             if($request->hasfile('pmAttachment')){
-
                 $arrUploadFile = $this->commonInterface->uploadFileEcrRequirement($pmAttachment,$path);
                 $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
                 $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);

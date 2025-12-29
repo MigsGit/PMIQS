@@ -449,33 +449,42 @@ class SettingsController extends Controller
     public function getPdfEmailFormat(Request $request){
         try {
             $itemsId = decrypt($request->itemsId);
-            $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[
-                'pm_items_id' => $itemsId
-            ]);
-            $pmCustomerGroupDetail = $pmCustomerGroupDetail
-            ->get();
-            $pmCustomerGroupDetailResource = PmCustomerGroupDetailResource::collection($pmCustomerGroupDetail)->resolve();
+            $pdfPmCustomerGroupDetailsId =$request->pdfPmCustomerGroupDetailsId ?? null;
 
-            $ddCustomerGroupsId = $pmCustomerGroupDetailResource[0]['ddCustomerGroupsId'];
-            // $dropdownCustomerGroupDataResource = $pmCustomerGroupDetailResource[0]['dropdown_customer_group'];
-
-            $dropdownCustomerGroup= $this->resourceInterface->readCustomEloquent(DropdownCustomerGroup::class,[],[],[]);
-            $dropdownCustomerGroupData = $dropdownCustomerGroup->get();
-            $dropdownCustomerGroupDataResource = DropdownCustomerGroupResource::collection($dropdownCustomerGroupData)->resolve();
-
-            if(filled($dropdownCustomerGroupDataResource) && filled($ddCustomerGroupsId)){
-                $selectedCustomer = collect($dropdownCustomerGroupDataResource)->groupBy('id');
-                return response()->json([
-                    'isSuccess' => 'true',
-                    'isGetEmail' => 'true',
-                    'pmCustomerGroupDetailResource' => $pmCustomerGroupDetailResource,
-                    'dropdownCustomerGroupDataResource' => $dropdownCustomerGroupDataResource,
-                    'customer' => $selectedCustomer[$ddCustomerGroupsId][0]['customer'],
-                    'recipientsCc' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsCc']),
-                    'recipientsTo' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsTo']),
+            if($pdfPmCustomerGroupDetailsId === null){
+                $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[
+                    'pm_items_id' => $itemsId
                 ]);
+                $pmCustomerGroupDetail = $pmCustomerGroupDetail
+                ->get();
+                $pmCustomerGroupDetailResource = PmCustomerGroupDetailResource::collection($pmCustomerGroupDetail)->resolve();
+
+                $ddCustomerGroupsId = $pmCustomerGroupDetailResource[0]['ddCustomerGroupsId'];
+                // $dropdownCustomerGroupDataResource = $pmCustomerGroupDetailResource[0]['dropdown_customer_group'];
+
+                $dropdownCustomerGroup= $this->resourceInterface->readCustomEloquent(DropdownCustomerGroup::class,[],[],[]);
+                $dropdownCustomerGroupData = $dropdownCustomerGroup->get();
+                $dropdownCustomerGroupDataResource = DropdownCustomerGroupResource::collection($dropdownCustomerGroupData)->resolve();
+
+                if(filled($dropdownCustomerGroupDataResource) && filled($ddCustomerGroupsId)){
+                    $selectedCustomer = collect($dropdownCustomerGroupDataResource)->groupBy('id');
+                    return response()->json([
+                        'isSuccess' => 'true',
+                        'isGetEmail' => 'true',
+                        'pmCustomerGroupDetailResource' => $pmCustomerGroupDetailResource,
+                        'dropdownCustomerGroupDataResource' => $dropdownCustomerGroupDataResource,
+                        'customer' => $selectedCustomer[$ddCustomerGroupsId][0]['customer'],
+                        'recipientsCc' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsCc']),
+                        'recipientsTo' => explode(',',$selectedCustomer[$ddCustomerGroupsId][0]['recipientsTo']),
+
+                        'termsCondition' => explode(' | ',$pmCustomerGroupDetailResource[0]['termsCondition']),
+                    ]);
+                }
             }
 
+            if($pdfPmCustomerGroupDetailsId != null){
+
+            }
             return response()->json([
                 'isSuccess' => 'false',
             ],500);

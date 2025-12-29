@@ -319,7 +319,7 @@
                 </div>
                 <div class="col-sm-6 d-none">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Attention:</span>
+                        <span class="input-group-text" id="addon-wrapping">Attention Email:</span>
                         <Multiselect
                             :close-on-select="false"
                             :searchable="true"
@@ -332,7 +332,7 @@
                 </div>
                 <div class="col-sm-6 d-none">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">CC:</span>
+                        <span class="input-group-text" id="addon-wrapping">CC Email:</span>
                         <Multiselect
                             :close-on-select="false"
                             :searchable="true"
@@ -364,18 +364,56 @@
                         </textarea>
                     </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-12">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
                         <span class="input-group-text" id="addon-wrapping">Additional Message:</span>
                         <textarea class="form-control" v-model="frmPdfEmailFormat.pdfAdditionalMsg" row="5">
                         </textarea>
                     </div>
                 </div>
-                <div class="col-sm-6">
-                    <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Terms and Condition:</span>
-                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfTermsCondition" row="5">
-                        </textarea>
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Terms and Condition</h5>
+                        </div>
+                        <div class="col-sm-12 mt-3">
+                            <button @click="addFrmPdfEmailFormatRows" type="button" class="btn btn-primary btn-sm mb-2" style="float: right !important;"><i class="fas fa-plus"></i> Add Terms & Conditions</button>
+                        </div>
+                        <div class="card-body shadow">
+                            <table class="table table-responsive">
+                                <thead>
+                                    <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col" style="width: 75%;"> Document Affected</th>
+                                    <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr  v-for="(frmPdfEmailFormatRow, index) in frmPdfEmailFormatRows" :key="frmPdfEmailFormatRow.index">
+                                        <td>
+                                            {{ index+1 }}
+                                        </td>
+                                        <td>
+                                            <textarea class="form-control" v-model="frmPdfEmailFormatRow.pdfTermsCondition" row="5">
+                                            </textarea>
+                                        </td>
+                                        <td>
+
+                                            <button  @click="removeFrmPdfEmailFormatRows(index)" class="btn btn-outline-danger btn-sm" type="button" data-item-process="add">
+                                                <font-awesome-icon class="nav-icon" icon="fas fa-trash" />
+                                            </button>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- <div v-for="frmPdfEmailFormatRow in frmPdfEmailFormatRows" :key="frmPdfEmailFormatRow.pdfTermsCondition">
+                                <div class="input-group flex-nowrap mb-2 input-group-sm">
+                                    <textarea class="form-control" v-model="frmPdfEmailFormatRow.pdfTermsCondition" row="5">
+                                    </textarea>
+                                </div>
+                            </div> -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -422,6 +460,9 @@
         settingsVar,
         frmPdfEmailFormat,
         getPdfEmailFormat,
+        frmPdfEmailFormatRows,
+        addFrmPdfEmailFormatRows,
+        removeFrmPdfEmailFormatRows,
     } = useSettings();
     const {
         modalPm,
@@ -482,6 +523,7 @@
         selectedItemsId.value = itemsIdParam.value;
         tblPmApproverSummary.value.dt.ajax.url("api/load_pm_approval_summary?itemsId="+selectedItemsId.value).draw();
     })
+
     const btnSavePdfEmailFormat = () => {
         let pdfToGroupParams = {
             itemsId : selectedItemsId.value,
@@ -586,15 +628,24 @@
     }
     const formSavePdfEmailFormat = async () => {
         let formData =  new FormData();
+
+        for (let index = 0; index < frmPdfEmailFormatRows.value.length; index++) {
+            const pdfTermsCondition = frmPdfEmailFormatRows.value[index].pdfTermsCondition;
+            [
+                ["pdfTermsCondition[]", pdfTermsCondition],
+            ].forEach(([key, value]) =>
+                formData.append(key, value)
+            );
+        }
         formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
+        formData.append('pdfPmCustomerGroupDetailsId', frmPdfEmailFormat.value.pdfPmCustomerGroupDetailsId)
         formData.append('pdfToGroup', frmPdfEmailFormat.value.pdfToGroup)
         formData.append('pdfAttnName', frmPdfEmailFormat.value.pdfAttnName)
         formData.append('pdfCcName', frmPdfEmailFormat.value.pdfCcName)
         formData.append('pdfSubject', frmPdfEmailFormat.value.pdfSubject)
         formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
-        formData.append('pdfTermsCondition', frmPdfEmailFormat.value.pdfTermsCondition)
         axiosSaveData(formData,'api/save_pdf_email_format', (response) =>{
-            // modalPm.SavePdfEmailFormat.hide();
+            modalPm.SavePdfEmailFormat.hide();
         });
     }
 
