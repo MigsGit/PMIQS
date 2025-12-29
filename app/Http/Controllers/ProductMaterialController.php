@@ -806,85 +806,67 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
+
     public function sendDisposition(Request $request){
-        try {
-            date_default_timezone_set('Asia/Manila');
-            $itemsId =  decrypt($request->selectedItemsId);
-            $msg =  $this->emailInterface->ecrEmailMsg($request->pdfAdditionalMsg);
-            $subject =  $request->pdfSubject;
-            $pmAttachment =  $request->pmAttachment;
-            $pdfAttn =  $request->pdfAttn;
-             $pdfCc =  $request->pdfCc;
-            DB::beginTransaction();
-            $path = "public/product_material/$itemsId/";
-            if($request->hasfile('pmAttachment')){
-                $arrUploadFile = $this->commonInterface->uploadFileEcrRequirement($pmAttachment,$path);
-                $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
-                $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);
-                // return $url = Storage::url('PQS/filename.ext');
-                $cont = $path.'/0_the_increment_v0.1_1.pdf';
-                $contents = Storage::exists($cont);
-                if (!$contents) {
-                    return response()->json([
-                        'message' => 'PDF file not found.'
-                    ], 404);
-                }
-                //     SendPdfEmailJob::dispatch(
-                //    'cdcasuyon@pricon.ph',
-                //     'cbretusto@pricon.ph',
-                //     // ['cdcasuyon@pricon.ph','cbretusto@pricon.ph'],
-                //     // ['mclegaspi@pricon.ph','cdcasuyon@pricon.ph'],
-                //     $subject,
-                //     $msg,
-                //     $contents
-                // )->onQueue('emails');
+        date_default_timezone_set('Asia/Manila');
+        $itemsId =  decrypt($request->selectedItemsId);
 
-                return Mail::send('test.mailer', [], function ($mail) use ($subject, $contents,$msg,$cont) {
-                    $mail->to('cdcasuyon@pricon.ph')
-                         ->cc('cbretusto@pricon.ph')
-                         ->bcc('mclegaspi@pricon.ph')
-                         ->subject($subject)
-                         ->setBody($msg, 'text/html');
+        $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[
+            'pm_items_id' => $itemsId
+        ]);
+        $pmCustomerGroupDetail = $pmCustomerGroupDetail
+        ->get();
+       $pmCustomerGroupDetailResource = PmCustomerGroupDetailResource::collection($pmCustomerGroupDetail)->resolve();
 
-                    // if (!empty($request->email_cc)) {
-                    //     $mail->cc($request->email_cc);
-                    // }
+       $arrParams = [
+            'pmCustomerGroupDetails' => $pmCustomerGroupDetailResource[0],
+            'customAdditionalMsg' => $request->pdfAdditionalMsg,
+        ];
+       $msg =  $this->emailInterface->pmExternalEmailMsg($arrParams);
 
-                    $mail->attach( Storage::path($cont), [
-                        'as'   => 'attachment.pdf',
-                        'mime' => 'application/pdf',
-                    ]);
-                });
-
-                return 'dsadas';
-
-               response()->json(['message' => 'Email job dispatched successfully.'], 200);
-                $emailData = [
-                    // "to" =>$to,
-                    "to" =>'cdcasuyon@pricon.ph',
-                    "cc" =>"",
-                    "bcc" =>"mclegaspi@pricon.ph",
-                    // "from" => $from,
-                    "from" => "cbretusto@pricon.ph",
-                    "from_name" =>$from_name ?? "PMI Quotation System (PMIQS)",
-                    "subject" =>$subject,
-                    "message" =>  $msg,
-                    "attachment_filename" => "",
-                    "attachment" => "",
-                    "send_date_time" => now(),
-                    "date_time_sent" => "",
-                    "date_created" => now(),
-                    "created_by" => session('rapidx_username'),
-                    "system_name" => "rapidx_PMIQS",
-                ];
-            //    return $this->emailInterface->sendEmail($emailData);
-                DB::commit();
+        $subject =  $request->pdfSubject;
+        $pmAttachment =  $request->pmAttachment;
+        $pdfAttn =  $request->pdfAttn;
+        $pdfCc =  $request->pdfCc;
+        DB::beginTransaction();
+        $path = "public/product_material/$itemsId/";
+        if($request->hasfile('pmAttachment')){
+            $arrUploadFile = $this->commonInterface->uploadFileEcrRequirement($pmAttachment,$path);
+            $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
+            $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);
+            // return $url = Storage::url('PQS/filename.ext');
+           $cont = $path.'0_the_increment_v0.1_1.pdf';
+            $contents = Storage::exists($cont);
+            if (!$contents) {
+                return response()->json([
+                    'message' => 'PDF file not found.'
+                ], 404);
             }
+           Mail::send([], [], function ($mail) use ($subject, $contents,$impOriginalFilename,$msg,$cont) {
+                $mail->from(
+                    'mclegaspi@pricon.ph' ?? 'issinfoservice@pricon.ph',
+                    'Miguel Legaspi' ?? 'PMI Quotation System'
+                );
+                $mail->to('cdcasuyon@pricon.ph')
+                     ->cc('cbretusto@pricon.ph')
+                     ->bcc('mclegaspi@pricon.ph')
+                     ->subject($subject)
+                     ->setBody($msg, 'text/html');
 
-            return response()->json(['is_success' => 'true']);
-        } catch (Exception $e) {
-            DB::rollback();
-            throw $e;
+                // if (!empty($request->email_cc)) {
+                //     $mail->cc($request->email_cc);
+                // }
+
+                $mail->attach( Storage::path($cont), [
+                    'as'   => $impOriginalFilename,
+                    'mime' => 'application/pdf',
+                ]);
+            });
+        }else{
+            return response()->json([
+                'message' => 'PDF file not found.'
+            ], 500);
         }
+        return response()->json(['is_success' => 'true']);
     }
 }

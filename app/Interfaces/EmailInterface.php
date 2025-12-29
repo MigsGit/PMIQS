@@ -5,7 +5,7 @@ namespace App\Interfaces;
 interface EmailInterface
 {
     public function getEmailByRapidxUserId($userId);
-    public function ecrEmailMsg($ecrsId);
+    public function pmExternalEmailMsg(array $data);
     public function pmApprovalEmailMsg($itemsId);
 
     public function ecrEmailMsgEcrRequirement($ecrsId);

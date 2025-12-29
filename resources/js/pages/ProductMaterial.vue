@@ -375,7 +375,7 @@
         <template #footer>
         </template>
     </ModalComponent>
-    <ModalComponent @add-event="frmSendDisposition" icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSendDispo">
+    <ModalComponent icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="SavePdfEmailFormat">
         <template #body>
             <div class="row mt-3">
                 <div class="col-sm-6">
@@ -389,6 +389,27 @@
                             @change=onChangePdfToGroup($event)
                             placeholder="-Select an Option-">
                         </Multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Subject:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfSubject" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Attention:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfAttnName" row="5">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">CC:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfCcName" row="5">
+                        </textarea>
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -417,25 +438,10 @@
                         />
                     </div>
                 </div>
-                <div class="col-sm-6 d-none">
+                <div class="col-6">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Attention:</span>
-                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfAttnName" row="5">
-                        </textarea>
-                    </div>
-                </div>
-                <div class="col-sm-6 d-none">
-                    <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">CC:</span>
-                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfCcName" row="5">
-                        </textarea>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Subject:</span>
-                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfSubject" row="5">
-                        </textarea>
+                        <span class="input-group-text" id="addon-wrapping">Attachment</span>
+                        <input @change="changePmAttachment" multiple type="file" accept=".pdf" class="form-control form-control-lg" aria-describedby="addon-wrapping">
                     </div>
                 </div>
                 <div class="col-sm-12">
@@ -493,8 +499,8 @@
             </div>
         </template>
         <template #footer>
-            <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
+            <button @click="formSavePdfEmailFormat" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Saved</button>
+            <button @click="frmSendDisposition" type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
         </template>
     </ModalComponent>
 </template>
@@ -565,7 +571,7 @@
     const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
     const modalViewPmRef = ref(null);
-    const modalSendDispo = ref(null);
+    const SavePdfEmailFormat = ref(null);
     const isModalView = ref(false);
     const pmAttachment = ref(null);
 
@@ -629,7 +635,7 @@
                         }
                         selectedItemsId.value = itemsId;
                         getPdfEmailFormat(itemParams);
-                        modalPm.modalSendDispo.show();
+                        modalPm.SavePdfEmailFormat.show();
                     });
                 }
                 if(btnGetClassificationQtyByItemsId !=null){
@@ -677,7 +683,7 @@
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         modalPm.ViewPmRef = new Modal(modalViewPmRef.value.modalRef,{ keyboard: false });
-        modalPm.modalSendDispo = new Modal(modalSendDispo.value.modalRef,{ keyboard: false });
+        modalPm.SavePdfEmailFormat = new Modal(SavePdfEmailFormat.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
         getRapidxUserByIdOpt(preparedByParams);
@@ -793,7 +799,6 @@
         formData.append('pdfSubject', frmPdfEmailFormat.value.pdfSubject)
         formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
         axiosSaveData(formData,'api/send_disposition', (response) =>{
-            console.log(response);
             tblProductMaterial.value.dt.draw();
         });
     }
@@ -835,5 +840,27 @@
     }
     const btnLinkViewPmItemRef = async (selectedItemsId) =>{
         window.open(`api/view_pm_item_ref?itemsId=${selectedItemsId}`, '_blank');
+    }
+    const formSavePdfEmailFormat = async () => {
+        let formData =  new FormData();
+
+        for (let index = 0; index < frmPdfEmailFormatRows.value.length; index++) {
+            const pdfTermsCondition = frmPdfEmailFormatRows.value[index].pdfTermsCondition;
+            [
+                ["pdfTermsCondition[]", pdfTermsCondition],
+            ].forEach(([key, value]) =>
+                formData.append(key, value)
+            );
+        }
+        formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
+        formData.append('pdfPmCustomerGroupDetailsId', frmPdfEmailFormat.value.pdfPmCustomerGroupDetailsId)
+        formData.append('pdfToGroup', frmPdfEmailFormat.value.pdfToGroup)
+        formData.append('pdfAttnName', frmPdfEmailFormat.value.pdfAttnName)
+        formData.append('pdfCcName', frmPdfEmailFormat.value.pdfCcName)
+        formData.append('pdfSubject', frmPdfEmailFormat.value.pdfSubject)
+        formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
+        axiosSaveData(formData,'api/save_pdf_email_format', (response) =>{
+            modalPm.SavePdfEmailFormat.hide();
+        });
     }
 </script>

@@ -79,7 +79,10 @@ class EmailService implements EmailInterface
             throw $e;
         }
     }
-    public function ecrEmailMsg($additionalMsg){
+   
+    public function pmExternalEmailMsg($dataParams){
+       $pmCustomerGroupDetails =$dataParams['pmCustomerGroupDetails'];
+        // return $dropdownCustomerGroupDetails =$dataParams['customAdditionalMsg'];
         return $msg = '<!DOCTYPE html>
             <html>
                 <head>
@@ -88,7 +91,7 @@ class EmailService implements EmailInterface
                     <style type="text/css">
                         body{
                             font-family: Arial;
-                            font-size: 15px;
+                            font-size: 12px;
                         }
                         .text-green{
                             color: green;
@@ -101,17 +104,39 @@ class EmailService implements EmailInterface
                         <div class="col-sm-12">
                             <div class="row" style="margin: 1px 10px;">
                                 <div class="col-sm-12">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <label style="font-size: 18px;">'.$additionalMsg.'</label>
-                                                <br>
-                                            </div>
+                                        <div class="col-sm-12">
+                                            <label style="font-size:12px;">Dear '.$pmCustomerGroupDetails['attentionName'].'</label><br>
+                                            <br>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label style="font-size:12px;">CC: '.$pmCustomerGroupDetails['ccName'].'</label><br>
+                                            <br>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label style="font-size:12px;">Good day!</label><br>
+                                            <br>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label style="font-size:12px;">'.$dataParams['customAdditionalMsg'].'</label>
+                                            <br>
+                                            <br>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <label style="font-size: 12px;">For your common reference.</label>
+                                            <br>
+                                            <br>
                                         </div>
 
+                                        <div class="col-sm-12">
+                                                <div class="form-group row">
+                                                    <label class="col-sm-12 col-form-label"><b> Notice of Disclaimer: </b></label>
+                                                    <br>
+                                                    <label class="col-sm-12 col-form-label"></label>   This message contains confidential information intended for a specific individual and purpose. If you are not the intended recipient, you should delete this message. Any disclosure,copying, or distribution of this message, or the taking of any action based on it, is strictly prohibited.</label>
+                                                </div>
+                                            </div>
                                         </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </body>

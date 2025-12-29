@@ -317,30 +317,11 @@
                         </Multiselect>
                     </div>
                 </div>
-                <div class="col-sm-6 d-none">
+                <div class="col-sm-6">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Attention Email:</span>
-                        <Multiselect
-                            :close-on-select="false"
-                            :searchable="true"
-                            placeholder="-Select an Option-"
-                            mode="tags"
-                            v-model="frmPdfEmailFormat.pdfAttn"
-                            :options="settingsVar.pdfAttn"
-                        />
-                    </div>
-                </div>
-                <div class="col-sm-6 d-none">
-                    <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">CC Email:</span>
-                        <Multiselect
-                            :close-on-select="false"
-                            :searchable="true"
-                            placeholder="-Select an Option-"
-                            mode="tags"
-                            v-model="frmPdfEmailFormat.pdfCc"
-                            :options="settingsVar.pdfCc"
-                        />
+                        <span class="input-group-text" id="addon-wrapping">Subject:</span>
+                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfSubject" row="5">
+                        </textarea>
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -359,9 +340,28 @@
                 </div>
                 <div class="col-sm-6">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Subject:</span>
-                        <textarea class="form-control" v-model="frmPdfEmailFormat.pdfSubject" row="5">
-                        </textarea>
+                        <span class="input-group-text" id="addon-wrapping">Attention Email:</span>
+                        <Multiselect
+                            :close-on-select="false"
+                            :searchable="true"
+                            placeholder="-Select an Option-"
+                            mode="tags"
+                            v-model="frmPdfEmailFormat.pdfAttn"
+                            :options="settingsVar.pdfAttn"
+                        />
+                    </div>
+                </div>
+                <div class="col-sm-6 ">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">CC Email:</span>
+                        <Multiselect
+                            :close-on-select="false"
+                            :searchable="true"
+                            placeholder="-Select an Option-"
+                            mode="tags"
+                            v-model="frmPdfEmailFormat.pdfCc"
+                            :options="settingsVar.pdfCc"
+                        />
                     </div>
                 </div>
                 <div class="col-sm-12">
