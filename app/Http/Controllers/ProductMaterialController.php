@@ -202,7 +202,6 @@ class ProductMaterialController extends Controller
             if($pmCustomerGroupDetailsExists === 0){
                 return response()->json(['isSuccess' => 'false','msg' => 'Please save the Email Format !'],500);
             }
-            return 'sdd';
             if ( $status === "DIS" ){  //DISAPPROVED
                 $pmApprovalCurrent->update([
                     'status' => $status,
@@ -263,7 +262,9 @@ class ProductMaterialController extends Controller
                     'status' => 'FORAPP',
                     'approval_status' => $pmApprovalNext->approval_status,
                 ]);
-                // $to = $ecrCurrentApproval['email'] ?? '';
+                $pmApprovalPending = $this->emailInterface->getEmailByRapidxUserId( $pmApprovalCurrent->rapidx_user_id);
+
+                $to = $pmApprovalPending['email'] ?? '';
 
                 $pmApprovalEmailMsg = $this->emailInterface->pmApprovalEmailMsg($selectedItemsId);
                 $msg = $pmApprovalEmailMsg['msg'];
@@ -293,7 +294,7 @@ class ProductMaterialController extends Controller
                 $subject = "APPROVED: PMI Quotation Request";
                 $from_name = "PMI Quotation System (PMIQS)";
             }
-           return $emailData = [
+            return $emailData = [
                 "to" =>$to,
                 // "to" =>'cdcasuyon@pricon.ph',
                 "cc" =>"",
@@ -675,7 +676,7 @@ class ProductMaterialController extends Controller
                 ];
             })->values()->groupBy('itemNo')->toArray();
 
-            $data = [
+           $data = [
                 'to' => "Yamaichi Electronics Co.",
                 "category"    => $category,
                 'attn' => $attentionName,
@@ -686,10 +687,9 @@ class ProductMaterialController extends Controller
                   $additionalMessage
                 ],
                 'descriptions' => $arrDescriptions,
-                'terms' => [
-                    $termsCondition
-                ],
-
+                'terms' =>
+                    explode(' | ',$termsCondition)
+                ,
                 'prepared_by' => $preparedBy,
                 'checked_by' => $checkedBy,
                 'noted_by' => $notedBy,

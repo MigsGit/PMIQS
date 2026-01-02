@@ -290,7 +290,7 @@ class PdfCustomService implements PdfCustomInterface
                 $this->fpdi->Ln(3);
             }
         }
-        $this->fpdi->Ln(5);
+        // $this->fpdi->Ln(5);
         $this->fpdi->SetFont('Arial', 'B', 10);
         $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);
         $this->fpdi->SetFont('Arial', '', 10);
@@ -298,7 +298,7 @@ class PdfCustomService implements PdfCustomInterface
             $this->fpdi->Cell(190, 5, ($i + 1) . ". " . $term, 0, 1);
         }
         // ===== SIGNATORY SECTION =====
-        $this->fpdi->Ln(10);
+        $this->fpdi->Ln(5);
         $this->fpdi->SetFont('Arial', '', 10);
         $this->fpdi->Cell(190, 5, "For your information and acceptance.", 0, 1);
 
@@ -313,25 +313,25 @@ class PdfCustomService implements PdfCustomInterface
         $preparedByImagePath = '../RapidX_E-Signature/'.$data['prepared_by_emp_no'].'.png'; // Replace with actual path
         $checkedByImagePath = '../RapidX_E-Signature/'.$data['checked_by_emp_no'].'.png'; // Replace with actual path
 
-        $this->addSignatureImage($preparedByImagePath, 10, $this->fpdi->GetY(), 30, 10); // Adjust X, Y, Width, Height
-        $this->addSignatureImage($checkedByImagePath, 100, $this->fpdi->GetY(), 30, 10); // Adjust X, Y, Width, Height
+        $this->addSignatureImage($preparedByImagePath, 10, $this->fpdi->GetY(), 20, 10); // Adjust X, Y, Width, Height
+        $this->addSignatureImage($checkedByImagePath, 100, $this->fpdi->GetY(), 20, 10); // Adjust X, Y, Width, Height
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, $data['prepared_by'], 0, 0);
         $this->fpdi->Cell(90, 5, $data['checked_by'], 0, 1);
 
-        $this->fpdi->Ln(10);
+        $this->fpdi->Ln(5);
         $this->fpdi->Cell(90, 5, "Noted by:", 0, 1);
         // $this->fpdi->Ln(5);
 
         // Add image for noted_by
         $notedByImagePath = '../RapidX_E-Signature/'.$data['noted_by_emp_no'].'.png'; // Replace with actual path
-        $this->addSignatureImage($notedByImagePath, 10, $this->fpdi->GetY(), 30, 10);
+        $this->addSignatureImage($notedByImagePath, 10, $this->fpdi->GetY(), 20, 10);
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, $data['noted_by'], 0, 1);
 
-        $this->fpdi->Ln(10);
+        $this->fpdi->Ln(5);
         $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
         // $this->fpdi->Ln(5);
 
@@ -339,8 +339,8 @@ class PdfCustomService implements PdfCustomInterface
         // Add image for approved_by
         $approvedByImagePath = '../RapidX_E-Signature'.$data['appoved_by1_emp_no'].'.png'; // Replace with actual path
         $approvedByImagePath2 = '../RapidX_E-Signature/'.$data['appoved_by2_emp_no'].'.png'; // Replace with actual path
-        $this->addSignatureImage($approvedByImagePath, 10, $this->fpdi->GetY(), 30, 10);
-        $this->addSignatureImage($approvedByImagePath2, 100, $this->fpdi->GetY(), 30, 10);
+        $this->addSignatureImage($approvedByImagePath, 10, $this->fpdi->GetY(), 20, 10);
+        $this->addSignatureImage($approvedByImagePath2, 100, $this->fpdi->GetY(), 20, 10);
 
         $this->fpdi->Ln(10);
         $this->fpdi->Cell(90, 5, $data['approved_by1'], 0, 0);
