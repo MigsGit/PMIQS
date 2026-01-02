@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use DataTables;
+use App\Models\User;
 use App\Models\PmItem;
 use App\Models\PmApproval;
-use App\Services\PdfService;
 
+use App\Services\PdfService;
 use Illuminate\Http\Request;
 use App\Jobs\SendPdfEmailJob;
 use App\Models\PmDescription;
@@ -825,5 +826,26 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-
+    public function getPendingApproved(Request $request){
+        try {
+            $pmItems = $this->resourceInterface->readWithRelationsConditionsActive(PmItem::class,[],[],[]);
+            $user = $this->resourceInterface->readWithRelationsConditionsActive(User::class,[],[],[]);
+            $userCollection = collect($user)->count();
+            $pmItemCollection = collect($pmItems);
+            $pmItemCollectionPending = $pmItemCollection->where(
+                'status' ,'!=', 'OK'
+            )->count();
+            $pmItemCollectionApproved = $pmItemCollection->where(
+                'status' , 'OK'
+            )->count();
+            return response()->json([
+                'isSuccess' => 'true',
+                'pmItemCollectionPending' => $pmItemCollectionPending,
+                'pmItemCollectionApproved' => $pmItemCollectionApproved,
+                'userCollection' => $userCollection,
+        ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }

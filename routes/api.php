@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function(){
         Route::get('get_items_by_id', 'getItemsById')->name('pm.get_items_by_id');
         Route::get('get_description_by_items_id', 'getDescriptionByItemsId')->name('pm.get_description_by_items_id');
         Route::get('view_pm_item_ref', 'viewPmItemRef')->name('pm.view_pm_item_ref');
+        Route::get('get_pending_approved', 'getPendingApproved')->name('pm.get_pending_approved');
     });
 
 });

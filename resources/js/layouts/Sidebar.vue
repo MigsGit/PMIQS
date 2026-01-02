@@ -17,7 +17,7 @@
                     <font-awesome-icon class="nav-icon" icon="users" />&nbsp; User Master
                 </router-link>
 
-                <router-link class="sb-nav-link-icon nav-link" :to="{ name: 'DropdownMaster' }">
+                <router-link class="sb-nav-link-icon nav-link d-none" :to="{ name: 'DropdownMaster' }">
                     <font-awesome-icon class="nav-icon" icon="square-caret-down" />&nbsp; Dropdown Master
                 </router-link>
             </div>

@@ -9,9 +9,12 @@
                         </ol>
                         <div class="row">
                             <div class="col-xl-3 col-md-6" v-show="departmentGroup === 'ISS' || departmentGroup === 'QAD'">
-                                <div class="card bg-dark text-white mb-4">
+                                <div class="card bg-dark text-white mb-4" >
                                     <div class="card-body">
                                         <h4><font-awesome-icon class="nav-icon" icon="users" />&nbsp;User Master</h4>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-end">
+                                        ( {{userCount}} ) Users
                                     </div>
                                     <div class="card-footer d-flex align-items-center justify-content-end">
                                         <router-link class="small text-white stretched-link" :to="{ name: 'UserMaster' }">
@@ -22,6 +25,40 @@
                                 </div>
                             </div>
                             <div class="col-xl-3 col-md-6">
+                                <div class="card text-white mb-4" :class="pending != 0 ? 'bg-danger' : 'bg-dark'">
+                                    <div class="card-body">
+                                        <h4><font-awesome-icon class="nav-icon" icon="fa-file" />&nbsp;Product / Material</h4>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-end">
+                                        Pending ( {{pending}} )
+                                        Approved ( {{approved}} )
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-end">
+                                        <router-link class="small text-white stretched-link" :to="{ name: 'ProductMaterial' }">
+                                            more info
+                                            <font-awesome-icon class="nav-icon" icon="angle-right" />
+                                        </router-link>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card bg-dark text-white mb-4">
+                                    <div class="card-body">
+                                        <h4><font-awesome-icon class="nav-icon" icon="cog" />&nbsp;Email Settings</h4>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-end">
+
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-end">
+                                        <router-link class="small text-white stretched-link" :to="{ name: 'ProductMaterial' }">
+                                            more info
+                                            <font-awesome-icon class="nav-icon" icon="angle-right" />
+                                        </router-link>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6 d-none">
                                 <div class="card bg-dark text-white mb-4">
                                     <div class="card-body">
                                         <h4><font-awesome-icon class="nav-icon" icon="square-caret-down" />&nbsp;Dropdown Master</h4>
@@ -51,14 +88,27 @@
 
     //ref state
     const departmentGroup = ref(0);
+    const pending = ref(0);
+    const approved = ref(0);
+    const userCount = ref(0);
 
     const getAdminAccessOpt = async () => {
         axiosFetchData({},'api/get_admin_access_opt',function(response){
             departmentGroup.value = response.data.departmentGroup;
         });
     }
+
+    const getPendingApproved = async () => {
+        axiosFetchData({},'api/get_pending_approved',function(response){
+            let data = response.data;
+            userCount.value = data.userCollection;
+            pending.value = data.pmItemCollectionPending;
+            approved.value = data.pmItemCollectionApproved;
+        });
+    }
     onMounted(async () => {
         await getAdminAccessOpt();
+        await getPendingApproved();
     })
 </script>
 
