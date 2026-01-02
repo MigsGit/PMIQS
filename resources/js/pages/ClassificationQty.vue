@@ -556,29 +556,28 @@
         modalPm.SaveApproval.show();
     }
     const saveForApproval = (approverDecision) => {
-        let formData =  new FormData();
-        formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
-        formData.append('approverRemarks', approverRemarks.value)
-        formData.append('approverDecision', approverDecision)
-        axiosSaveData(formData,'api/save_for_approval', (response) =>{
-            console.log(response);
-            // Router.push({ name: 'ProductMaterial'});
+        console.log(approverDecision);
+        let isApproverDecision = approverDecision === 'APP' ? 'APPROVED' : 'DISAPPROVED';
+        Swal.fire({
+            title: 'Confirmation',
+            text: `Are you sure you want to ${isApproverDecision} this request ?`,
+            icon: 'warning',
+            allowOutsideClick: false,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData =  new FormData();
+                formData.append('selectedItemsId', selectedItemsId.value) //selectedItemsId
+                formData.append('approverRemarks', approverRemarks.value)
+                formData.append('approverDecision', approverDecision)
+                axiosSaveData(formData,'api/save_for_approval', (response) =>{
+                    Router.push({ name: 'ProductMaterial'});
+                });
+            }
         });
-
-        // Swal.fire({
-        //     title: 'Confirmation',
-        //     text: 'Please double check your details, the Approval will RESET !',
-        //     icon: 'warning',
-        //     allowOutsideClick: false,
-        //     showCancelButton: true,
-        //     confirmButtonColor: '#3085d6',
-        //     cancelButtonColor: '#d33',
-        //     confirmButtonText: 'Yes'
-        // }).then((result) => {
-        //     if (result.isConfirmed) {
-        //     }
-        // });
-
     }
     // Add a new row to a specific card
     const addRowClassification = (cardIndex,card) => {

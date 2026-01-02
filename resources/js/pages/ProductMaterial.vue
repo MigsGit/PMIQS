@@ -744,55 +744,69 @@
         rowSaveItems.value[indexItem].rows.splice(indexDescription, 1);
     }
     const formSaveItem = async () => {
-        let formData =  new FormData();
-        formData.append('itemsId', selectedItemsId.value);
-        formData.append('controlNo', frmItem.value.controlNo);
-        formData.append('division', frmItem.value.division);
-        formData.append('category', frmItem.value.category);
-        formData.append('remarks', frmItem.value.remarks);
+        Swal.fire({
+            title: 'Confirmation',
+            text: `Please double check your details, the Approval will RESET !`,
+            icon: 'warning',
+            allowOutsideClick: false,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData =  new FormData();
+                formData.append('itemsId', selectedItemsId.value);
+                formData.append('controlNo', frmItem.value.controlNo);
+                formData.append('division', frmItem.value.division);
+                formData.append('category', frmItem.value.category);
+                formData.append('remarks', frmItem.value.remarks);
 
-        formData.append('preparedBy', frmItem.value.preparedBy);
-        formData.append('checkedBy', frmItem.value.checkedBy);
-        formData.append('notedBy', frmItem.value.notedBy);
-        formData.append('approvedByOne', frmItem.value.approvedByOne);
-        formData.append('approvedByTwo', frmItem.value.approvedByTwo);
+                formData.append('preparedBy', frmItem.value.preparedBy);
+                formData.append('checkedBy', frmItem.value.checkedBy);
+                formData.append('notedBy', frmItem.value.notedBy);
+                formData.append('approvedByOne', frmItem.value.approvedByOne);
+                formData.append('approvedByTwo', frmItem.value.approvedByTwo);
 
 
-        for (let index = 0; index < rowSaveItems.value.length; index++) {
-            const elementRowSaveItems = rowSaveItems.value[index];
+                for (let index = 0; index < rowSaveItems.value.length; index++) {
+                    const elementRowSaveItems = rowSaveItems.value[index];
 
-            for (let index = 0; index < elementRowSaveItems.rows.length; index++) {
-                const elementRowSaveDescription = elementRowSaveItems.rows[index];
-                const descItemNo = elementRowSaveDescription.descItemNo;
-                const partcodeType = elementRowSaveDescription.partcodeType;
-                const descriptionItemName = elementRowSaveDescription.descriptionItemName;
+                    for (let index = 0; index < elementRowSaveItems.rows.length; index++) {
+                        const elementRowSaveDescription = elementRowSaveItems.rows[index];
+                        const descItemNo = elementRowSaveDescription.descItemNo;
+                        const partcodeType = elementRowSaveDescription.partcodeType;
+                        const descriptionItemName = elementRowSaveDescription.descriptionItemName;
 
-                const matSpecsLength = elementRowSaveDescription.matSpecsLength;
-                const matSpecsWidth = elementRowSaveDescription.matSpecsWidth;
-                const matSpecsHeight = elementRowSaveDescription.matSpecsHeight;
-                const matRawType = elementRowSaveDescription.matRawType;
-                const matRawThickness = elementRowSaveDescription.matRawThickness;
-                const matRawWidth = elementRowSaveDescription.matRawWidth;
+                        const matSpecsLength = elementRowSaveDescription.matSpecsLength;
+                        const matSpecsWidth = elementRowSaveDescription.matSpecsWidth;
+                        const matSpecsHeight = elementRowSaveDescription.matSpecsHeight;
+                        const matRawType = elementRowSaveDescription.matRawType;
+                        const matRawThickness = elementRowSaveDescription.matRawThickness;
+                        const matRawWidth = elementRowSaveDescription.matRawWidth;
 
-                [
-                    ["itemNo[]", descItemNo],
-                    ["partcodeType[]", partcodeType],
-                    ["descriptionItemName[]", descriptionItemName],
-                    ["matSpecsLength[]", matSpecsLength],
-                    ["matSpecsWidth[]", matSpecsWidth],
-                    ["matSpecsHeight[]", matSpecsHeight],
-                    ["matRawType[]", matRawType],
-                    ["matRawThickness[]", matRawThickness],
-                    ["matRawWidth[]", matRawWidth],
-                ].forEach(([key, value]) =>
-                    formData.append(key, value)
-                );
+                        [
+                            ["itemNo[]", descItemNo],
+                            ["partcodeType[]", partcodeType],
+                            ["descriptionItemName[]", descriptionItemName],
+                            ["matSpecsLength[]", matSpecsLength],
+                            ["matSpecsWidth[]", matSpecsWidth],
+                            ["matSpecsHeight[]", matSpecsHeight],
+                            ["matRawType[]", matRawType],
+                            ["matRawThickness[]", matRawThickness],
+                            ["matRawWidth[]", matRawWidth],
+                        ].forEach(([key, value]) =>
+                            formData.append(key, value)
+                        );
+                    }
+                }
+                axiosSaveData(formData,'api/save_item', (response) =>{
+                    console.log(response);
+                    tblProductMaterial.value.dt.draw();
+                });
             }
-        }
-        axiosSaveData(formData,'api/save_item', (response) =>{
-            console.log(response);
-            tblProductMaterial.value.dt.draw();
         });
+
     }
     const frmSendDisposition = async () => {
         let formData =  new FormData();

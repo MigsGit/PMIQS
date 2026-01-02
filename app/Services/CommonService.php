@@ -365,6 +365,10 @@ class CommonService implements CommonInterface
                     $status = 'CANCELLED';
                     $bgStatus = 'badge rounded-pill bg-danger';
                     break;
+                case 'FORDISPO':
+                    $status = 'FOR SENDING DISPOSITION';
+                    $bgStatus = 'badge rounded-pill bg-info';
+                    break;
                 case 'OK':
                     $status = 'APPROVED';
                     $bgStatus = 'badge rounded-pill bg-success';

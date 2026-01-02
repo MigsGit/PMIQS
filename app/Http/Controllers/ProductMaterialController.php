@@ -223,14 +223,14 @@ class ProductMaterialController extends Controller
                 $subject = "DISAPPROVED: PMI Quotation Request";
 
                 //Reset EcrRequirement
-               return $emailData = [
+               $emailData = [
 
-                     "to" =>$to,
-                    // "to" =>'cdcasuyon@pricon.ph',
+                    //  "to" =>$to,
+                    "to" =>'cdcasuyon@pricon.ph',
                     "cc" =>"",
                     "bcc" =>"mclegaspi@pricon.ph",
-                    "from" => $from,
-                    // "from" => "cbretusto@pricon.ph",
+                    // "from" => $from,
+                    "from" => "cbretusto@pricon.ph",
                     "from_name" =>$from_name ?? "PMI Quotation System",
                     "subject" =>$subject,
                     "message" =>  $msg,
@@ -243,7 +243,7 @@ class ProductMaterialController extends Controller
                     "system_name" => "rapidx_4M",
                 ];
                 // $this->emailInterface->sendEmail($emailData);
-                // DB::commit();
+                DB::commit();
                 return response()->json(['isSuccess' => 'true']);
             }
             if(filled($pmApprovalNext)){ //Update APPROVED and Next PENDING Approval
@@ -278,8 +278,8 @@ class ProductMaterialController extends Controller
                 $this->resourceInterface->updateConditions(pmItem::class,[
                     'pm_items_id' => $selectedItemsId
                 ],[
-                    'status' => 'OK',
-                    'approval_status' => 'OK',
+                    'status' => 'FORDISPO',
+                    'approval_status' => 'APPROVED',
                 ]);
                 $pmApprovalCurrent->update([
                     'status' => $status,
@@ -294,13 +294,13 @@ class ProductMaterialController extends Controller
                 $subject = "APPROVED: PMI Quotation Request";
                 $from_name = "PMI Quotation System (PMIQS)";
             }
-            return $emailData = [
-                "to" =>$to,
-                // "to" =>'cdcasuyon@pricon.ph',
+            $emailData = [
+                // "to" =>$to,
+                "to" =>'cdcasuyon@pricon.ph',
                 "cc" =>"",
                 "bcc" =>"mclegaspi@pricon.ph",
-                "from" => $from,
-                // "from" => "cbretusto@pricon.ph",
+                // "from" => $from,
+                "from" => "cbretusto@pricon.ph",
                 "from_name" =>$from_name ?? "PMI Quotation System (PMIQS)",
                 "subject" =>$subject,
                 "message" =>  $msg,
@@ -313,7 +313,7 @@ class ProductMaterialController extends Controller
                 "system_name" => "rapidx_PMIQS",
             ];
             // return $this->emailInterface->sendEmail($emailData);
-            // DB::commit();
+            DB::commit();
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
@@ -397,6 +397,7 @@ class ProductMaterialController extends Controller
                 PmItem::class,
                 [],
                 [
+                    'rapidx_user_created_by',
                     'descriptions',
                     'pm_approval_pending.rapidx_user_rapidx_user_id'
                 ],
@@ -438,6 +439,9 @@ class ProductMaterialController extends Controller
                 $result .= '<br>';
                 if($status === 'OK'){
                    return  $result .= '';
+                }
+                if($status === 'FORDISPO'){
+                    return $result .= '<span class="badge rounded-pill bg-info"> '.$row['rapidx_user_created_by']['name'].' </span>';
                 }
                 if($status != 'DIS'){
                     $result .= '<span class="badge rounded-pill bg-danger"> '.$getApprovalStatus['approvalStatus'].' '.$currentApprover.' </span>';
