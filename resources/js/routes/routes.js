@@ -58,7 +58,7 @@ export default [
                 component: DropdownMaster,
             },
             {
-                path: 'classification_qty/:itemsId/:pmItemStatus',
+                path: 'classification_qty/:itemsId/:pmItemCurrentStatus',
                 name: 'ClassificationQty',
                 beforeEnter: checkIfSessionExist,
                 component: ClassificationQty,

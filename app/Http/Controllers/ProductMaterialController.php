@@ -58,24 +58,14 @@ class ProductMaterialController extends Controller
             $pmItemRequestValidated['category'] = $pmItemRequest->category;
             $pmItemRequestValidated['division'] = $pmItemRequest->division;
             $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
-            if( blank($request->itemsId) ){ //Add
-                // return 'add';
+            if( $request->itemsId === "null" ){ //Add
+                return 'add';
                 $pmItemRequestValidated['created_by'] = session('rapidx_user_id');
                 $pmItemRequestValidated['control_no'] = $generateControlNumber['currentCtrlNo'];
                 $pmItemsId = $this->resourceInterface->create(PmItem::class,$pmItemRequestValidated);
-               $itemsId = $pmItemsId['dataId'];
-            }else{ //Edit
-                // return 'Edit';
-                $itemsId = decrypt($request->itemsId);
-                $pmItemRequestValidated;
-                $pmItemRequestValidated['updated_by'] = session('rapidx_user_id');
-                $this->resourceInterface->updateConditions(
-                    PmItem::class,
-                    ['pm_items_id' => $itemsId],
-                    $pmItemRequestValidated
-                );
-            }
-            if( $request->itemsId === "null" ){ //Add
+                $itemsId = $pmItemsId['dataId'];
+
+
                 //Save the Items & Descriptions
                 PmDescription::where('pm_items_id',$itemsId)->delete();
                 $productData =collect($request->itemNo)->map(function($item, $key) use ($pmItemRequest, $itemsId){
@@ -102,7 +92,20 @@ class ProductMaterialController extends Controller
                         array_merge($productData,$rawMatData ?? [])
                     );
                 });
+            }else{ //Edit
+                return 'Edit';
+                $itemsId = decrypt($request->itemsId);
+                $pmItemRequestValidated;
+                $pmItemRequestValidated['updated_by'] = session('rapidx_user_id');
+                $this->resourceInterface->updateConditions(
+                    PmItem::class,
+                    ['pm_items_id' => $itemsId],
+                    $pmItemRequestValidated
+                );
             }
+            // if( $request->itemsId === "null" ){ //Add
+
+            // }
 
             PmApproval::where('pm_items_id',$itemsId)->delete();
             $pmApprovalStatus = [
@@ -147,18 +150,35 @@ class ProductMaterialController extends Controller
             $status = $request->approverDecision;
 
             //Get Current Ecr Approval is equal to Current Session
-            $pmApprovalCurrent = PmApproval::where('pm_items_id',$selectedItemsId)
-            ->where('rapidx_user_id',session('rapidx_user_id'))
-            ->where('status','PEN')
-            ->first();
+            $pmApprovalCurrent = $this->resourceInterface->readCustomEloquent(
+                PmApproval::class,
+                [],
+                [],
+                [
+                    'pm_items_id' => $selectedItemsId,
+                    'rapidx_user_id' => session('rapidx_user_id'),
+                    'status' => 'PEN'
+                ]
+            )->first();
+
             if(blank($pmApprovalCurrent)){
                 return response()->json(['isSuccess' => 'false','msg' => 'You are not the current approver !'],500);
             }
-            //Get the ECR Approval Status & Id, Update the Approval Status as PENDING
-            $pmApprovalNext = PmApproval::where('pm_items_id',$selectedItemsId)
-            ->whereNotNull('rapidx_user_id')
-            ->where('status','-')
-            ->first(['pm_approvals_id','approval_status','rapidx_user_id']);
+
+
+            //Get the
+            $pmDescription = $this->resourceInterface->readCustomEloquent(
+                PmDescription::class,
+                [],
+                ['classifications'],
+                ['pm_items_id' => $selectedItemsId]
+            )->get();
+
+            $isClassificationNotExists = $pmDescription[0]->classifications->isEmpty();
+
+            if($isClassificationNotExists){
+                return response()->json(['isSuccess' => 'false','msg' => 'Please save the Classification / Qty !'],500);
+            }
 
             if ( $status === "DIS" ){  //DISAPPROVED
                 $pmApprovalCurrent->update([
@@ -181,14 +201,14 @@ class ProductMaterialController extends Controller
                 $subject = "DISAPPROVED: PMI Quotation Request";
 
                 //Reset EcrRequirement
-                $emailData = [
+               return $emailData = [
 
-                     // "to" =>$to,
-                    "to" =>'cdcasuyon@pricon.ph',
+                     "to" =>$to,
+                    // "to" =>'cdcasuyon@pricon.ph',
                     "cc" =>"",
                     "bcc" =>"mclegaspi@pricon.ph",
-                    // "from" => $from,
-                    "from" => "cbretusto@pricon.ph",
+                    "from" => $from,
+                    // "from" => "cbretusto@pricon.ph",
                     "from_name" =>$from_name ?? "PMI Quotation System",
                     "subject" =>$subject,
                     "message" =>  $msg,
@@ -229,6 +249,7 @@ class ProductMaterialController extends Controller
                 $from_name = "PMI Quotation System (PMIQS)";
                 //Send For Approval Email to Next Approver
             }
+
             if(blank($pmApprovalNext)){  //Update APPROVED status of Item
                 $this->resourceInterface->updateConditions(pmItem::class,[
                     'pm_items_id' => $selectedItemsId
@@ -249,13 +270,13 @@ class ProductMaterialController extends Controller
                 $subject = "APPROVED: PMI Quotation Request";
                 $from_name = "PMI Quotation System (PMIQS)";
             }
-            $emailData = [
-                // "to" =>$to,
-                "to" =>'cdcasuyon@pricon.ph',
+           return $emailData = [
+                "to" =>$to,
+                // "to" =>'cdcasuyon@pricon.ph',
                 "cc" =>"",
                 "bcc" =>"mclegaspi@pricon.ph",
-                // "from" => $from,
-                "from" => "cbretusto@pricon.ph",
+                "from" => $from,
+                // "from" => "cbretusto@pricon.ph",
                 "from_name" =>$from_name ?? "PMI Quotation System (PMIQS)",
                 "subject" =>$subject,
                 "message" =>  $msg,
@@ -268,6 +289,8 @@ class ProductMaterialController extends Controller
                 "system_name" => "rapidx_PMIQS",
             ];
             // return $this->emailInterface->sendEmail($emailData);
+            // DB::commit();
+            return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
@@ -283,7 +306,7 @@ class ProductMaterialController extends Controller
                     'pm_descriptions_id' => $item,
                     'classification' => $request->classification[$key],
                     'qty' => $request->qty[$key],
-                    'uom' => $request->uom[$key],
+                    // 'uom' => $request->uom[$key],
                     'unit_price' => $request->unitPrice[$key],
                     'remarks' => $request->remarks[$key],
                 ];
@@ -344,7 +367,7 @@ class ProductMaterialController extends Controller
     }
     public function loadProductMaterial(Request $request){
         try {
-            $data = $this->resourceInterface->readCustomEloquent(
+            $pmItems = $this->resourceInterface->readWithRelationsConditionsActive(
                 PmItem::class,
                 [],
                 [
@@ -354,7 +377,7 @@ class ProductMaterialController extends Controller
                 [],
             );
 
-            $pmItems =  $data->get();
+            // $pmItems =  $data->get();
             $itemResource = ItemResource::collection($pmItems)->resolve();
             $itemResourceCollection = json_decode(json_encode($itemResource), true);
 
@@ -860,13 +883,12 @@ class ProductMaterialController extends Controller
                 Storage::deleteDirectory($path);
                 // Storage::move($currentPath, $newFolderPath); //change file name if exist
             }
+            //CHANGE STATUS
         }else{
             return response()->json([
                 'message' => 'PDF file not found.'
             ], 500);
         }
-
-
         return response()->json(['is_success' => 'true']);
     }
 }

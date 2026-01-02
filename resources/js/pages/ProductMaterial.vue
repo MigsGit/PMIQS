@@ -335,7 +335,7 @@
         </template>
         <template #footer>
             <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button  @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
+            <button v-show="pmVar.status === 'FORUP'" @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
         </template>
     </ModalComponent>
     <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
@@ -499,8 +499,8 @@
             </div>
         </template>
         <template #footer>
-            <button @click="formSavePdfEmailFormat" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Saved</button>
-            <button @click="frmSendDisposition" type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
+            <button v-show="pmItemStatus === 'FORUP'"  @click="formSavePdfEmailFormat" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Saved</button>
+            <button v-show="pmItemStatus === 'FORDISPO'" @click="frmSendDisposition" type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
         </template>
     </ModalComponent>
 </template>
@@ -564,6 +564,7 @@
         frmPdfEmailFormatRows,
         addFrmPdfEmailFormatRows,
         removeFrmPdfEmailFormatRows,
+        getPdfToGroup,
     } = useSettings();
 
     DataTable.use(DataTablesCore);
@@ -574,6 +575,7 @@
     const SavePdfEmailFormat = ref(null);
     const isModalView = ref(false);
     const pmAttachment = ref(null);
+    const pmItemStatus = ref(null);
 
     const preparedByParams = {
         globalVar: settingsVar.preparedBy,
@@ -611,7 +613,8 @@
                 if(btnGetMaterialById !=null){
                     btnGetMaterialById.addEventListener('click',function(){
                         let itemsId = this.getAttribute('items-id')
-                        let pmItemStatus = this.getAttribute('pm-item-status')
+                        let pmItemCurrentStatus = this.getAttribute('pm-item-status')
+                        pmItemStatus.value = pmItemCurrentStatus;
                         let itemParams = {
                             itemsId : itemsId
                         }
@@ -623,7 +626,11 @@
                 if(btnSendProductMaterial !=null){
                     btnSendProductMaterial.addEventListener('click',function(){
                         let itemsId = this.getAttribute('items-id')
-                        let pmItemStatus = this.getAttribute('pm-item-status')
+                        let pmItemCurrentStatus = this.getAttribute('pm-item-status')
+                        pmItemStatus.value = pmItemCurrentStatus;
+                        console.log();
+
+
                         let itemParams = {
                             itemsId : itemsId,
                             globalVarPdfToGroup: settingsVar.pdfToGroup,
@@ -632,8 +639,10 @@
                             frmModelPdfAttn: toRef(frmPdfEmailFormat.value,'pdfAttn'),
                             globalVarPdfCc: settingsVar.pdfCc,
                             frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
+                            selectedVal: '',
                         }
                         selectedItemsId.value = itemsId;
+                        getPdfToGroup(itemParams);
                         getPdfEmailFormat(itemParams);
                         modalPm.SavePdfEmailFormat.show();
                     });
@@ -641,14 +650,14 @@
                 if(btnGetClassificationQtyByItemsId !=null){
                     btnGetClassificationQtyByItemsId.addEventListener('click',function(){
                         let itemsId = this.getAttribute('items-id')
-                        let pmItemStatus = this.getAttribute('pm-item-status')
+                        let pmItemCurrentStatus = this.getAttribute('pm-item-status')
                         let itemParams = {
                             itemsId : itemsId,
                         }
                         Router.push({ name: 'ClassificationQty',
                             params: {
                                 itemsId,
-                                pmItemStatus,
+                                pmItemCurrentStatus,
                             },
                         });
                         // getItemsById(itemParams);

@@ -4,7 +4,7 @@
             <div class="col-6 shadow">
                 <div class="row">
                     <div class="col-sm-2">
-                        <button @click="btnSavePdfEmailFormat" type="submit" style="float: right !important;" class="btn btn-primary"> <font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp; Update Recipients </button>
+                        <button v-show="pmItemStatusParam === 'FORUP'" @click="btnSavePdfEmailFormat" type="submit" style="float: right !important;" class="btn btn-primary"> <font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp; Update Recipients </button>
                     </div>
                     <div class="col-sm-10">
                         <button @click="btnForApproval" type="submit" style="float: right !important;" class="btn btn-info"> <font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp; For Approval </button>
@@ -188,7 +188,7 @@
                     </div>
 
                     <div class="col-6 mb-3">
-                        <button v-show="pmItemStatusParam === 'FORUP'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save </button>
+                        <button v-show="pmItemStatusParam === 'FORUP'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save {{ pmItemStatusParam }} </button>
                     </div>
                 </div>
                  <!-- Classification Cards -->
@@ -444,7 +444,7 @@
     import { useRoute } from 'vue-router';
     const route = useRoute();
     const itemsIdParam = ref(route.params.itemsId); // Retrieve itemsId Route route params
-    const pmItemStatusParam = ref(route.params.pmItemStatus); // Retrieve paramsPmItemStatus from route params
+    const pmItemStatusParam = ref(route.params.pmItemCurrentStatus); // Retrieve paramsPmItemStatus from route params
     const {
         axiosFetchData,
     } = useFetch();
@@ -533,7 +533,6 @@
             frmModelPdfAttn: toRef(frmPdfEmailFormat.value,'pdfAttn'),
             globalVarPdfCc: settingsVar.pdfCc,
             frmModelPdfCc: toRef(frmPdfEmailFormat.value,'pdfCc'),
-
             selectedVal: '',
         };
         getPdfToGroup(pdfToGroupParams);

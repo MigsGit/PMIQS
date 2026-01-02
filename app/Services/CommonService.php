@@ -321,7 +321,7 @@ class CommonService implements CommonInterface
         date_default_timezone_set('Asia/Manila');
         // Check if the Created At & App No / Division / Material Category is exisiting
         // Example:PMI-TS-25-01-001
-       $item = PmItem::orderBy('pm_items_id','desc')->whereMonth('created_at',now())
+        $item = PmItem::orderBy('pm_items_id','desc')->whereMonth('created_at',now())
             ->where('division',$division)
             ->whereNull('deleted_at')
             ->limit(1)->get(['control_no']);

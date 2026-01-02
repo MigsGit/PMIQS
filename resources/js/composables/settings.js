@@ -226,64 +226,66 @@ export default function useSettings(){
         }
         axiosFetchData(apiParams,'api/get_pdf_email_format',function(response){
             let data = response.data;
-            let pmCustomerGroupDetailResource = data.pmCustomerGroupDetailResource[0];
-            let customer = data.dropdownCustomerGroupDataResource;
-            let customerSelected = pmCustomerGroupDetailResource.dropdown_customer_group;
-            frmPdfEmailFormat.value.pdfSubject = pmCustomerGroupDetailResource.subject;
-            frmPdfEmailFormat.value.pdfAdditionalMsg = pmCustomerGroupDetailResource.additionalMessage;
-            frmPdfEmailFormat.value.pdfAttnName = pmCustomerGroupDetailResource.attentionName;
-            frmPdfEmailFormat.value.pdfCcName = pmCustomerGroupDetailResource.ccName;
-            // frmPdfEmailFormat.value.pdfTermsCondition = pmCustomerGroupDetailResource.termsCondition;
-            frmPdfEmailFormat.value.pdfPmCustomerGroupDetailsId = pmCustomerGroupDetailResource.id;
+            if(data.isDataExist === 'true'){
+                let pmCustomerGroupDetailResource = data.pmCustomerGroupDetailResource[0];
+                let customer = data.dropdownCustomerGroupDataResource;
+                let customerSelected = pmCustomerGroupDetailResource.dropdown_customer_group;
+                frmPdfEmailFormat.value.pdfSubject = pmCustomerGroupDetailResource.subject;
+                frmPdfEmailFormat.value.pdfAdditionalMsg = pmCustomerGroupDetailResource.additionalMessage;
+                frmPdfEmailFormat.value.pdfAttnName = pmCustomerGroupDetailResource.attentionName;
+                frmPdfEmailFormat.value.pdfCcName = pmCustomerGroupDetailResource.ccName;
+                // frmPdfEmailFormat.value.pdfTermsCondition = pmCustomerGroupDetailResource.termsCondition;
+                frmPdfEmailFormat.value.pdfPmCustomerGroupDetailsId = pmCustomerGroupDetailResource.id;
+                frmPdfEmailFormatRows.value = [];
 
-            frmPdfEmailFormatRows.value = [];
-            if (data.termsCondition.length != 0){
-                data.termsCondition.forEach((ecrDetailsEl,index) =>{
-                    // console.log('ecrDetailsEl',ecrDetailsEl);
-                    frmPdfEmailFormatRows.value.push({
-                        pdfTermsCondition : ecrDetailsEl,
-                    });
-                })
+                if (data.termsCondition.length != 0){
+                    data.termsCondition.forEach((ecrDetailsEl,index) =>{
+                        // console.log('ecrDetailsEl',ecrDetailsEl);
+                        frmPdfEmailFormatRows.value.push({
+                            pdfTermsCondition : ecrDetailsEl,
+                        });
+                    })
+                }
+
+                params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
+                    { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
+                    // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
+                        ...customer.map((val) => {
+                        return {
+                            value: val.id,
+                            label: val.customer
+                        }
+                    }),
+                );
+                params.frmModelPdfToGroup.value = customerSelected[0].id; //Make sure the data type is correct | String or Array
+
+                let recipientsTo = data.recipientsTo;
+
+                params.globalVarPdfAttn.splice(0, params.globalVarPdfAttn.length,
+                    // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
+                        ...recipientsTo.map((val) => {
+                        params.frmModelPdfAttn.value = params.val; //Make sure the data type is correct | String or Array
+
+                        return {
+                            value: val,
+                            label: val
+                        }
+                    }),
+                );
+                params.frmModelPdfAttn.value = recipientsTo; //Make sure the data type is correct | String or Array
+
+                let recipientsCc = data.recipientsCc;
+                params.globalVarPdfCc.splice(0, params.globalVarPdfCc.length,
+                        ...recipientsCc.map((val) => {
+                        return {
+                            value: val,
+                            label: val
+                        }
+                    }),
+                );
+
+                params.frmModelPdfCc.value = recipientsCc; //Make sure the data type is correct | String or Array
             }
-
-            params.globalVarPdfToGroup.splice(0, params.globalVarPdfToGroup.length,
-                { value: '', label: '-Select an option-', disabled:true }, // Push "" option at the start
-                // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
-                    ...customer.map((val) => {
-                    return {
-                        value: val.id,
-                        label: val.customer
-                    }
-                }),
-            );
-            params.frmModelPdfToGroup.value = customerSelected[0].id; //Make sure the data type is correct | String or Array
-
-            let recipientsTo = data.recipientsTo;
-
-            params.globalVarPdfAttn.splice(0, params.globalVarPdfAttn.length,
-                // { value: 0, label: 'N/A' }, // Push "N/A" option at the start
-                    ...recipientsTo.map((val) => {
-                    params.frmModelPdfAttn.value = params.val; //Make sure the data type is correct | String or Array
-
-                    return {
-                        value: val,
-                        label: val
-                    }
-                }),
-            );
-            params.frmModelPdfAttn.value = recipientsTo; //Make sure the data type is correct | String or Array
-
-            let recipientsCc = data.recipientsCc;
-            params.globalVarPdfCc.splice(0, params.globalVarPdfCc.length,
-                    ...recipientsCc.map((val) => {
-                    return {
-                        value: val,
-                        label: val
-                    }
-                }),
-            );
-
-            params.frmModelPdfCc.value = recipientsCc; //Make sure the data type is correct | String or Array
         });
     }
 

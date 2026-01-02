@@ -449,9 +449,9 @@ class SettingsController extends Controller
     public function getPdfEmailFormat(Request $request){
         try {
             $itemsId = decrypt($request->itemsId);
-            $pdfPmCustomerGroupDetailsId =$request->pdfPmCustomerGroupDetailsId ?? null;
+            $pdfPmCustomerGroupDetailsId =$request->pdfPmCustomerGroupDetailsId;
 
-            if($pdfPmCustomerGroupDetailsId === null){
+            if(isset($pdfPmCustomerGroupDetailsId) ){
                 $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[
                     'pm_items_id' => $itemsId
                 ]);
@@ -471,6 +471,7 @@ class SettingsController extends Controller
                     return response()->json([
                         'isSuccess' => 'true',
                         'isGetEmail' => 'true',
+                        'isDataExist' => 'true',
                         'pmCustomerGroupDetailResource' => $pmCustomerGroupDetailResource,
                         'dropdownCustomerGroupDataResource' => $dropdownCustomerGroupDataResource,
                         'customer' => $selectedCustomer[$ddCustomerGroupsId][0]['customer'],
@@ -482,12 +483,10 @@ class SettingsController extends Controller
                 }
             }
 
-            if($pdfPmCustomerGroupDetailsId != null){
-
-            }
             return response()->json([
-                'isSuccess' => 'false',
-            ],500);
+                'isSuccess' => 'true',
+                'isDataExist' => 'false',
+            ]);
         } catch (Exception $e) {
             throw $e;
         }
