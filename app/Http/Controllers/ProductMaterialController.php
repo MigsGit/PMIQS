@@ -279,7 +279,7 @@ class ProductMaterialController extends Controller
                     'pm_items_id' => $selectedItemsId
                 ],[
                     'status' => 'FORDISPO',
-                    'approval_status' => 'APPROVED',
+                    'approval_status' => 'OK',
                 ]);
                 $pmApprovalCurrent->update([
                     'status' => $status,
@@ -391,6 +391,101 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
+    public function savePdfEmailFormat(Request $request,PmCustomerGroupDetailRequest $pmCustomerGroupDetailRequest){
+        try {
+
+            date_default_timezone_set('Asia/Manila');
+            DB::beginTransaction();
+            $pmCustomerGroupDetailRequestValidated = [];
+            $pmCustomerGroupDetailRequestValidated["pm_items_id"] = decrypt($request->selectedItemsId);
+            $pmCustomerGroupDetailRequestValidated["dd_customer_groups_id"] = $request->pdfToGroup;
+            $pmCustomerGroupDetailRequestValidated["attention_name"] = $request->pdfAttnName;
+            $pmCustomerGroupDetailRequestValidated["cc_name"] = $request->pdfCcName;
+            $pmCustomerGroupDetailRequestValidated["subject"] = $request->pdfSubject;
+            $pmCustomerGroupDetailRequestValidated["additional_message"] = $request->pdfAdditionalMsg;
+            $pmCustomerGroupDetailRequestValidated["terms_condition"] = implode(' | ',$request->pdfTermsCondition);
+            if( isset( $request->pdfPmCustomerGroupDetailsId )){
+                $this->resourceInterface->updateConditions(PmCustomerGroupDetail::class,[
+                    'pm_customer_group_details_id' => $request->pdfPmCustomerGroupDetailsId
+                ],$pmCustomerGroupDetailRequestValidated);
+            }else{
+                $pmCustomerGroupDetailRequestValidated["created_at"] = now();
+                $this->resourceInterface->create(PmCustomerGroupDetail::class,$pmCustomerGroupDetailRequestValidated);
+            }
+            DB::commit();
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+    public function sendDisposition(Request $request){
+        date_default_timezone_set('Asia/Manila');
+        $itemsId =  decrypt($request->selectedItemsId);
+        $pmAttachment =  $request->pmAttachment;
+        DB::beginTransaction();
+        $path = "public/product_material/$itemsId/";
+        if($request->hasfile('pmAttachment')){
+            $arrUploadFile = $this->commonInterface->uploadFileEcrRequirement($pmAttachment,$path);
+            $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
+            $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);
+            // return $url = Storage::url('PQS/filename.ext');
+            $cont = $path.$impFilteredDocumentName;
+            $contents = Storage::exists($cont);
+            if (!$contents) {
+                return response()->json([
+                    'message' => 'PDF file not found.'
+                ], 404);
+            }
+            $arrParams = [
+                'customAdditionalMsg' => $request->pdfAdditionalMsg,
+                'attnEmail' => $request->pdfAttn,
+                'ccEmail'   => $request->pdfCc,
+                'attnName'  => $request->pdfAttnName,
+                'ccName'    => $request->pdfCcName,
+                'subject'   => $request->pdfSubject,
+                'pdfFile'   => $cont,
+                'fileName'  => $impOriginalFilename,
+
+            ];
+            $msg =  $this->emailInterface->pmExternalEmailMsg($arrParams);
+            Mail::send([], [], function ($mail) use ($arrParams,$msg) {
+                $mail->from(
+                   'issinfoservice@pricon.ph',
+                   'PMI Quotation System'
+                );
+                $mail->to(explode(',', $arrParams['attnEmail']))
+                     ->bcc('mclegaspi@pricon.ph')
+                     ->subject($arrParams['subject'])
+                     ->setBody($msg, 'text/html');
+
+                if (!empty($arrParams['ccEmail'])) {
+                    $mail->cc(explode(',', $arrParams['ccEmail']));
+                }
+
+                $mail->attach( Storage::path($arrParams['pdfFile']), [
+                    'as'   => $arrParams['fileName'],
+                    'mime' => 'application/pdf',
+                ]);
+            });
+            if (Storage::exists($path)) {
+                Storage::deleteDirectory($path);
+                // Storage::move($currentPath, $newFolderPath); //change file name if exist
+            }
+            //CHANGE STATUS
+            $this->resourceInterface->updateConditions(pmItem::class,[
+                'pm_items_id' => $itemsId
+            ],[
+                'status' => 'OK',
+                'approval_status' => 'OK',
+            ]);
+        }else{
+            return response()->json([
+                'message' => 'PDF file not found.'
+            ], 500);
+        }
+        return response()->json(['is_success' => 'true']);
+    }
     public function loadProductMaterial(Request $request){
         try {
             $pmItems = $this->resourceInterface->readWithRelationsConditionsActive(
@@ -398,7 +493,7 @@ class ProductMaterialController extends Controller
                 [],
                 [
                     'rapidx_user_created_by',
-                    'descriptions',
+                    'descriptions.classifications',
                     'pm_approval_pending.rapidx_user_rapidx_user_id'
                 ],
                 [],
@@ -414,6 +509,8 @@ class ProductMaterialController extends Controller
 
             return DataTables::of($itemResourceCollection)
             ->addColumn('getActions',function ($row){
+                $status = $row['status'];
+
                 $result = "";
                 // $result .= '<center>';
                 $result .= '<div class="btn-group dropstart mt-4">';
@@ -423,7 +520,9 @@ class ProductMaterialController extends Controller
                 $result .= '<ul class="dropdown-menu">';
                 $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> Edit Items</button> </li>";
                 $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetClassificationQtyByItemsId'> <i class='fa-solid fa-pen-to-square'></i> Edit Qty</button> </li>";
-                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnSendProductMaterial'> <i class='fa-solid fa-paper-plane'></i> Send Disposition</button> </li>";
+                if($status === 'FORDISPO'){
+                    $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnSendProductMaterial'> <i class='fa-solid fa-paper-plane'></i> Send Disposition</button> </li>";
+                }
                 $result .= '</ul>';
                 $result .= '</div>';
                 // $result .= '</center>';
@@ -451,9 +550,14 @@ class ProductMaterialController extends Controller
                 $result .= '</br>';
                 return $result;
             })->addColumn('getAttachment',function ($row){
+                $classification = collect($row['descriptions'])->flatMap(function($descriptions){
+                    return $descriptions['classifications'];
+                });
                 $result = '';
                 $result .= '<center>';
-                $result .= "<a class='btn btn-outline-danger btn-sm mr-1 mt-3 btn-get-ecr-id' items-id='".encrypt($row['id'])."' id='btnViewPmItemRef'> <i class='fa-solid fa-file-pdf'></i> Download</a>";
+                if( count($classification) > 0 ){
+                    $result .= "<a class='btn btn-outline-danger btn-sm mr-1 mt-3 btn-get-ecr-id' items-id='".encrypt($row['id'])."' id='btnViewPmItemRef'> <i class='fa-solid fa-file-pdf'></i> Download</a>";
+                }
                 $result .= '</center>';
                 return $result;
             })->rawColumns([
@@ -716,99 +820,10 @@ class ProductMaterialController extends Controller
             $generatePdfProductMaterial= $this->pdfCustomInterface->generatePdfProductMaterial($data);
             return response($generatePdfProductMaterial)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
+            ->header('Content-Disposition', 'inline; filename="PMI Qoutation.pdf"');
         } catch (Exception $e) {
             throw $e;
         }
     }
-    public function savePdfEmailFormat(Request $request,PmCustomerGroupDetailRequest $pmCustomerGroupDetailRequest){
-        try {
 
-            date_default_timezone_set('Asia/Manila');
-            DB::beginTransaction();
-            $pmCustomerGroupDetailRequestValidated = [];
-            $pmCustomerGroupDetailRequestValidated["pm_items_id"] = decrypt($request->selectedItemsId);
-            $pmCustomerGroupDetailRequestValidated["dd_customer_groups_id"] = $request->pdfToGroup;
-            $pmCustomerGroupDetailRequestValidated["attention_name"] = $request->pdfAttnName;
-            $pmCustomerGroupDetailRequestValidated["cc_name"] = $request->pdfCcName;
-            $pmCustomerGroupDetailRequestValidated["subject"] = $request->pdfSubject;
-            $pmCustomerGroupDetailRequestValidated["additional_message"] = $request->pdfAdditionalMsg;
-            $pmCustomerGroupDetailRequestValidated["terms_condition"] = implode(' | ',$request->pdfTermsCondition);
-            if( isset( $request->pdfPmCustomerGroupDetailsId )){
-                $this->resourceInterface->updateConditions(PmCustomerGroupDetail::class,[
-                    'pm_customer_group_details_id' => $request->pdfPmCustomerGroupDetailsId
-                ],$pmCustomerGroupDetailRequestValidated);
-            }else{
-                $pmCustomerGroupDetailRequestValidated["created_at"] = now();
-                $this->resourceInterface->create(PmCustomerGroupDetail::class,$pmCustomerGroupDetailRequestValidated);
-            }
-            DB::commit();
-            return response()->json(['is_success' => 'true']);
-        } catch (Exception $e) {
-            DB::rollback();
-            throw $e;
-        }
-    }
-
-    public function sendDisposition(Request $request){
-        date_default_timezone_set('Asia/Manila');
-        $itemsId =  decrypt($request->selectedItemsId);
-        $pmAttachment =  $request->pmAttachment;
-        DB::beginTransaction();
-        $path = "public/product_material/$itemsId/";
-        if($request->hasfile('pmAttachment')){
-            $arrUploadFile = $this->commonInterface->uploadFileEcrRequirement($pmAttachment,$path);
-            $impOriginalFilename = implode(' | ',$arrUploadFile['arr_original_filename']);
-            $impFilteredDocumentName = implode(' | ',$arrUploadFile['arr_filtered_document_name']);
-            // return $url = Storage::url('PQS/filename.ext');
-            $cont = $path.$impFilteredDocumentName;
-            $contents = Storage::exists($cont);
-            if (!$contents) {
-                return response()->json([
-                    'message' => 'PDF file not found.'
-                ], 404);
-            }
-            $arrParams = [
-                'customAdditionalMsg' => $request->pdfAdditionalMsg,
-                'attnEmail' => $request->pdfAttn,
-                'ccEmail'   => $request->pdfCc,
-                'attnName'  => $request->pdfAttnName,
-                'ccName'    => $request->pdfCcName,
-                'subject'   => $request->pdfSubject,
-                'pdfFile'   => $cont,
-                'fileName'  => $impOriginalFilename,
-
-            ];
-            $msg =  $this->emailInterface->pmExternalEmailMsg($arrParams);
-            Mail::send([], [], function ($mail) use ($arrParams,$msg) {
-                $mail->from(
-                   'issinfoservice@pricon.ph',
-                   'PMI Quotation System'
-                );
-                $mail->to(explode(',', $arrParams['attnEmail']))
-                     ->bcc('mclegaspi@pricon.ph')
-                     ->subject($arrParams['subject'])
-                     ->setBody($msg, 'text/html');
-
-                if (!empty($arrParams['ccEmail'])) {
-                    $mail->cc(explode(',', $arrParams['ccEmail']));
-                }
-
-                $mail->attach( Storage::path($arrParams['pdfFile']), [
-                    'as'   => $arrParams['fileName'],
-                    'mime' => 'application/pdf',
-                ]);
-            });
-            if (Storage::exists($path)) {
-                Storage::deleteDirectory($path);
-                // Storage::move($currentPath, $newFolderPath); //change file name if exist
-            }
-            //CHANGE STATUS
-        }else{
-            return response()->json([
-                'message' => 'PDF file not found.'
-            ], 500);
-        }
-        return response()->json(['is_success' => 'true']);
-    }
 }

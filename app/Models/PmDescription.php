@@ -11,6 +11,6 @@ class PmDescription extends Model
 
     public function classifications()
     {
-        return $this->hasMany(PmClassification::class, 'pm_descriptions_id', 'pm_descriptions_id');
+        return $this->hasMany(PmClassification::class, 'pm_descriptions_id', 'pm_descriptions_id')->whereNull('deleted_at');
     }
 }

@@ -370,7 +370,7 @@ class CommonService implements CommonInterface
                     $bgStatus = 'badge rounded-pill bg-info';
                     break;
                 case 'OK':
-                    $status = 'APPROVED';
+                    $status = 'EMAIL SENT';
                     $bgStatus = 'badge rounded-pill bg-success';
                     break;
                  default:

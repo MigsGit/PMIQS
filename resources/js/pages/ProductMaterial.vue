@@ -375,7 +375,7 @@
         <template #footer>
         </template>
     </ModalComponent>
-    <ModalComponent icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="SavePdfEmailFormat">
+    <ModalComponent icon="fa-envelope" modalDialog="modal-dialog modal-xl" title="Send Disposition" ref="modalSavePdfEmailFormat">
         <template #body>
             <div class="row mt-3">
                 <div class="col-sm-6">
@@ -499,6 +499,7 @@
             </div>
         </template>
         <template #footer>
+            <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
             <button v-show="pmItemStatus === 'FORUP'"  @click="formSavePdfEmailFormat" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Saved</button>
             <button v-show="pmItemStatus === 'FORDISPO'" @click="frmSendDisposition" type="submit" class="btn btn-info btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp;     Send</button>
         </template>
@@ -572,7 +573,7 @@
     const selectedItemsId = ref(null);
     const modalQuotations = ref(null);
     const modalViewPmRef = ref(null);
-    const SavePdfEmailFormat = ref(null);
+    const modalSavePdfEmailFormat = ref(null);
     const isModalView = ref(false);
     const pmAttachment = ref(null);
     const pmItemStatus = ref(null);
@@ -628,9 +629,6 @@
                         let itemsId = this.getAttribute('items-id')
                         let pmItemCurrentStatus = this.getAttribute('pm-item-status')
                         pmItemStatus.value = pmItemCurrentStatus;
-                        console.log();
-
-
                         let itemParams = {
                             itemsId : itemsId,
                             globalVarPdfToGroup: settingsVar.pdfToGroup,
@@ -645,6 +643,8 @@
                         getPdfToGroup(itemParams);
                         getPdfEmailFormat(itemParams);
                         modalPm.SavePdfEmailFormat.show();
+
+
                     });
                 }
                 if(btnGetClassificationQtyByItemsId !=null){
@@ -692,7 +692,7 @@
     onMounted ( async () =>{
         modalPm.Quotations = new Modal(modalQuotations.value.modalRef,{ keyboard: false });
         modalPm.ViewPmRef = new Modal(modalViewPmRef.value.modalRef,{ keyboard: false });
-        modalPm.SavePdfEmailFormat = new Modal(SavePdfEmailFormat.value.modalRef,{ keyboard: false });
+        modalPm.SavePdfEmailFormat = new Modal(modalSavePdfEmailFormat.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
         getRapidxUserByIdOpt(preparedByParams);
@@ -825,6 +825,7 @@
         formData.append('pdfAdditionalMsg', frmPdfEmailFormat.value.pdfAdditionalMsg)
         axiosSaveData(formData,'api/send_disposition', (response) =>{
             tblProductMaterial.value.dt.draw();
+            modalPm.SavePdfEmailFormat.hide();
         });
     }
     const saveDescItemNo = async (selectedItemNo) => {
