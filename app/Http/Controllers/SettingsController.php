@@ -449,14 +449,13 @@ class SettingsController extends Controller
     public function getPdfEmailFormat(Request $request){
         try {
             $itemsId = decrypt($request->itemsId);
-            $pdfPmCustomerGroupDetailsId =$request->pdfPmCustomerGroupDetailsId;
 
-            if(isset($pdfPmCustomerGroupDetailsId) ){
                 $pmCustomerGroupDetail= $this->resourceInterface->readCustomEloquent(PmCustomerGroupDetail::class,[],['dropdown_customer_group'],[
                     'pm_items_id' => $itemsId
                 ]);
                 $pmCustomerGroupDetail = $pmCustomerGroupDetail
                 ->get();
+            if( count($pmCustomerGroupDetail) != 0 ){
                 $pmCustomerGroupDetailResource = PmCustomerGroupDetailResource::collection($pmCustomerGroupDetail)->resolve();
 
                 $ddCustomerGroupsId = $pmCustomerGroupDetailResource[0]['ddCustomerGroupsId'];

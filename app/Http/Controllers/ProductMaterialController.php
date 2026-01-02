@@ -42,13 +42,6 @@ class ProductMaterialController extends Controller
         $this->emailInterface = $emailInterface;
 
     }
-    public function generateControlNumber(Request $request){
-        try {
-            return $generateControlNumber = $this->commonInterface->generateControlNumber($request->division);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
     public function saveItem(Request $request, PmItemRequest $pmItemRequest,PmDescriptionRequest $pmDescriptionRequest){
         try {
             $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
@@ -59,12 +52,10 @@ class ProductMaterialController extends Controller
             $pmItemRequestValidated['division'] = $pmItemRequest->division;
             $pmItemRequestValidated['remarks'] = $pmItemRequest->remarks;
             if( $request->itemsId === "null" ){ //Add
-                return 'add';
                 $pmItemRequestValidated['created_by'] = session('rapidx_user_id');
                 $pmItemRequestValidated['control_no'] = $generateControlNumber['currentCtrlNo'];
                 $pmItemsId = $this->resourceInterface->create(PmItem::class,$pmItemRequestValidated);
                 $itemsId = $pmItemsId['dataId'];
-
 
                 //Save the Items & Descriptions
                 PmDescription::where('pm_items_id',$itemsId)->delete();
@@ -93,7 +84,6 @@ class ProductMaterialController extends Controller
                     );
                 });
             }else{ //Edit
-                return 'Edit';
                 $itemsId = decrypt($request->itemsId);
                 $pmItemRequestValidated;
                 $pmItemRequestValidated['updated_by'] = session('rapidx_user_id');
@@ -159,27 +149,60 @@ class ProductMaterialController extends Controller
                     'rapidx_user_id' => session('rapidx_user_id'),
                     'status' => 'PEN'
                 ]
-            )->first();
+            )
+            ->whereNull('deleted_at')
+            ->first();
 
             if(blank($pmApprovalCurrent)){
                 return response()->json(['isSuccess' => 'false','msg' => 'You are not the current approver !'],500);
             }
 
+            //Get the ECR Approval Status & Id, Update the Approval Status as PENDING
+            $pmApprovalNext = $this->resourceInterface->readCustomEloquent(
+                PmApproval::class,
+                [],
+                [],
+                [
+                    'pm_items_id' => $selectedItemsId,
+                    'status'=> '-',
+                ]
+            )
+            ->whereNull('deleted_at')
+            ->whereNotNull('rapidx_user_id')
+            ->first(['pm_approvals_id','approval_status','rapidx_user_id']);
 
-            //Get the
-            $pmDescription = $this->resourceInterface->readCustomEloquent(
+            //Get the Classification Qty by Description Id
+           $isClassificationExists = $this->resourceInterface->readCustomEloquent(
                 PmDescription::class,
                 [],
-                ['classifications'],
+                [],
                 ['pm_items_id' => $selectedItemsId]
-            )->get();
+            )->whereHas('classifications', function ($query)  {
+                $query->whereNull('deleted_at');
+            })
+            ->with(['classifications' => function ($query)  {
+                $query->whereNull('deleted_at');
 
-            $isClassificationNotExists = $pmDescription[0]->classifications->isEmpty();
+            }])
+            ->whereNull('deleted_at')
+            ->count();
 
-            if($isClassificationNotExists){
+            if(!$isClassificationExists === 0){
                 return response()->json(['isSuccess' => 'false','msg' => 'Please save the Classification / Qty !'],500);
             }
-
+            //Get the Email Group Format by Items Id
+            $pmCustomerGroupDetailsExists = $this->resourceInterface->readCustomEloquent(
+                PmCustomerGroupDetail::class,
+                [],
+                [],
+                ['pm_items_id' => $selectedItemsId]
+            )
+            ->whereNull('deleted_at')
+            ->count();
+            if($pmCustomerGroupDetailsExists === 0){
+                return response()->json(['isSuccess' => 'false','msg' => 'Please save the Email Format !'],500);
+            }
+            return 'sdd';
             if ( $status === "DIS" ){  //DISAPPROVED
                 $pmApprovalCurrent->update([
                     'status' => $status,
@@ -307,8 +330,10 @@ class ProductMaterialController extends Controller
                     'classification' => $request->classification[$key],
                     'qty' => $request->qty[$key],
                     // 'uom' => $request->uom[$key],
+                    'uom' => $request->uom[0],
                     'unit_price' => $request->unitPrice[$key],
                     'remarks' => $request->remarks[$key],
+                    'created_at' => now()
                 ];
 
                 $this->resourceInterface->create
@@ -576,109 +601,6 @@ class ProductMaterialController extends Controller
             throw $e;
         }
     }
-    public function viewPmItemRefv1(Request $request){
-        try {
-            $itemsId= decrypt($request->itemsId);
-            $data = $this->resourceInterface->readCustomEloquent(
-                PmItem::class,
-                [],
-                [
-                    'descriptions.classifications',
-                    'rapidx_user_created_by',
-                    'pm_approvals.rapidx_user_rapidx_user_id',
-                    'pm_approvals.pm_user',
-                    'pm_customer_group_detail.dropdown_customer_group',
-                ],
-                ['pm_items_id' => $itemsId],
-            );
-            $pmItems =  $data->get();
-            $itemCollection = ItemResource::collection($pmItems)->resolve();
-            $descriptions = collect($itemCollection[0]['descriptions'])->groupBy('itemNo');
-            // department_position
-            $controlNo = $itemCollection[0]['controlNo'];
-            // $descriptions = $itemCollection[0]['descriptions'];
-            $pmApprovalsData = $itemCollection[0]['pm_approvals'];
-
-            $preparedBy = $pmApprovalsData[0]['rapidx_user_rapidx_user_id']['name']?? '';
-            $checkedBy = $pmApprovalsData[1]['rapidx_user_rapidx_user_id']['name']?? '';
-            $notedBy = $pmApprovalsData[2]['rapidx_user_rapidx_user_id']['name']?? '';
-            $appovedBy1 = $pmApprovalsData[3]['rapidx_user_rapidx_user_id']['name']?? '';
-            $appovedBy2 = $pmApprovalsData[4]['rapidx_user_rapidx_user_id']['name']?? '';
-
-            $preparedByPosition = $pmApprovalsData[0]['pm_user']['department_position'] ?? '';
-            $checkedByPosition = $pmApprovalsData[1]['pm_user']['department_position'] ?? '';
-            $notedByPosition = $pmApprovalsData[2]['pm_user']['department_position'] ?? '';
-            $appovedBy1Position = $pmApprovalsData[3]['pm_user']['department_position'] ?? '';
-            $appovedBy2Position = $pmApprovalsData[4]['pm_user']['department_position'] ?? '';
-
-            $pmCustomerGroupDetailData = $itemCollection[0]['rapidx_user_created_by']['name'];
-            $pmCustomerGroupDetailData = $itemCollection[0]['pm_customer_group_detail'][0];
-            $customerName = $pmCustomerGroupDetailData['dropdown_customer_group'][0]['customer'];
-            $attentionName = $pmCustomerGroupDetailData['attention_name'];
-            $ccName = $pmCustomerGroupDetailData['cc_name'];
-            $subject = $pmCustomerGroupDetailData['subject'];
-            $additionalMessage = $pmCustomerGroupDetailData['additional_message'];
-            $termsCondition = $pmCustomerGroupDetailData['terms_condition'];
-            //'true' ; //PdfCustomInterface
-            $data = [
-                'to' => "Yamaichi Electronics Co.",
-                'attn' => $attentionName,
-                'cc' => $ccName,
-                'subject' => $subject,
-                'date' => "April 29, 2025",
-                'message' => [
-                  $additionalMessage
-                ],
-                'descriptions' => $descriptions,
-                'item1' => [
-                    [
-                        'description' => "TR405-1040 Base & Cover Tray",
-                        'specs' => "360 x 175 x 40.9",
-                        'material' => "APET 1.0mm",
-                        'price' => "$1.2669",
-                    ],
-                ],
-                'item2' => [
-                    [
-                        'description' => "TR407-1040 Base & Cover Tray",
-                        'specs' => "360 x 175 x 40.9",
-                        'material' => "APET 1.0mm",
-                        'price' => "$1.2669",
-                    ],
-                ],
-
-                // 'terms' => [
-                //     "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
-                //     "Terms of Payment: 30 days after end of month.",
-                //     "Quotation valid until new quotation is issued.",
-                //     "Other conditions subject to supplier regulation."
-                // ],
-                'terms' => [
-                    $termsCondition
-                ],
-
-                'prepared_by' => $preparedBy,
-                'checked_by' => $checkedBy,
-                'noted_by' => $notedBy,
-                'approved_by1' => $appovedBy1,
-                'approved_by2' => $appovedBy2,
-
-                'prepared_by_position' => $preparedByPosition,
-                'checked_by_position' => $checkedByPosition,
-                'noted_by_position' => $notedByPosition,
-                'appoved_by1_position' => $appovedBy1Position,
-                'appoved_by2_position' => $appovedBy2Position,
-            ];
-            // return $data;
-            $generatePdfProductMaterial= $this->pdfCustomInterface->generatePdfProductMaterial($data);
-            return response($generatePdfProductMaterial)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'inline; filename="quotation.pdf"');
-            return response()->json(['is_success' => 'true']);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
     public function viewPmItemRef(Request $request){
         try {
             $itemsId= decrypt($request->itemsId);
@@ -764,12 +686,6 @@ class ProductMaterialController extends Controller
                   $additionalMessage
                 ],
                 'descriptions' => $arrDescriptions,
-                // 'terms' => [
-                //     "Mass Production Leadtime: 2-3 weeks upon receipt of PO with 3 months forecast.",
-                //     "Terms of Payment: 30 days after end of month.",
-                //     "Quotation valid until new quotation is issued.",
-                //     "Other conditions subject to supplier regulation."
-                // ],
                 'terms' => [
                     $termsCondition
                 ],
