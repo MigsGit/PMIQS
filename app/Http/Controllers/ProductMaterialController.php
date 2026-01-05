@@ -537,7 +537,8 @@ class ProductMaterialController extends Controller
                 $result .= '</div>';
                 // $result .= '</center>';
                 return $result;
-            })->addColumn('getStatus',function ($row): string{
+            })
+            ->addColumn('getStatus',function ($row): string{
                 $currentApprover = $row['pm_approval_pending']['rapidx_user_rapidx_user_id']['name'] ?? '';
                 $status = $row['status'];
                 $getStatus = $this->commonInterface->getPmItemStatus($status);
@@ -559,7 +560,8 @@ class ProductMaterialController extends Controller
                 $result .= '</center>';
                 $result .= '</br>';
                 return $result;
-            })->addColumn('getAttachment',function ($row){
+            })
+            ->addColumn('getAttachment',function ($row){
                 $classification = collect($row['descriptions'])->flatMap(function($descriptions){
                     return $descriptions['classifications'];
                 });
@@ -570,7 +572,13 @@ class ProductMaterialController extends Controller
                 }
                 $result .= '</center>';
                 return $result;
-            })->rawColumns([
+            })
+            ->addColumn('getCategory',function ($row){
+                $result = '';
+                $result .=  $row['category'] === 'RM' ? 'Raw Material' : 'Product';
+                return $result;
+            })
+            ->rawColumns([
                 'getActions',
                 'getStatus',
                 'getAttachment',

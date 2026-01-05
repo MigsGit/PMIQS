@@ -131,7 +131,7 @@
                 </div>
                 <!--  -->
                 <div class="col-12">
-                    <button @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
+                    <button v-show="pmItemStatus==='FORUP'" @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items</button>
                     <br><br>
                 </div>
                 <div class="col-12">
@@ -156,7 +156,7 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="col-12">
-                                                <button @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
+                                                <button v-show="pmItemStatus==='FORUP'" @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
                                                 <br><br>
 
                                             </div>
@@ -210,14 +210,14 @@
                                                         </td>
 
                                                         <td>
-                                                            <button @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
+                                                            <button v-show="pmItemStatus==='FORUP'"  @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
                                                                 <li class="fa fa-trash"></li>
                                                             </button>
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                            <button @click="saveDescItemNo(rowSaveItem.itemNo)" type="button" class="btn btn-success btn-sm" style="float: right !important;"><i class="fas fa-save"></i> Save Item No. {{ rowSaveItem.itemNo }}</button>
+                                            <button v-show="pmItemStatus==='FORUP'" @click="saveDescItemNo(rowSaveItem.itemNo)" type="button" class="btn btn-success btn-sm" style="float: right !important;"><i class="fas fa-save"></i> Save Item No. {{ rowSaveItem.itemNo }}</button>
                                                 <br><br>
                                         </div>
                                     </div>
@@ -492,7 +492,7 @@
                                         </td>
                                         <td>
 
-                                            <button  @click="removeFrmPdfEmailFormatRows(index)" class="btn btn-outline-danger btn-sm" type="button" data-item-process="add">
+                                            <button v-show="pmItemStatus==='FORUP'" @click="removeFrmPdfEmailFormatRows(index)" class="btn btn-outline-danger btn-sm" type="button" data-item-process="add">
                                                 <font-awesome-icon class="nav-icon" icon="fas fa-trash" />
                                             </button>
 
@@ -695,8 +695,8 @@
                 }
             }
         },
-        { data : 'category' },
-        { data : 'createdBy' },
+        { data : 'getCategory' },
+        { data : 'rapidx_user_created_by.name' },
         { data : 'remarks' },
     ];
     onMounted ( async () =>{
@@ -901,7 +901,18 @@
         });
     }
     const btnLinkViewPmItemRef = async (selectedItemsId) =>{
+        // Hide the modal using Bootstrap's modal methods
+        const modalRef = modalPm.ViewPmRef;
+        if (modalRef) {
+            modalRef.hide(); // Hide the modal programmatically
+        }
+        // Remove the backdrop manually
+        document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
+
         window.open(`api/view_pm_item_ref?itemsId=${selectedItemsId}`, '_blank');
+
+        // Router.push({ name: 'ProductMaterial'});
+
     }
     const formSavePdfEmailFormat = async () => {
         let formData =  new FormData();

@@ -22,11 +22,6 @@
                         <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup" readonly>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span ref="status" class="badge badge-sm rounded-pill bg-primary" id="addon-wrapping">FOR UPDATE</span>
-                    </div>
-                </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
@@ -201,11 +196,11 @@
                         <table class="table table-bordered">
                         <thead>
                             <tr>
-                            <th>#</th>
-                            <th>Classification</th>
-                            <th>Quantity</th>
-                            <th style="width: 30%;">UOM</th>
-                            <th>Unit Price</th>
+                            <th style="width: 10%;">#</th>
+                            <th  style="width: 30%;">Classification</th>
+                            <th style="width: 10%;">Quantity</th>
+                            <th style="width: 20%;">UOM</th>
+                            <th style="width: 10%;">Unit Price</th>
                             <th style="width: 20%;">Remarks</th>
                             <th>Actions</th>
                             </tr>
@@ -214,17 +209,18 @@
                             <tr v-for="(rowSaveClassifications, rowIndex) in card.rows" :key="rowIndex">
                             <td>{{ rowIndex + 1 }}</td>
                             <td>
-                                <input
+                                <textarea
                                 type="text"
                                 class="form-control"
                                 v-model="rowSaveClassifications.classification"
                                 placeholder="Enter classification"
-                                />
+                                >
+                                </textarea>
                                 <input
-                                type="text"
+                                type="hidden"
                                 class="form-control"
                                 v-model="rowSaveClassifications.descriptionsId"
-                                placeholder="Enter classification"
+                                placeholder="Enter classification" readonly
                                 />
                             </td>
                             <td>
@@ -261,16 +257,17 @@
                                 />
                             </td>
                             <td>
-                                <input
+                                <textarea
                                 type="text"
                                 class="form-control"
                                 v-model="rowSaveClassifications.remarks"
                                 placeholder="Enter remarks"
-                                />
+                                >
+                                </textarea>
                             </td>
                             <td>
                                 <!-- <center> -->
-                                    <button @click="removeRowFromCard(cardIndex, rowIndex)" class="btn btn-danger mt-3">
+                                    <button v-show="pmItemStatusParam === 'FORUP'" @click="removeRowFromCard(cardIndex, rowIndex)" class="btn btn-danger mt-3">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 <!-- </center> -->
@@ -278,7 +275,7 @@
                             </tr>
                         </tbody>
                         </table>
-                        <button @click="addRowClassification(cardIndex,card.rows)" class="btn btn-primary">
+                        <button v-show="pmItemStatusParam === 'FORUP'" @click="addRowClassification(cardIndex,card.rows)" class="btn btn-primary">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
