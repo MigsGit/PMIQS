@@ -58,7 +58,7 @@ export default [
                 component: DropdownMaster,
             },
             {
-                path: 'classification_qty/:itemsId/:pmItemCurrentStatus',
+                path: 'classification_qty/:itemsId/:pmItemCurrentStatus/:isSessionApprover',
                 name: 'ClassificationQty',
                 beforeEnter: checkIfSessionExist,
                 component: ClassificationQty,

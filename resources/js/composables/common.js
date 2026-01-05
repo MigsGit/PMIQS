@@ -104,7 +104,9 @@ export default function useCommon(){
             commonVar.rapidxUserDeptGroup = userDeptGroup;
             rapidxUserDeptGroup.value = userDeptGroup;
             // departmentGroup
-            if(userDeptGroup === "ISS" ||  userDeptGroup === "QAD"){
+            console.log('userDeptGroup',userDeptGroup);
+
+            if(userDeptGroup === "ISS" ||  userDeptGroup === "PPC"){
                 commonVar.optAdminAccess = [
                     {"value":"all","label":"Show All"},
                     {"value":"created","label":"Show my request"},
@@ -140,17 +142,7 @@ export default function useCommon(){
             }
         });
     }
-    const getCurrentApprover = async (params) => {
-        let apiParams = {
-            selectedId : params.selectedId,
-            approvalType : params.approvalType,
-        }
-        axiosFetchData(apiParams,'api/get_current_approver_session',function(response){
-            let data = response.data;
-            commonVar.isSessionApprover = data.isSessionApprover;
 
-        });
-    }
     const getCurrentPmiInternalApprover = async (params) => {
         let apiParams = {
             ecrsId : params.ecrsId
@@ -230,7 +222,6 @@ export default function useCommon(){
         specialInsQcInspectorParams,
         specialInsLqcParams,
         saveSpecialInspection,
-        getCurrentApprover,
         getCurrentPmiInternalApprover,
         changeExternalDisposition,
         btnLinkViewExternalDisposition,

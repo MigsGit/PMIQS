@@ -489,7 +489,8 @@ class ProductMaterialController extends Controller
     }
     public function loadProductMaterial(Request $request){
         try {
-            $pmItems = $this->resourceInterface->readWithRelationsConditionsActive(
+            $adminAccess = $request->adminAccess;
+            $data = $this->resourceInterface->readCustomEloquent(
                 PmItem::class,
                 [],
                 [
@@ -499,14 +500,22 @@ class ProductMaterialController extends Controller
                 ],
                 [],
             );
-
-            // $pmItems =  $data->get();
+            if( $adminAccess === 'null' || blank($adminAccess) ){
+                // $ecr->whereIn('status',$status);
+                $data->whereHas('pm_approvals',function($query) use ($request){
+                    // if is adminAccess exist deactivate the session condition
+                    $query->where('status','PEN');
+                    $query->where('rapidx_user_id',session('rapidx_user_id'));
+                });
+            }
+            if( $adminAccess === 'created'){
+                $data->where('created_by' , session('rapidx_user_id'));
+            }
+            $data->whereNull('deleted_at');
+            $data->orderBy('pm_items_id','DESC');
+            $pmItems = $data->get();
             $itemResource = ItemResource::collection($pmItems)->resolve();
             $itemResourceCollection = json_decode(json_encode($itemResource), true);
-
-        //    $itemResourceCollectionCache = Cache::remember('pmItemCache', now()->addMinutes(10), function () use ($itemResourceCollection) {
-        //         return collect($itemResourceCollection);
-        //     });
 
             return DataTables::of($itemResourceCollection)
             ->addColumn('getActions',function ($row){
@@ -519,8 +528,8 @@ class ProductMaterialController extends Controller
                 $result .= '    Action';
                 $result .= '</button>';
                 $result .= '<ul class="dropdown-menu">';
-                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> Edit Items</button> </li>";
-                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetClassificationQtyByItemsId'> <i class='fa-solid fa-pen-to-square'></i> Edit Qty</button> </li>";
+                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetMaterialById'> <i class='fa-solid fa-pen-to-square'></i> View Items</button> </li>";
+                $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnGetClassificationQtyByItemsId'> <i class='fa-solid fa-pen-to-square'></i> View / Approval Qty</button> </li>";
                 if($status === 'FORDISPO'){
                     $result .= "<li> <button items-id='".encrypt($row['id'])."' pm-item-status='".$row['status']."' item-status='".$row['status']."' class='dropdown-item' id='btnSendProductMaterial'> <i class='fa-solid fa-paper-plane'></i> Send Disposition</button> </li>";
                 }

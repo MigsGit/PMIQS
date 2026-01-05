@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\PmApproval;
 use Illuminate\Http\Request;
 use App\Models\Classification;
 use App\Models\DropdownMaster;
@@ -486,6 +487,24 @@ class SettingsController extends Controller
                 'isSuccess' => 'true',
                 'isDataExist' => 'false',
             ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+    public function getCurrentApproverSession(Request $request){
+        try {
+
+            $relations = [];
+            $approvalQuery = $this->resourceInterface->readCustomEloquent(PmApproval::class,[],[],[
+                'rapidx_user_id' => session('rapidx_user_id'),
+                'status' => 'PEN',
+                'pm_items_id' => decrypt($request->selectedId),
+            ]);
+            $isSessionApprover = $approvalQuery
+            ->whereNotNull('rapidx_user_id')
+            ->count();
+
+            return response()->json(['isSuccess' => 'true','isSessionApprover'=>$isSessionApprover === 1 ? true : false]);
         } catch (Exception $e) {
             throw $e;
         }

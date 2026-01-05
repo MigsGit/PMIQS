@@ -7,7 +7,7 @@
                         <button v-show="pmItemStatusParam === 'FORUP'" @click="btnSavePdfEmailFormat" type="submit" style="float: right !important;" class="btn btn-primary"> <font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp; Update Recipients </button>
                     </div>
                     <div class="col-sm-10">
-                        <button @click="btnForApproval" type="submit" style="float: right !important;" class="btn btn-info"> <font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp; For Approval </button>
+                        <button v-show="isSessionApprover === 'true'" @click="btnForApproval" type="submit" style="float: right !important;" class="btn btn-info"> <font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp; For Approval </button>
                     </div>
                 </div>
                 <div class="row">
@@ -104,10 +104,12 @@
                                                             <input v-model="rowSaveDescription.descItemNo" type="hidden" class="form-control" id="inlineFormInputGroup" placeholder="Partcode/Type" readonly>
                                                         </td>
                                                         <td>
-                                                            <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
+                                                            <textarea v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
+                                                            </textarea>
                                                         </td>
                                                         <td>
-                                                            <input v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                            <textarea v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                            </textarea>
                                                         </td>
 
                                                         <td v-show="frmItem.category === 'RM'">
@@ -184,9 +186,7 @@
                 <div class="row">
                     <div class="col-6">
                         <h4>Classification Details</h4>
-                       {{ pmItemStatusParam }}
                     </div>
-
                     <div class="col-6 mb-3">
                         <button v-show="pmItemStatusParam === 'FORUP'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save {{ pmItemStatusParam }} </button>
                     </div>
@@ -445,6 +445,7 @@
     const route = useRoute();
     const itemsIdParam = ref(route.params.itemsId); // Retrieve itemsId Route route params
     const pmItemStatusParam = ref(route.params.pmItemCurrentStatus); // Retrieve paramsPmItemStatus from route params
+    const isSessionApprover = ref(route.params.isSessionApprover); // Retrieve paramsPmItemStatus from route params
     const {
         axiosFetchData,
     } = useFetch();

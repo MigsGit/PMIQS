@@ -298,6 +298,8 @@ export default function useSettings(){
     const removeFrmPdfEmailFormatRows = async (index) => {
         frmPdfEmailFormatRows.value.splice(index,1);
     }
+
+
     return {
         modalSettings,
         settingsVar,

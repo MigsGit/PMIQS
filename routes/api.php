@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function(){
         Route::get('get_pdf_to_group', 'getPdfToGroup')->name('get_pdf_to_group');
         Route::get('get_pdf_email_format', 'getPdfEmailFormat')->name('get_pdf_email_format');
         Route::get('send_disposition', 'sendDisposition')->name('send_disposition');
+        Route::get('get_current_approver_session', 'getCurrentApproverSession')->name('get_current_approver_session');
     });
 
     Route::controller(ProductMaterialController::class)->group(function (): void{

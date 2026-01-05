@@ -1,6 +1,17 @@
 <template>
     <div class="container-fluid px-4">
         <h4 class="mt-4">Material / Product Quotation</h4>
+        <div class="row">
+            <div class="col-md-3 offset-md-4">
+                <Multiselect
+                        placeholder="-Select an Option-"
+                    :close-on-select="true"
+                    :searchable="true"
+                    :options="commonVar.optAdminAccess"
+                    @change="onChangeAdminAccess($event)"
+                />
+            </div>
+        </div>
         <div class="card mt-3"  style="width: 100%;">
             <div class="card-body overflow-auto">
                 <div class="table-responsive">
@@ -171,10 +182,12 @@
                                                             <input v-model="rowSaveDescription.descItemNo" type="" class="form-control" id="inlineFormInputGroup" readonly>
                                                         </td>
                                                         <td>
-                                                            <input v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
+                                                            <textarea v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
+                                                            </textarea>
                                                         </td>
                                                         <td>
-                                                            <input v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                            <textarea v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                            </textarea>
                                                         </td>
 
                                                         <td v-show="frmItem.category === 'RM'">
@@ -541,6 +554,7 @@
     const {
         modalCommon,
         commonVar,
+        getAdminAccessOpt,
     } = useCommon();
     const {
         modalPm,
@@ -577,6 +591,7 @@
     const isModalView = ref(false);
     const pmAttachment = ref(null);
     const pmItemStatus = ref(null);
+    const isSessionApprover = ref(false);
 
     const preparedByParams = {
         globalVar: settingsVar.preparedBy,
@@ -653,15 +668,10 @@
                         let pmItemCurrentStatus = this.getAttribute('pm-item-status')
                         let itemParams = {
                             itemsId : itemsId,
+                            isSessionApproverRef : isSessionApprover.value,
+                            pmItemCurrentStatus : pmItemCurrentStatus,
                         }
-                        Router.push({ name: 'ClassificationQty',
-                            params: {
-                                itemsId,
-                                pmItemCurrentStatus,
-                            },
-                        });
-                        // getItemsById(itemParams);
-                        selectedItemsId.value = itemsId;
+                        getCurrentApprover(itemParams);
                     });
                 }
             }
@@ -695,17 +705,43 @@
         modalPm.SavePdfEmailFormat = new Modal(modalSavePdfEmailFormat.value.modalRef,{ keyboard: false });
         // modalPm.Quotations.show();
         frmItem.value.status = "FOR UPDATE";
-        getRapidxUserByIdOpt(preparedByParams);
-        getRapidxUserByIdOpt(checkedByParams);
-        getRapidxUserByIdOpt(notedByParams);
-        getRapidxUserByIdOpt(approvedByOneParams);
-        getRapidxUserByIdOpt(approvedByTwoParams);
+        await getRapidxUserByIdOpt(preparedByParams);
+        await getRapidxUserByIdOpt(checkedByParams);
+        await getRapidxUserByIdOpt(notedByParams);
+        await getRapidxUserByIdOpt(approvedByOneParams);
+        await getRapidxUserByIdOpt(approvedByTwoParams);
+        await getAdminAccessOpt();
 
-    })
+
+    });
+    const getCurrentApprover = async (params) => {
+        let apiParams = {
+            selectedId : params.itemsId,
+        }
+        axiosFetchData(apiParams,'api/get_current_approver_session',function(response){
+            let data = response.data;
+            let isSessionApprover = data.isSessionApprover;
+            let itemsId = params.itemsId;
+            let pmItemCurrentStatus = params.pmItemCurrentStatus;
+            Router.push({ name: 'ClassificationQty',
+                params: {
+                    itemsId,
+                    pmItemCurrentStatus,
+                    isSessionApprover,
+                },
+            });
+            // getItemsById(itemParams);
+            selectedItemsId.value = itemsId;
+
+        });
+    }
+    const onChangeAdminAccess = async (selectedParams)=>{
+        tblProductMaterial.value.dt.ajax.url("api/load_product_material?adminAccess="+selectedParams).draw();
+        // selectedAdminAccess.value = selectedParams;
+    }
     const changePmAttachment = async (event)  => {
         pmAttachment.value =  Array.from(event.target.files) ?? [];
     }
-
     const btnAddNew = () => {
         modalPm.Quotations.show();
     }
