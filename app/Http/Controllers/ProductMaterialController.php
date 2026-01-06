@@ -845,8 +845,16 @@ class ProductMaterialController extends Controller
     }
     public function getPendingApproved(Request $request){
         try {
-            $pmItems = $this->resourceInterface->readWithRelationsConditionsActive(PmItem::class,[],[],[]);
+            $pmItems = $this->resourceInterface->readCustomEloquent(PmItem::class,[],[
+                   'pm_approval_pending'
+            ],[]);
             $user = $this->resourceInterface->readWithRelationsConditionsActive(User::class,[],[],[]);
+            $pmItemApprovalPending = $pmItems->where(
+                'status' ,'!=', 'OK'
+            )->whereHas('pm_approval_pending',function($query){
+                $query->where('rapidx_user_id',session('rapidx_user_id'));
+            })->count();
+
             $userCollection = collect($user)->count();
             $pmItemCollection = collect($pmItems);
             $pmItemCollectionPending = $pmItemCollection->where(
@@ -859,6 +867,7 @@ class ProductMaterialController extends Controller
                 'isSuccess' => 'true',
                 'pmItemCollectionPending' => $pmItemCollectionPending,
                 'pmItemCollectionApproved' => $pmItemCollectionApproved,
+                'pmItemApprovalPending' => $pmItemApprovalPending,
                 'userCollection' => $userCollection,
         ]);
         } catch (Exception $e) {
