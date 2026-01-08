@@ -276,20 +276,20 @@ class PdfCustomService implements PdfCustomInterface
         $descriptions = $data['descriptions'];
 
         $ctrMaterial = 1;
-        if($data['category'] === "PRO"){
+        // if($data['category'] === "PRO"){
             for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
                 $this->buildProductTable($descriptions[$ctrMaterial]);
                 $ctrMaterial++;
                 $this->fpdi->Ln(3);
             }
-        }
-        if($data['category'] === "RM"){
-            for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
-                $this->buildRawMatTable($descriptions[$ctrMaterial]);
-                $ctrMaterial++;
-                $this->fpdi->Ln(3);
-            }
-        }
+        // }
+        // if($data['category'] === "RM"){
+        //     for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
+        //         $this->buildRawMatTable($descriptions[$ctrMaterial]);
+        //         $ctrMaterial++;
+        //         $this->fpdi->Ln(3);
+        //     }
+        // }
         // $this->fpdi->Ln(5);
         $this->fpdi->SetFont('Arial', 'B', 10);
         $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);
@@ -838,7 +838,117 @@ class PdfCustomService implements PdfCustomInterface
             $this->fpdi->SetY($y + $blockHeight + 2);
         }
     }
-    private function buildProductTable(array $products){
+    private function buildProductTable(array $products) {
+        // Adjusted Column width strategy to fit Total and Remarks
+        $wPartCode       = $this->usableWidth * 0.12;
+        $wDesc           = $this->usableWidth * 0.18;
+        $wClassification = $this->usableWidth * 0.15;
+        $wMoq            = $this->usableWidth * 0.08;
+        $wUom            = $this->usableWidth * 0.07;
+        $wPrice          = $this->usableWidth * 0.10;
+        $wTotal          = $this->usableWidth * 0.12; // New Column
+        $wRemarks        = $this->usableWidth * 0.18; // New Column
+
+        // Draw header
+        $this->fpdi->SetFillColor(230, 230, 230);
+        $this->fpdi->SetDrawColor(120);
+        $this->fpdi->SetLineWidth(0.2);
+
+        $this->headerCell($wPartCode, 'Part Code');
+        $this->headerCell($wDesc, 'DESCRIPTION');
+        $this->headerCell($wClassification, 'Classification');
+        $this->headerCell($wMoq, 'MOQ');
+        $this->headerCell($wUom, 'UOM');
+        $this->headerCell($wPrice, 'Price/Pc');
+        $this->headerCell($wTotal, 'Total');
+        $this->headerCell($wRemarks, 'Remarks', true); // End of row
+
+        // Reset font for body
+        $this->fpdi->SetFont('Arial', '', 9);
+
+        foreach ($products as $product) {
+            // Normalize arrays
+            $partCodeArr = is_array($product['part_code']) ? $product['part_code'] : [$product['part_code']];
+            $descArr     = is_array($product['description']) ? $product['description'] : [$product['description']];
+            $prices      = $product['prices'] ?? [];
+
+            $subRows   = max(count($descArr), 0);
+            $priceRows = max(1, count($prices));
+
+            $subRowHeight = 6;
+            $blockHeight  = max($subRows * $subRowHeight, $priceRows * 12);
+            $actualPriceRowH = $blockHeight / $priceRows;
+
+            $x = $this->fpdi->GetX();
+            $y = $this->fpdi->GetY();
+
+            // Part Code box
+            $this->fpdi->Rect($x, $y, $wPartCode, $blockHeight);
+            $this->drawRectText($x, $y, $wPartCode, $blockHeight, $partCodeArr, $subRowHeight);
+
+            // DESCRIPTION
+            $dx = $x + $wPartCode;
+            $this->fpdi->Rect($dx, $y, $wDesc, $blockHeight);
+            $this->drawRectText($dx, $y, $wDesc, $blockHeight, $descArr, $subRowHeight);
+
+            // RIGHT: Classification + Price + Total + Remarks
+            $px = $dx + $wDesc;
+            $curPY = $y;
+
+            for ($pr = 0; $pr < $priceRows; $pr++) {
+                $currentX = $px;
+
+                // Classification
+                $this->fpdi->Rect($currentX, $curPY, $wClassification, $actualPriceRowH);
+                $this->fpdi->SetXY($currentX, $curPY);
+                $class = $prices[$pr][0] ?? '';
+                $this->fpdi->Cell($wClassification, $actualPriceRowH, $class, 0, 0, 'C');
+                $currentX += $wClassification;
+
+                // MOQ
+                $this->fpdi->Rect($currentX, $curPY, $wMoq, $actualPriceRowH);
+                $this->fpdi->SetXY($currentX, $curPY);
+                $moqValue = $prices[$pr][1] ?? 0;
+                $this->fpdi->Cell($wMoq, $actualPriceRowH, $moqValue, 0, 0, 'C');
+                $currentX += $wMoq;
+
+                // UOM
+                $this->fpdi->Rect($currentX, $curPY, $wUom, $actualPriceRowH);
+                $this->fpdi->SetXY($currentX, $curPY);
+                $uom = $prices[$pr][2] ?? '';
+                $this->fpdi->Cell($wUom, $actualPriceRowH, $uom, 0, 0, 'C');
+                $currentX += $wUom;
+
+                // Price/Pc
+                $this->fpdi->Rect($currentX, $curPY, $wPrice, $actualPriceRowH);
+                $this->fpdi->SetXY($currentX, $curPY);
+                $priceValue = $prices[$pr][3] ?? 0;
+                $this->fpdi->Cell($wPrice, $actualPriceRowH, $priceValue, 0, 0, 'C');
+                $currentX += $wPrice;
+
+                // TOTAL PRICE (Price * MOQ)
+                $totalPrice = floatval($moqValue) * floatval($priceValue);
+                $this->fpdi->Rect($currentX, $curPY, $wTotal, $actualPriceRowH);
+                $this->fpdi->SetXY($currentX, $curPY);
+                $this->fpdi->Cell($wTotal, $actualPriceRowH, number_format($totalPrice, 2), 0, 0, 'C');
+                $currentX += $wTotal;
+
+                // REMARKS
+                $this->fpdi->Rect($currentX, $curPY, $wRemarks, $actualPriceRowH);
+                $this->fpdi->SetXY($currentX, $curPY);
+                $remark = $prices[$pr][4] ?? ''; // Pulling from index 4 of price array
+                // Using a smaller font check for remarks if they are long
+                $this->fpdi->SetFont('Arial', '', 7);
+                $this->fpdi->Cell($wRemarks, $actualPriceRowH, $remark, 0, 0, 'L');
+                $this->fpdi->SetFont('Arial', '', 9); // Reset font
+
+                $curPY += $actualPriceRowH;
+            }
+
+            $this->fpdi->SetY($y + $blockHeight + 2);
+        }
+    }
+    private function buildProductTable1(array $products){
 
         // Column width strategy (proportional)
         $wPartCode = $this->usableWidth * 0.20; // Part Code
