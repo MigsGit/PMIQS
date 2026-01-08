@@ -11,6 +11,7 @@ use App\Services\PdfService;
 use Illuminate\Http\Request;
 use App\Jobs\SendPdfEmailJob;
 use App\Models\PmDescription;
+use App\Models\DropdownMaster;
 use App\Models\PmClassification;
 use App\Interfaces\EmailInterface;
 use Illuminate\Support\Facades\DB;
@@ -731,6 +732,16 @@ class ProductMaterialController extends Controller
     public function viewPmItemRef(Request $request){
         try {
             $itemsId= decrypt($request->itemsId);
+             $dropdownMaster = $this->resourceInterface->readCustomEloquent( DropdownMaster::class,
+            [],
+            [
+                'dropdown_master_details'
+            ],
+            [
+                'id' => 2,
+                'status' => 0,
+            ])->get(); // Mark Up
+            $markUpFloat =  (float)$dropdownMaster[0]['dropdown_master_details'][0]->dropdown_masters_details;
             $data = $this->resourceInterface->readCustomEloquent(
                 PmItem::class,
                 [],
@@ -777,8 +788,7 @@ class ProductMaterialController extends Controller
             $subject = $pmCustomerGroupDetailData['subject'];
             $additionalMessage = $pmCustomerGroupDetailData['additional_message'];
             $termsCondition = $pmCustomerGroupDetailData['terms_condition'];
-
-           $arrDescriptions = collect($descriptions)->map(function ($item) {
+            $arrDescriptions = collect($descriptions)->map(function ($item) use ($markUpFloat) {
                 return [
                     "itemsId"     => [$item['itemsId']],
                     "itemNo"      => [$item['itemNo']],
@@ -791,12 +801,15 @@ class ProductMaterialController extends Controller
                     "thickness"   => [$item['matRawThickness']],
                     "material_w"  => [$item['matRawWidth']],
                     // Transform nested prices → [qty, "pcs", "$ 0.00"]
-                    "prices" => collect($item['classifications'])->map(function ($p) {
+
+                    "prices" => collect($item['classifications'])->map(function ($p) use($markUpFloat){
+
+
                         return [
                             $p['classification'],
                             $p['qty'],
                             "pcs",
-                            "$" . number_format($p['unitPrice'], 4)
+                            "$" . number_format(($p['unitPrice']*$markUpFloat)+$p['unitPrice'], 4)
                         ];
                     })->values()->toArray(),
                 ];

@@ -362,10 +362,10 @@ class PdfCustomService implements PdfCustomInterface
 }
     private function buildRawMatTable(array $products){
         // Column width strategy (proportional)
-        $wPartCode = $this->usableWidth * 0.10; // new Part Code column
+        $wPartCode = $this->usableWidth * 0.15; // new Part Code column
         $wDesc     = $this->usableWidth * 0.15; // DESCRIPTION block
-        $wSpecs    = $this->usableWidth * 0.18; // SPECS group total
-        $wRawMat   = $this->usableWidth * 0.22; // RAW MATERIAL group total
+        $wSpecs    = $this->usableWidth * 0.15; // SPECS group total
+        $wRawMat   = $this->usableWidth * 0.15; // RAW MATERIAL group total
         $wLoopCols = $this->usableWidth * 0.40; // MOQ/UOM/Price group total
 
         // Split group columns
@@ -423,6 +423,7 @@ class PdfCustomService implements PdfCustomInterface
             $matArr  = is_array($product['material']) ? $product['material'] : [$product['material']];
             $thkArr  = is_array($product['thickness']) ? $product['thickness'] : [$product['thickness']];
             $mwArr   = is_array($product['material_w']) ? $product['material_w'] : [$product['material_w']];
+
             $prices  = $product['prices'] ?? [];
 
             $subRows = max(count($descArr), count($lenArr), count($widArr), count($hgtArr), count($matArr), count($thkArr), count($mwArr));

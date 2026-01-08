@@ -27,13 +27,12 @@
                             <div class="col-xl-3 col-md-6">
                                 <div class="card text-white mb-4" :class="forYourApproval != 0 ? 'bg-danger' : 'bg-dark'">
                                     <div class="card-body">
-                                        <h4><font-awesome-icon class="nav-icon" icon="fa-file" />&nbsp;Product / Material</h4>
+                                        <h4><font-awesome-icon class="nav-icon" icon="fa-file" />&nbsp;Product / Material  &nbsp; ( {{forYourApproval}} )</h4>
                                     </div>
                                     <!-- <div class="card-footer d-flex align-items-center justify-content-end">
 
                                     </div> -->
                                     <div class="card-footer d-flex align-items-center justify-content-end">
-                                      <p >  For your Approval ( {{forYourApproval}} )</p> &nbsp;
                                       <p  v-show="departmentGroup === 'ISS' || departmentGroup === 'PPC'"> Pending ( {{pending}} )  </p>  &nbsp;
                                       <p  v-show="departmentGroup === 'ISS' || departmentGroup === 'PPC'">  Approved ( {{approved}} ) </p>
                                     </div>
