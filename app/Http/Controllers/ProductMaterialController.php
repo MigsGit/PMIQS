@@ -809,7 +809,8 @@ class ProductMaterialController extends Controller
                             $p['classification'],
                             $p['qty'],
                             "pcs",
-                            "$" . number_format(($p['unitPrice']*$markUpFloat)+$p['unitPrice'], 4)
+                            number_format(($p['unitPrice']*$markUpFloat)+$p['unitPrice'], 4),
+                            $p['remarks'],
                         ];
                     })->values()->toArray(),
                 ];
