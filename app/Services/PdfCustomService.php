@@ -930,7 +930,7 @@ class PdfCustomService implements PdfCustomInterface
                 $totalPrice = floatval($moqValue) * floatval($priceValue);
                 $this->fpdi->Rect($currentX, $curPY, $wTotal, $actualPriceRowH);
                 $this->fpdi->SetXY($currentX, $curPY);
-                $this->fpdi->Cell($wTotal, $actualPriceRowH, number_format($totalPrice, 2), 0, 0, 'C');
+                $this->fpdi->Cell($wTotal, $actualPriceRowH, number_format($totalPrice, 4), 0, 0, 'C');
                 $currentX += $wTotal;
 
                 // REMARKS
@@ -948,7 +948,7 @@ class PdfCustomService implements PdfCustomInterface
             $this->fpdi->SetY($y + $blockHeight + 2);
         }
     }
-    private function buildProductTable1(array $products){
+    private function buildProductTable1(array $products){ // no total prices no remarks
 
         // Column width strategy (proportional)
         $wPartCode = $this->usableWidth * 0.20; // Part Code

@@ -196,10 +196,10 @@
                         <table class="table table-bordered">
                         <thead>
                             <tr>
-                            <th style="width: 10%;">#</th>
+                            <th style="width: 5%;">#</th>
                             <th  style="width: 30%;">Classification</th>
                             <th style="width: 10%;">Quantity</th>
-                            <th style="width: 20%;">UOM</th>
+                            <th style="width: 25%;">UOM</th>
                             <th style="width: 10%;">Unit Price</th>
                             <th style="width: 20%;">Remarks</th>
                             <th>Actions</th>

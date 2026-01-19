@@ -869,8 +869,8 @@ class ProductMaterialController extends Controller
                 $query->where('rapidx_user_id',session('rapidx_user_id'));
             })->count();
 
-            $userCollection = collect($user)->count();
-            $pmItemCollection = collect($pmItems);
+            $userCollection = $user->count();
+            $pmItemCollection =$pmItems;
             $pmItemCollectionPending = $pmItemCollection->where(
                 'status' ,'!=', 'OK'
             )->count();

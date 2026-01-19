@@ -80,7 +80,7 @@
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
                             <span class="input-group-text" id="addon-wrapping">Control No. :</span>
-                            <input v-model="frmItem.controlNo" type="text" class="form-control" id="inlineFormInputGroup" readonly>
+                            <input v-model="frmItem.controlNo" type="text" class="form-control" readonly>
                         </div>
                     </div>
                     <div class="col-6">
@@ -97,6 +97,7 @@
                                 :close-on-select="true"
                                 :searchable="true"
                                 :options="commonVar.category"
+                                :disabled="isModalView"
                             />
                         </div>
                     </div>
@@ -110,6 +111,7 @@
                                 :options="commonVar.division"
                                 :change="onChangeDivision(selectedItemsId)"
                                 placeholder="-Select Option-"
+                                :disabled="isModalView"
                             />
                         </div>
 
@@ -119,13 +121,13 @@
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
                             <span class="input-group-text" id="addon-wrapping">Remarks. :</span>
-                            <textarea v-model="frmItem.remarks" type="text" class="form-control" id="inlineFormInputGroup" rows="2"></textarea>
+                            <textarea v-model="frmItem.remarks" type="text" class="form-control" :readonly="isModalView" rows="2"></textarea>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="input-group flex-nowrap mb-2 input-group-sm">
                             <span class="input-group-text" id="addon-wrapping">Created by :</span>
-                            <input v-model="frmItem.createdBy" type="text" class="form-control" id="inlineFormInputGroup" readonly>
+                            <input v-model="frmItem.createdBy" type="text" class="form-control" readonly>
                         </div>
                     </div>
                 </div>
@@ -142,7 +144,7 @@
                         :options="commonVar.optAdminAccess"
                         @change="onChangeAdminAccess($event)"
                     /> -->
-                    <!-- <input :value="selectedItemsId" v-model="pmItemsId" type="text" class="form-control" id="inlineFormInputGroup"> -->
+                    <!-- <input :value="selectedItemsId" v-model="pmItemsId" type="text" class="form-control" :readonly="isModalView" -->
 
                     <div class="row itemDesc" v-for="(rowSaveItem, indexItem) in rowSaveItems" :key="rowSaveItem.itemNo">
                         <div class="card mb-2">
@@ -179,34 +181,34 @@
                                                     <tr v-for="(rowSaveDescription, indexDescription) in rowSaveItem.rows" :key="rowSaveDescription.indexDescription">
                                                         <td>
                                                             <span>{{ indexDescription+1 }}</span>
-                                                            <input v-model="rowSaveDescription.descItemNo" type="" class="form-control" id="inlineFormInputGroup" readonly>
+                                                            <input v-model="rowSaveDescription.descItemNo" type="" class="form-control" :readonly="isModalView">
                                                         </td>
                                                         <td>
-                                                            <textarea v-model="rowSaveDescription.partcodeType" type="text" class="form-control" id="inlineFormInputGroup" placeholder="PartCode/Type">
+                                                            <textarea v-model="rowSaveDescription.partcodeType" type="text" class="form-control" :readonly="isModalView"placeholder="PartCode/Type">
                                                             </textarea>
                                                         </td>
                                                         <td>
-                                                            <textarea v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" id="inlineFormInputGroup" placeholder="Description/Item Name">
+                                                            <textarea v-model="rowSaveDescription.descriptionItemName" type="text" class="form-control" :readonly="isModalView"placeholder="Description/Item Name" isModalView>
                                                             </textarea>
                                                         </td>
 
                                                         <td v-show="frmItem.category === 'RM'">
-                                                            <input v-model="rowSaveDescription.matSpecsLength" type="number" min=0 class="form-control" id="inlineFormInputGroup">
+                                                            <input v-model="rowSaveDescription.matSpecsLength" type="number" min=0 class="form-control" :readonly="isModalView"
                                                         </td>
                                                         <td v-show="frmItem.category === 'RM'">
-                                                            <input v-model="rowSaveDescription.matSpecsWidth" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                            <input v-model="rowSaveDescription.matSpecsWidth" type="number" min="0" class="form-control" :readonly="isModalView"
                                                         </td>
                                                         <td v-show="frmItem.category === 'RM'">
-                                                            <input v-model="rowSaveDescription.matSpecsHeight" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                            <input v-model="rowSaveDescription.matSpecsHeight" type="number" min="0" class="form-control" :readonly="isModalView"
                                                         </td>
                                                         <td v-show="frmItem.category === 'RM'">
-                                                            <input v-model="rowSaveDescription.matRawType" type="text" class="form-control" id="inlineFormInputGroup">
+                                                            <input v-model="rowSaveDescription.matRawType" type="text" class="form-control" :readonly="isModalView"
                                                         </td v-show="frmItem.category === 'RM'">
                                                         <td v-show="frmItem.category === 'RM'">
-                                                            <input v-model="rowSaveDescription.matRawThickness" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                            <input v-model="rowSaveDescription.matRawThickness" type="number" min="0" class="form-control" :readonly="isModalView"
                                                         </td>
                                                         <td v-show="frmItem.category === 'RM'">
-                                                            <input v-model="rowSaveDescription.matRawWidth" type="number" min="0" class="form-control" id="inlineFormInputGroup">
+                                                            <input v-model="rowSaveDescription.matRawWidth" type="number" min="0" class="form-control" :readonly="isModalView"
                                                         </td>
 
                                                         <td>
@@ -588,7 +590,7 @@
     const modalQuotations = ref(null);
     const modalViewPmRef = ref(null);
     const modalSavePdfEmailFormat = ref(null);
-    const isModalView = ref(false);
+    const isModalView = ref(true);
     const pmAttachment = ref(null);
     const pmItemStatus = ref(null);
     const isSessionApprover = ref(false);
@@ -634,7 +636,9 @@
                         let itemParams = {
                             itemsId : itemsId
                         }
-                        // Router.push({ name: 'ClassificationQty', params: { itemsId } });
+                        if(pmItemCurrentStatus === 'FORUP'){
+                            isModalView.value = false;
+                        }
                         getItemsById(itemParams);
                         selectedItemsId.value = itemsId;
                     });
@@ -658,8 +662,6 @@
                         getPdfToGroup(itemParams);
                         getPdfEmailFormat(itemParams);
                         modalPm.SavePdfEmailFormat.show();
-
-
                     });
                 }
                 if(btnGetClassificationQtyByItemsId !=null){
@@ -712,8 +714,25 @@
         await getRapidxUserByIdOpt(approvedByTwoParams);
         await getAdminAccessOpt();
 
-
     });
+    // const formContainer = ref(null);
+    // const isLocked = ref(true);
+
+    // const toggleBatchReadonly = () => {
+    //     // Toggle the state
+    //     const inputs = document.querySelectorAll('.form-control');
+    //     if (inputs) {
+    //         // 2. Apply the attribute batch-wide
+    //         inputs.forEach(input => {
+    //         if (isLocked.value) {
+    //             console.log('inputs',inputs);
+    //             input.setAttribute('readonly', true);
+    //         } else {
+    //             input.removeAttribute('readonly');
+    //         }
+    //         });
+    //     }
+    // }
     const getCurrentApprover = async (params) => {
         let apiParams = {
             selectedId : params.itemsId,
