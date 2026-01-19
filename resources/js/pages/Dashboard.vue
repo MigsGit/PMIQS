@@ -53,7 +53,7 @@
 
                                     </div>
                                     <div class="card-footer d-flex align-items-center justify-content-end">
-                                        <router-link class="small text-white stretched-link" :to="{ name: 'ProductMaterial' }">
+                                        <router-link class="small text-white stretched-link" :to="{ name: 'EmailMaster' }">
                                             more info
                                             <font-awesome-icon class="nav-icon" icon="angle-right" />
                                         </router-link>

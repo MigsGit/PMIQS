@@ -13,10 +13,12 @@
                 <router-link class="nav-link" :to="{ name: 'ProductMaterial' }">
                     <font-awesome-icon class="nav-icon" icon="fa fa-file" />&nbsp;ProductMaterial
                 </router-link>
-                <router-link v-if="departmentGroup === 'ISS' || departmentGroup === 'QAD'" class="sb-nav-link-icon nav-link" :to="{ name: 'UserMaster' }">
+                <router-link v-if="departmentGroup === 'ISS' || departmentGroup === 'PPC'" class="sb-nav-link-icon nav-link" :to="{ name: 'UserMaster' }">
                     <font-awesome-icon class="nav-icon" icon="users" />&nbsp; User Master
                 </router-link>
-
+                <router-link v-if="departmentGroup === 'ISS' || departmentGroup === 'PPC'" class="sb-nav-link-icon nav-link" :to="{ name: 'EmailMaster' }">
+                    <font-awesome-icon class="nav-icon" icon="users" />&nbsp; Email Setting
+                </router-link>
                 <router-link class="sb-nav-link-icon nav-link d-none" :to="{ name: 'DropdownMaster' }">
                     <font-awesome-icon class="nav-icon" icon="square-caret-down" />&nbsp; Dropdown Master
                 </router-link>

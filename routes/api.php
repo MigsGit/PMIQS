@@ -55,6 +55,9 @@ Route::middleware('auth')->group(function(){
         Route::get('get_pdf_email_format', 'getPdfEmailFormat')->name('get_pdf_email_format');
         Route::get('send_disposition', 'sendDisposition')->name('send_disposition');
         Route::get('get_current_approver_session', 'getCurrentApproverSession')->name('get_current_approver_session');
+
+        Route::get('load_dropdown_customer_groups', 'loadDropdownCustomerGroups')->name('load_dropdown_customer_groups');
+        Route::get('get_user_details', 'getUserDetails')->name('get_user_details');
     });
 
     Route::controller(ProductMaterialController::class)->group(function (): void{

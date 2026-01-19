@@ -7,6 +7,9 @@ export default function useSettings(){
     const settingsVar = reactive({
         optRapidxUser: [],
         userRoles : [
+            {"value":"N/A","label":"N/A"},
+            {"value":"ADMIN","label":"ISS Admin"},
+            {"value":"USER","label":"User"},
             {"value":"PREPBY","label":"Prepared By"},
             {"value":"CHCKBY","label":"Checked By"},
             {"value":"NOTEDBY","label":"Noted By"},
@@ -18,6 +21,8 @@ export default function useSettings(){
         approvedByOne:[],
         approvedByTwo:[],
         userRoles : [
+            {"value":"N/A","label":"N/A"},
+            {"value":"ADMIN","label":"ISS Admin"},
             {"value":"PREPBY","label":"Prepared By"},
             {"value":"CHCKBY","label":"Checked By"},
             {"value":"NOTEDBY","label":"Noted By"},

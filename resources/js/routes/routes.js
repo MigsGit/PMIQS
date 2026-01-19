@@ -4,6 +4,7 @@ import ProductMaterial from '../pages/ProductMaterial.vue'
 import ClassificationQty from '../pages/ClassificationQty.vue'
 import UserMaster from '../../js/pages/UserMaster.vue'
 import DropdownMaster from '../../js/pages/DropdownMaster.vue'
+import EmailMaster from '../../js/pages/EmailMaster.vue'
 import useFetch from '../composables/utils/useFetch';
 const { axiosFetchData } = useFetch(); // Call  the useFetch function
 
@@ -56,6 +57,12 @@ export default [
                 name: 'DropdownMaster',
                 beforeEnter: checkIfSessionExist,
                 component: DropdownMaster,
+            },
+            {
+                path: 'email_master',
+                name: 'EmailMaster',
+                beforeEnter: checkIfSessionExist,
+                component: EmailMaster,
             },
             {
                 path: 'classification_qty/:itemsId/:pmItemCurrentStatus/:isSessionApprover',

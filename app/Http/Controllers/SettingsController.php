@@ -11,6 +11,7 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Interfaces\CommonInterface;
 use App\Models\DropdownMasterDetail;
+use Illuminate\Support\Facades\Validator;
 use App\Interfaces\ResourceInterface;
 use App\Models\DropdownCustomerGroup;
 use App\Models\PmCustomerGroupDetail;
@@ -49,31 +50,34 @@ class SettingsController extends Controller
             throw $e;
         }
     }
-    public function saveUserApprover(Request $request){
+
+    // public function saveUserApprover(Request $request){
+    public function saveRapidxUser(Request $request){
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
-
-            $getUser = User::where( 'rapidx_user_id' , $request->userId)->first();
-            if( filled( $getUser) ){
-                if($getUser->roles === "APP"){
-                    User::where( 'rapidx_user_id' , $request->userId)->update([
-                        'roles' => "USER",
-                    ]);
-                }
-                if($getUser->roles != "APP"){
-                    User::where( 'rapidx_user_id' , $request->userId)->update([
-                        'roles' => "APP",
-                    ]);
-                }
-                DB::commit();
-                return response()->json(['isSuccess' => 'true']);
-            }
-
-            $user = User::insert([
-                'rapidx_user_id' => $request->userId,
-                'roles' => 'APP',
+            $data = $request->all();
+            $validator = Validator::make($data, [
+                'rapidxUser'        => 'required',
+                'userRoles'                 => 'required',
+                'sectionDepartment'   => 'required',
             ]);
+            if ($validator->fails()) {
+                return response()->json(['isSuccess' => 'false'], 422);
+            }
+            $getUser = User::where( 'rapidx_user_id' , $request->rapidxUser)->first();
+            $userRequest = [
+                'rapidx_user_id' => $request->rapidxUser,
+                'roles' => $request->userRoles,
+                'department_position' => $request->sectionDepartment,
+            ];
+            if( filled( $getUser) ){
+                $this->resourceInterface->updateConditions(User::class,[
+                    'rapidx_user_id' => $request->rapidxUser
+                ],$userRequest);
+            }else{
+                $this->resourceInterface->create(User::class,$userRequest);
+            }
             DB::commit();
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
@@ -81,7 +85,7 @@ class SettingsController extends Controller
             throw $e;
         }
     }
-    public function saveRapidxUser(Request $request){
+    public function saveRapidxUser1(Request $request){
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
@@ -173,6 +177,7 @@ class SettingsController extends Controller
                 // return $btn = '<button data-id = "'.$row->id.'" id="editResProcedure" type="button" class="btn btn-info btn-sm" title="Edit"></i>Edit</button>';
             })
             ->addColumn('get_roles',function($row){
+                $result = '';
                 $user = User::where('rapidx_user_id',$row->id)->first();
                 $isRoles = $user->roles ?? "";
                 //PREPBY-Preparedby |CHCKBY-Checkedby | NOTEDBY-Notedby |  APPBY - Approvedby
@@ -193,11 +198,13 @@ class SettingsController extends Controller
                         $roles = 'ADMIN';
                         break;
                     default:
-                        $roles = 'User';
+                        $result .= '<center>';
+                        $result .= '<span class="badge rounded-pill bg-danger"> FOR UPDATE </span>';
+                        $result .= '</center>';
+                        return $result;
                         break;
                 }
 
-                $result = '';
                 $result .= '<center>';
                 $result .= '<span class="badge rounded-pill bg-primary"> '.$roles.' </span>';
                 $result .= '</center>';
@@ -505,6 +512,34 @@ class SettingsController extends Controller
             ->count();
 
             return response()->json(['isSuccess' => 'true','isSessionApprover'=>$isSessionApprover === 1 ? true : false]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+    public function loadDropdownCustomerGroups(Request $request){
+
+        try {
+            $dropdownCustomerGroups = $this->resourceInterface->readWithRelationsConditionsActive(
+                DropdownCustomerGroup::class,
+                [],
+                [],
+                ['rapidx_user_id' => $request->usersId],
+            );
+            $dropdownCustomerGroups;
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+    public function getUserDetails(Request $request){
+        try {
+            $userDetails = $this->resourceInterface->readCustomEloquent(
+                User::class,
+                [],
+                [],
+                ['rapidx_user_id' => $request->usersId],
+            )->first();
+            return response()->json(['isSuccess' => 'true', 'userDetails'=> $userDetails,'rapidxUserId'=>$request->usersId]);
         } catch (Exception $e) {
             throw $e;
         }

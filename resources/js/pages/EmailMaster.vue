@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid px-4">
-        <h4 class="mt-4">User Master</h4>
+        <h4 class="mt-4">Email Settings</h4>
         <div class="card mt-3"  style="width: 100%;">
             <div class="card-body overflow-auto">
                 <div class="table-responsive">
@@ -17,7 +17,7 @@
                         class="table mt-2"
                         ref="tblUserMaster"
                         :columns="userMasterColumns"
-                        ajax="api/get_user_master"
+                        ajax="api/load_dropdown_customer_groups"
                         :options="{
                             serverSide: true, //Serverside true will load the network
                             columnDefs:[
@@ -30,10 +30,10 @@
                                 <th>
                                     <font-awesome-icon class="nav-icon" icon="fa-cogs" />
                                 </th>
-                                <th>Roles</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Section / Department</th>
+                                <th>Customer</th>
+                                <th>Recipients Cc</th>
+                                <th>Recipients To</th>
+                                <th>Updated By</th>
                             </tr>
                         </thead>
                     </DataTable>
@@ -41,7 +41,7 @@
             </div>
         </div>
     </div>
-    <ModalComponent @add-event="formAddUser" icon="fa-user" modalDialog="modal-dialog modal-md" title="Add User" ref="modalAddUser">
+    <ModalComponent @add-event="formAddUser" icon="fa-download" modalDialog="modal-dialog modal-md" title="Add User" ref="modalAddUser">
         <template #body>
             <div class="row mt-3">
                 <div class="row">
@@ -68,12 +68,6 @@
                         />
                     </div>
                 </div>
-                <div class="row">
-                    <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Section / Department:</span>
-                        <input v-model="frmUser.sectionDepartment" type="text" class="form-control">
-                    </div>
-                </div>
             </div>
         </template>
         <template #footer>
@@ -93,18 +87,16 @@
     import Swal from 'sweetalert2';
     import ModalComponent from '../components/ModalComponent.vue';
     import useSettings from '../composables/settings.js';
-    import useForm from '../../js/composables/utils/useForm.js'
-    import useFetch from '../../js/composables/utils/useFetch.js'
+    import useForm from '../composables/utils/useForm.js'
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
-    import useCommon from '../../js/composables/common.js';
+    import useCommon from '../composables/common.js';
     const {
         resetEcrForm,
     } = useCommon();
 
     DataTable.use(DataTablesCore);
     const { axiosSaveData } = useForm(); // Call the useFetch function
-    const { axiosFetchData } = useFetch(); // Call the useFetch function
 
     const {
         settingsVar,
@@ -127,25 +119,21 @@
                 let btnUserMasterDetails = cell.querySelector('#btnUserMasterDetails');
                 if(btnUserMasterDetails !=null){
                     btnUserMasterDetails.addEventListener('click',function(){
-                        let usersId = this.getAttribute('data-id');
-                        let userParams = {
-                            usersId : usersId
-                        };
-                        getUserDetails(userParams);
-                        // Swal.fire({
-                        //     title: 'Confirmation',
-                        //     text: 'Are you sure you want this user to change role?',
-                        //     icon: 'warning',
-                        //     allowOutsideClick: false,
-                        //     showCancelButton: true,
-                        //     confirmButtonColor: '#3085d6',
-                        //     cancelButtonColor: '#d33',
-                        //     confirmButtonText: 'Yes'
-                        // }).then((result) => {
-                        //     if (result.isConfirmed) {
-                        //         saveUserApprover(dataId);
-                        //     }
-                        // })
+                        let dataId = this.getAttribute('data-id');
+                        Swal.fire({
+                            title: 'Confirmation',
+                            text: 'Are you sure you want this user to change role?',
+                            icon: 'warning',
+                            allowOutsideClick: false,
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                saveUserApprover(dataId);
+                            }
+                        })
                     });
                 }
             }
@@ -170,21 +158,6 @@
         })
     })
 
-    const getUserDetails = async (params) => {
-        let apiParams = {
-            usersId : params.usersId
-        }
-        axiosFetchData(apiParams,'api/get_user_details',function(response){
-            let data = response.data;
-            frmUser.value.rapidxUser = data.rapidxUserId
-            frmUser.value.sectionDepartment = 'N/A';
-            if(data.userDetails != null){
-                frmUser.value.userRoles = data.userDetails.roles ?? 'N/A';
-                frmUser.value.sectionDepartment = data.userDetails.department_position ?? 'N/A';
-            }
-            modal.AddUser.show();
-        });
-    }
     const saveUserApprover = async (userId) => {
         let formData = new FormData();
         formData.append('userId',userId)
@@ -200,8 +173,6 @@
         let formData = new FormData();
 
         formData.append('rapidxUser',frmUser.value.rapidxUser);
-        formData.append('userRoles',frmUser.value.userRoles);
-        formData.append('sectionDepartment',frmUser.value.sectionDepartment);
 
         axiosSaveData(formData,'api/save_rapidx_user', (response) =>{
             tblUserMaster.value.dt.draw();
