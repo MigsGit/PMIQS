@@ -59,8 +59,8 @@ class SettingsController extends Controller
             $data = $request->all();
             $validator = Validator::make($data, [
                 'rapidxUser'        => 'required',
-                'userRoles'                 => 'required',
-                'sectionDepartment'   => 'required',
+                'roles'                 => 'required',
+                'department_position'   => 'required',
             ]);
             if ($validator->fails()) {
                 return response()->json(['isSuccess' => 'false'], 422);
@@ -114,6 +114,35 @@ class SettingsController extends Controller
             ->table('user_accesses')
             ->insert($requestValidated);
 
+            DB::commit();
+            return response()->json(['is_success' => 'true']);
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+    public function saveCustomerGroupDetails(Request $request){
+        try {
+            date_default_timezone_set('Asia/Manila');
+            DB::beginTransaction();
+
+            $dropdownCustomerGroupValidated = [
+                'customer' => $request->customerName,
+                'recipients_to' => $request->emailTo,
+                'recipients_cc' => $request->emailCc,
+                'updated_by' => session('rapidx_user_id'),
+            ];
+
+            if(blank($request->dropdownCustomerGroupsId)){
+                $dropdownCustomerGroupValidated['created_at'] = now();
+                return $dropdownCustomerGroupValidated;
+                $this->resourceInterface->create(DropdownCustomerGroup::class,$dropdownCustomerGroupValidated);
+            }else{
+                DropdownCustomerGroup::
+                where('dd_customer_groups_id' ,$request->dropdownCustomerGroupsId)
+                ->update($dropdownCustomerGroupValidated);
+            }
+           
             DB::commit();
             return response()->json(['is_success' => 'true']);
         } catch (Exception $e) {
@@ -330,6 +359,35 @@ class SettingsController extends Controller
             throw $e;
         }
     }
+    
+    public function loadDropdownCustomerGroups(Request $request){
+
+        try {
+           $dropdownCustomerGroups = $this->resourceInterface->readWithRelationsConditionsActive(
+                DropdownCustomerGroup::class,
+                [],
+                [],
+                [],
+            );
+            return DataTables::of($dropdownCustomerGroups)
+            ->addColumn('get_action',function($row): string{
+                return $btn = '<button data-id = "'.$row->dd_customer_groups_id.'"  class="btn btn-outline-info btn-sm" data-toggle="modal" id="btnCustomerMasterDetails" type="button" title="Edit"><i class="fas fa-edit"></i></button>';
+            })
+            ->addColumn('get_updated_by',function($row){
+                $result = '';
+                // $result .= '<span class="badge rounded-pill bg-primary"> '.$row->department_name.' </span>';
+                return $result;
+            })
+            ->rawColumns([
+                'get_action',
+                'get_updated_by',
+            ])
+            ->make(true);
+                // return response()->json(['is_success' => 'true']); recipients_cc recipients_to customer
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
     public function getDropdownMasterDetailsId(Request $request){ //
         try {
             $conditions = [
@@ -516,21 +574,6 @@ class SettingsController extends Controller
             throw $e;
         }
     }
-    public function loadDropdownCustomerGroups(Request $request){
-
-        try {
-            $dropdownCustomerGroups = $this->resourceInterface->readWithRelationsConditionsActive(
-                DropdownCustomerGroup::class,
-                [],
-                [],
-                ['rapidx_user_id' => $request->usersId],
-            );
-            $dropdownCustomerGroups;
-            return response()->json(['is_success' => 'true']);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
     public function getUserDetails(Request $request){
         try {
             $userDetails = $this->resourceInterface->readCustomEloquent(
@@ -540,6 +583,21 @@ class SettingsController extends Controller
                 ['rapidx_user_id' => $request->usersId],
             )->first();
             return response()->json(['isSuccess' => 'true', 'userDetails'=> $userDetails,'rapidxUserId'=>$request->usersId]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getCustomerGroupDetailsById(Request $request){
+        try {
+            $data = $this->resourceInterface->readWithRelationsConditions(
+                DropdownCustomerGroup::class,
+                [],
+                [],
+                ['dd_customer_groups_id' => $request->customerMasterDetailsId],
+            );
+            $dropdownCustomerGroupResource = DropdownCustomerGroupResource::collection($data)->resolve();
+            return response()->json(['is_success' => 'true','dropdownCustomerGroupResource'=>$dropdownCustomerGroupResource]);
         } catch (Exception $e) {
             throw $e;
         }

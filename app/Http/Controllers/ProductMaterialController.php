@@ -870,7 +870,7 @@ class ProductMaterialController extends Controller
             })->count();
 
             $userCollection = $user->count();
-            $pmItemCollection =$pmItems;
+            $pmItemCollection = $pmItems;
             $pmItemCollectionPending = $pmItemCollection->where(
                 'status' ,'!=', 'OK'
             )->count();

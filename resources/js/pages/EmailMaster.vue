@@ -1,22 +1,22 @@
 <template>
     <div class="container-fluid px-4">
-        <h4 class="mt-4">Email Settings</h4>
+        <h4 class="mt-4">Email Settingssss</h4>
         <div class="card mt-3"  style="width: 100%;">
             <div class="card-body overflow-auto">
                 <div class="table-responsive">
                     <!-- id="dataTable" -->
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <button @click="btnAddUser" type="button" ref= "btnAddUser" class="btn btn-primary btn-sm">
-                                <font-awesome-icon class="nav-icon" icon="fas fa-user" />&nbsp; Add User
+                            <button @click="btnAddEmail" type="button" ref= "btnAddUser" class="btn btn-primary btn-sm">
+                                <font-awesome-icon class="nav-icon" icon="fas fa-user" />&nbsp; Add Email
                             </button>
                         </div>
                     </div>
                     <DataTable
                         width="100%" cellspacing="0"
                         class="table mt-2"
-                        ref="tblUserMaster"
-                        :columns="userMasterColumns"
+                        ref="tblEmailMaster"
+                        :columns="emailMasterColumns"
                         ajax="api/load_dropdown_customer_groups"
                         :options="{
                             serverSide: true, //Serverside true will load the network
@@ -41,31 +41,32 @@
             </div>
         </div>
     </div>
-    <ModalComponent @add-event="formAddUser" icon="fa-download" modalDialog="modal-dialog modal-md" title="Add User" ref="modalAddUser">
+    <ModalComponent @add-event="saveCustomerGroupDetails" icon="fa-download" modalDialog="modal-dialog modal-md" title="Add User" ref="modalSaveEmail">
         <template #body>
             <div class="row mt-3">
                 <div class="row">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">Full Name:</span>
-                        <Multiselect
-                            v-model="frmUser.rapidxUser"
-                            :options="settingsVar.optRapidxUser"
-                            placeholder="Select an option"
-                            :searchable="true"
-                            :close-on-select="true"
-                        />
+                        <span class="input-group-text" id="addon-wrapping">Customer Name:</span>
+                        <input v-model="frmSaveEmail.dropdownCustomerGroupsId" type="text" class="form-control" id="inlineFormInputGroup">
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-group flex-nowrap mb-2 input-group-sm">
-                        <span class="input-group-text" id="addon-wrapping">User Roles:</span>
-                        <Multiselect
-                            v-model="frmUser.userRoles"
-                            :options="settingsVar.userRoles"
-                            placeholder="Select an option"
-                            :searchable="true"
-                            :close-on-select="true"
-                        />
+                        <span class="input-group-text" id="addon-wrapping">Customer Name:</span>
+                        <input v-model="frmSaveEmail.customerName" type="text" class="form-control" id="inlineFormInputGroup">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Email To:
+                        </span>
+                        <textarea v-model="frmSaveEmail.emailTo" type="text" class="form-control" id="inlineFormInputGroup"> </textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group flex-nowrap mb-2 input-group-sm">
+                        <span class="input-group-text" id="addon-wrapping">Email CC:</span>
+                        <textarea v-model="frmSaveEmail.emailCc" type="text" class="form-control" id="inlineFormInputGroup"> </textarea>
                     </div>
                 </div>
             </div>
@@ -88,6 +89,7 @@
     import ModalComponent from '../components/ModalComponent.vue';
     import useSettings from '../composables/settings.js';
     import useForm from '../composables/utils/useForm.js'
+    import useFetch from '../composables/utils/useFetch.js'
     import DataTable from 'datatables.net-vue3';
     import DataTablesCore from 'datatables.net-bs5';
     import useCommon from '../composables/common.js';
@@ -97,88 +99,96 @@
 
     DataTable.use(DataTablesCore);
     const { axiosSaveData } = useForm(); // Call the useFetch function
+    const { axiosFetchData } = useFetch(); // Call the useFetch function
 
     const {
         settingsVar,
+        frmSaveEmail,
         getRapidxUserByIdOpt,
         getNoModuleRapidxUserByIdOpt,
     } = useSettings();
 
-    const tblUserMaster = ref(null);
-    const modalAddUser = ref(null);
+    const tblEmailMaster = ref(null);
     const modal = ref(null);
+    const modalSaveEmail = ref(null);
     const frmUser = ref({
         rapidxUser: null
     });
 
-    const userMasterColumns = [
+    const emailMasterColumns = [
         { data: 'get_action',
         orderable: false,
             searchable: false,
             createdCell(cell){
-                let btnUserMasterDetails = cell.querySelector('#btnUserMasterDetails');
-                if(btnUserMasterDetails !=null){
-                    btnUserMasterDetails.addEventListener('click',function(){
+                let btnCustomerMasterDetails = cell.querySelector('#btnCustomerMasterDetails');
+                if(btnCustomerMasterDetails !=null){
+                    btnCustomerMasterDetails.addEventListener('click',function(){
                         let dataId = this.getAttribute('data-id');
-                        Swal.fire({
-                            title: 'Confirmation',
-                            text: 'Are you sure you want this user to change role?',
-                            icon: 'warning',
-                            allowOutsideClick: false,
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                saveUserApprover(dataId);
-                            }
-                        })
+                        let paramsCustomerGroupDetails = {
+                            customerMasterDetailsId : dataId
+                        }   
+                        getCustomerGroupDetailsById(paramsCustomerGroupDetails)
                     });
                 }
             }
          },
-        { data: 'get_roles'},
-        { data: 'name'},
-        { data: 'email'},
-        { data: 'get_departments'}
+        { data: 'dd_customer_groups_id'},
+        { data: 'recipients_cc'},
+        { data: 'recipients_to'},
+        { data: 'get_updated_by'}
     ];
 
-    const rapidxUserParams = {
-        globalVar: settingsVar.optRapidxUser,
-        formModel: toRef(frmUser.value,'rapidxUser'),
-        selectedVal: "",
-    };
+    // const rapidxUserParams = {
+    //     globalVar: settingsVar.optRapidxUser,
+    //     formModel: toRef(frmUser.value,'rapidxUser'),
+    //     selectedVal: "",
+    // };
     onMounted ( async () =>{
-        modal.AddUser = new Modal(modalAddUser.value.modalRef,{keyboard:false});
-        // modal.AddUser.show();
-        getNoModuleRapidxUserByIdOpt(rapidxUserParams);
-        modalAddUser.value.modalRef.addEventListener('hidden.bs.modal', event => {
-            resetEcrForm(frmUser.value);
+        modal.SaveEmail = new Modal(modalSaveEmail.value.modalRef,{keyboard:false});
+        modalSaveEmail.value.modalRef.addEventListener('hidden.bs.modal', event => {
+            resetEcrForm(frmSaveEmail.value);
         })
     })
 
-    const saveUserApprover = async (userId) => {
-        let formData = new FormData();
-        formData.append('userId',userId)
-        axiosSaveData(formData,'api/save_user_approver', (response) =>{
-            tblUserMaster.value.dt.draw();
+    const getCustomerGroupDetailsById = async (params) => {
+        let apiParams = {
+            customerMasterDetailsId : params.customerMasterDetailsId
+        }
+        axiosFetchData(apiParams,'api/get_customer_group_details_by_id',function(response){
+            let data = response.data.dropdownCustomerGroupResource[0];
+
+            frmSaveEmail.value.dropdownCustomerGroupsId = data.id;
+            frmSaveEmail.value.customerName = data.customer;
+            frmSaveEmail.value.emailTo = data.recipientsTo;
+            frmSaveEmail.value.emailCc = data.recipientsCc;
+            modal.SaveEmail.show();
         });
     }
-    const btnAddUser = async () => {
-        modal.AddUser.show();
-    }
-
-    const formAddUser = async () => {
+    const saveCustomerGroupDetails = async (userId) => {
         let formData = new FormData();
-
-        formData.append('rapidxUser',frmUser.value.rapidxUser);
-
-        axiosSaveData(formData,'api/save_rapidx_user', (response) =>{
-            tblUserMaster.value.dt.draw();
-            modal.AddUser.hide();
+        formData.append('dropdownCustomerGroupsId',frmSaveEmail.value.dropdownCustomerGroupsId)
+        formData.append('customerName',frmSaveEmail.value.customerName)
+        formData.append('emailTo',frmSaveEmail.value.emailTo)
+        formData.append('emailCc',frmSaveEmail.value.emailCc)
+        axiosSaveData(formData,'api/save_customer_group_details', (response) =>{
+            tblEmailMaster.value.dt.draw();
+            modal.SaveEmail.hide();
         });
     }
+    // const btnAddEmail = async () => {
+    //     modal.SaveEmail.show();
+    // }
+
+    // const formAddUser = async () => {
+    //     let formData = new FormData();
+
+    //     formData.append('rapidxUser',frmUser.value.rapidxUser);
+
+    //     axiosSaveData(formData,'api/save_rapidx_user', (response) =>{
+    //         tblUserMaster.value.dt.draw();
+    //         modal.SaveEmail.hide();
+    //     });
+    // }
 </script>
 <style lang="scss" scoped>
 

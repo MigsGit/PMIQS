@@ -44,6 +44,12 @@ export default function useSettings(){
         pdfTermsCondition: [],
         controlNo : '',
     });
+    const frmSaveEmail = ref({
+        dropdownCustomerGroupsId : '',
+        customerName : '',
+        emailTo : '',
+        emailCc : '',
+    });
     const frmPdfEmailFormatRows = ref([
         {
             pdfTermsCondition: [],
@@ -322,5 +328,6 @@ export default function useSettings(){
         getPdfToGroup,
         addFrmPdfEmailFormatRows,
         removeFrmPdfEmailFormatRows,
+        frmSaveEmail,
     }
 }

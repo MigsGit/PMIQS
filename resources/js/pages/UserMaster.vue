@@ -202,7 +202,6 @@
         formData.append('rapidxUser',frmUser.value.rapidxUser);
         formData.append('userRoles',frmUser.value.userRoles);
         formData.append('sectionDepartment',frmUser.value.sectionDepartment);
-
         axiosSaveData(formData,'api/save_rapidx_user', (response) =>{
             tblUserMaster.value.dt.draw();
             modal.AddUser.hide();

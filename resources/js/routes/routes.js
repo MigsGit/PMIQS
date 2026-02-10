@@ -25,12 +25,14 @@ function checkIfSessionExist(to, from, next) {
 }
 export default [
     {
+      
         path: '',
         beforeEnter: checkIfSessionExist,
         components: {
             default: IndexComponent,
             dashboard: Dashboard,
         },
+       
         children: [
             {
                 path: 'dashboard',
@@ -64,17 +66,18 @@ export default [
                 beforeEnter: checkIfSessionExist,
                 component: EmailMaster,
             },
-            {
-                path: 'classification_qty/:itemsId/:pmItemCurrentStatus/:isSessionApprover',
-                name: 'ClassificationQty',
-                beforeEnter: checkIfSessionExist,
-                component: ClassificationQty,
-                props: true,
-                // props: (route) => ({
-                //     itemsId: route.params.itemsId || 'defaultId', // Get from query or provide a default
-                //     test: route.params.test || 'defaultName',
-                //   }),
-            }
-        ]
-    }
+        ],
+     
+    },
+    {
+        path: '/classification_qty/:itemsId/:pmItemCurrentStatus/:isSessionApprover',
+        name: 'ClassificationQty',
+        beforeEnter: checkIfSessionExist,
+        component: ClassificationQty,
+        props: true,
+        // props: (route) => ({
+        //     itemsId: route.params.itemsId || 'defaultId', // Get from query or provide a default
+        //     test: route.params.test || 'defaultName',
+        //   }),
+    },
 ];

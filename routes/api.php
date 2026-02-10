@@ -42,10 +42,14 @@ Route::middleware('auth')->group(function(){
         Route::post('save_user_approver', 'saveUserApprover')->name('save_user_approver');
         Route::post('save_rapidx_user','saveRapidxUser')->name('save_rapidx_user');
         Route::post('del_classification_requirements','delClassificationRequirements')->name('del_classification_requirements');
+        Route::post('save_customer_group_details','saveCustomerGroupDetails')->name('save_customer_group_details');
+
         Route::get('get_user_master', 'getUserMaster')->name('get_user_master');
         Route::get('load_dropdown_master_details', 'loadDropdownMasterDetails')->name('load_dropdown_master_details');
         Route::get('load_classification_requirements', 'loadClassificationRequirements')->name('load_classification_requirements');
         Route::get('get_dropdown_master', 'getDropdownMaster')->name('get_dropdown_master');
+        Route::get('load_dropdown_customer_groups', 'loadDropdownCustomerGroups')->name('load_dropdown_customer_groups');
+    
         Route::get('get_dropdown_master_details_id', 'getDropdownMasterDetailsId')->name('get_dropdown_master_details_id');
         Route::get('get_admin_access_opt', 'getAdminAccessOpt')->name('get_admin_access_opt');
         Route::get('get_dropdown_master_category', 'getDropdownMasterCategory')->name('get_dropdown_master_category');
@@ -55,9 +59,9 @@ Route::middleware('auth')->group(function(){
         Route::get('get_pdf_email_format', 'getPdfEmailFormat')->name('get_pdf_email_format');
         Route::get('send_disposition', 'sendDisposition')->name('send_disposition');
         Route::get('get_current_approver_session', 'getCurrentApproverSession')->name('get_current_approver_session');
-
-        Route::get('load_dropdown_customer_groups', 'loadDropdownCustomerGroups')->name('load_dropdown_customer_groups');
         Route::get('get_user_details', 'getUserDetails')->name('get_user_details');
+        
+        Route::get('get_customer_group_details_by_id', 'getCustomerGroupDetailsById')->name('get_customer_group_details_by_id');
     });
 
     Route::controller(ProductMaterialController::class)->group(function (): void{

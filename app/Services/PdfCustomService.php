@@ -276,20 +276,28 @@ class PdfCustomService implements PdfCustomInterface
         $descriptions = $data['descriptions'];
 
         $ctrMaterial = 1;
-        // if($data['category'] === "PRO"){
+        $this->fpdi->Ln(3);
+   
+        if($data['category'] === "PRO"){
             for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
+                 $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptions[$ctrMaterial][$indexMaterial]['description'][0], 0, 0);
+                $this->fpdi->Ln(5);
+                // echo json_encode();
+                // exit;
                 $this->buildProductTable($descriptions[$ctrMaterial]);
+                $ctrMaterial++;
+                $this->fpdi->Ln(10);
+            }
+        }
+        if($data['category'] === "RM"){
+            for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
+                $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptions[$ctrMaterial][$indexMaterial]['description'][0], 0, 0);
+                $this->fpdi->Ln(5);
+                $this->buildRawMatTable($descriptions[$ctrMaterial]);
                 $ctrMaterial++;
                 $this->fpdi->Ln(3);
             }
-        // }
-        // if($data['category'] === "RM"){
-        //     for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
-        //         $this->buildRawMatTable($descriptions[$ctrMaterial]);
-        //         $ctrMaterial++;
-        //         $this->fpdi->Ln(3);
-        //     }
-        // }
+        }
         // $this->fpdi->Ln(5);
         $this->fpdi->SetFont('Arial', 'B', 10);
         $this->fpdi->Cell(190, 5, "Terms and Conditions:", 0, 1);

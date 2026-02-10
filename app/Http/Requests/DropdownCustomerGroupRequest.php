@@ -24,13 +24,9 @@ class DropdownCustomerGroupRequest extends FormRequest
     public function rules()
     {
         return [
-            //
-
-            // dropdown_customer_groups_id
-            // customer
-            // recipients_cc
-            // recipients_to
-            // updated_by
+            'customerName' => 'required',
+            'emailTo' => 'required',
+            'emailCc' => 'required',
         ];
     }
 }

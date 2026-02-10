@@ -12,7 +12,13 @@
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        <h4>Items & Description Details</h4>
+                        
+                        <h4>
+                            <router-link class="btn btn-outline-danger" :to="{ name: 'ProductMaterial' }">
+                                <font-awesome-icon class="nav-icon" icon="fa-solid fa-arrow-left" />
+                            </router-link>
+                            Items & Description Details
+                        </h4>
                     </div>
                 </div>
                 <div class="row mt-3">
@@ -87,7 +93,7 @@
                                                         <th scope="col" v-show="frmItem.category === 'RM'">Length</th>
                                                         <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
                                                         <th scope="col" v-show="frmItem.category === 'RM'">Height</th>
-                                                        <th scope="col" v-show="frmItem.category === 'RM'">Type</th>
+                                                        <th style="width:20%" scope="col" v-show="frmItem.category === 'RM'">Type</th>
                                                         <th scope="col" v-show="frmItem.category === 'RM'">Thickness</th>
                                                         <th scope="col" v-show="frmItem.category === 'RM'">Width</th>
                                                     </tr>
@@ -117,7 +123,8 @@
                                                             <input v-model="rowSaveDescription.matSpecsHeight" type="number" min="0" class="form-control" id="inlineFormInputGroup">
                                                         </td>
                                                         <td v-show="frmItem.category === 'RM'">
-                                                            <input v-model="rowSaveDescription.matRawType" type="text" class="form-control" id="inlineFormInputGroup">
+                                                            <textarea v-model="rowSaveDescription.matRawType" type="text" class="form-control" id="inlineFormInputGroup">
+                                                            </textarea>
                                                         </td v-show="frmItem.category === 'RM'">
                                                         <td v-show="frmItem.category === 'RM'">
                                                             <input v-model="rowSaveDescription.matRawThickness" type="number" min="0" class="form-control" id="inlineFormInputGroup">
