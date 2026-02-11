@@ -44,6 +44,15 @@ class ProductMaterialController extends Controller
         $this->emailInterface = $emailInterface;
 
     }
+
+
+    public function generateControlNumberByDivision(Request $request){
+        try {
+             return $this->commonInterface->generateControlNumber($request->division);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
     public function saveItem(Request $request, PmItemRequest $pmItemRequest,PmDescriptionRequest $pmDescriptionRequest){
         try {
             $generateControlNumber = $this->commonInterface->generateControlNumber($pmItemRequest->division);
@@ -125,7 +134,6 @@ class ProductMaterialController extends Controller
             ->where('pm_items_id', $itemsId)
             ->first()
             ->update(['status'=>'PEN']);
-
             Cache::forget('pmItemCache');
             DB::commit();
             return response()->json(['isSuccess' => 'true']);
@@ -223,9 +231,8 @@ class ProductMaterialController extends Controller
                 $from =$currentSession['email'] ?? '';
                 $from_name = $currentSession['fullName'];
                 $subject = "DISAPPROVED: PMI Quotation Request";
-
                 //Reset EcrRequirement
-               $emailData = [
+                $emailData = [
 
                     //  "to" =>$to,
                     "to" =>'cdcasuyon@pricon.ph',
@@ -244,8 +251,8 @@ class ProductMaterialController extends Controller
                     "created_by" => session('rapidx_username'),
                     "system_name" => "rapidx_4M",
                 ];
-                // $this->emailInterface->sendEmail($emailData);
                 DB::commit();
+                $this->emailInterface->sendEmail($emailData);
                 return response()->json(['isSuccess' => 'true']);
             }
             if(filled($pmApprovalNext)){ //Update APPROVED and Next PENDING Approval
@@ -314,8 +321,8 @@ class ProductMaterialController extends Controller
                 "created_by" => session('rapidx_username'),
                 "system_name" => "rapidx_PMIQS",
             ];
-            // return $this->emailInterface->sendEmail($emailData);
             DB::commit();
+            $this->emailInterface->sendEmail($emailData);
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
@@ -326,6 +333,7 @@ class ProductMaterialController extends Controller
         try {
             date_default_timezone_set('Asia/Manila');
             DB::beginTransaction();
+            $itemsId = decrypt($request->itemsId);
             PmClassification::whereIn('pm_descriptions_id',$request->descriptionsId)->delete();
             $classificationData =collect($request->descriptionsId)->map(function($item, $key) use ($request){
                 $rowClassificationData = [
@@ -345,7 +353,32 @@ class ProductMaterialController extends Controller
                     $rowClassificationData,
                 );
             });
-            DB::commit();
+
+            // DB::commit();
+            $currentSession = $this->emailInterface->getEmailByRapidxUserId( session('rapidx_user_id'));
+            $to =$currentSession['email'] ?? '';
+            $pmApprovalEmailMsg = $this->emailInterface->pmApprovalEmailMsg($itemsId);
+            $msg = $pmApprovalEmailMsg['msg'];
+            $from = 'issinfoservice@pricon.ph';
+            $subject = "FOR APPROVAL: PMI Quotation System";
+            $from_name = "PMI Quotation System (PMIQS)";
+            $emailData = [
+                "to" =>$to,
+                "cc" =>"",
+                "bcc" =>"mclegaspi@pricon.ph,rdahorro@pricon.ph,jggabuat@pricon.ph",
+                "from" => $from,
+                "from_name" =>$from_name ?? "4M Change Control Management System",
+                "subject" =>$subject,
+                "message" =>  $msg,
+                "attachment_filename" => "",
+                "attachment" => "",
+                "send_date_time" => now(),
+                "date_time_sent" => "",
+                "date_created" => now(),
+                "created_by" => session('rapidx_username'),
+                "system_name" => "rapidx_4M",
+            ];
+            $this->emailInterface->sendEmail($emailData);
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
@@ -867,7 +900,9 @@ class ProductMaterialController extends Controller
                 'status' ,'!=', 'OK'
             )->whereHas('pm_approval_pending',function($query){
                 $query->where('rapidx_user_id',session('rapidx_user_id'));
-            })->count();
+            })
+            ->whereNull('deleted_at')
+            ->count();
 
             $userCollection = $user->count();
             $pmItemCollection = $pmItems;

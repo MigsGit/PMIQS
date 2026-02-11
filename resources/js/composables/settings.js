@@ -318,6 +318,7 @@ export default function useSettings(){
         frmEcrRequirementDetails,
         frmPdfEmailFormat,
         frmPdfEmailFormatRows,
+        frmSaveEmail,
         axiosFetchData,
         getDropdownMasterByOpt,
         getRapidxUserByIdOpt,
@@ -328,6 +329,5 @@ export default function useSettings(){
         getPdfToGroup,
         addFrmPdfEmailFormatRows,
         removeFrmPdfEmailFormatRows,
-        frmSaveEmail,
     }
 }

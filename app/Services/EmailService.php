@@ -548,7 +548,7 @@ class EmailService implements EmailInterface
 
     public function pmApprovalEmailMsg($itemsId)
     {
-        $pmItem = $this->resourceInterface->readCustomEloquent(PmItem::class,
+      $pmItem = $this->resourceInterface->readCustomEloquent(PmItem::class,
             [],
             [
                 'descriptions',
@@ -559,11 +559,11 @@ class EmailService implements EmailInterface
         );
         $pmItem = $pmItem->get();
         $itemResource = ItemResource::collection($pmItem)->resolve();
-        $description = collect($itemResource[0]['descriptions']);
+       $description = collect($itemResource[0]['descriptions']);
         $descriptionPartNameImplode = $description->pluck('descriptionPartName')->implode(', ');
         $partCodeImplode = $description->pluck('partCode')->implode(', ');
         $createdBy = $itemResource[0]['rapidx_user_created_by']['name'];
-        $getEcrStatus = $this->commonInterface->getPmItemStatus($itemResource[0]['status']);
+       $getEcrStatus = $this->commonInterface->getPmItemStatus($itemResource[0]['status']);
         if($getEcrStatus['status'] == 'DIS'){
             $header = "Your PMI Quotation Request has been disapproved";
         }else if($getEcrStatus['status'] == 'OK'){
@@ -572,9 +572,10 @@ class EmailService implements EmailInterface
             $header = "Please see the PMI Quotation Request for your approval.";
         }
         $category = $itemResource[0]['category'] === "RM" ? 'Raw Material' : 'Product';
-        $customer = $itemResource[0]['pm_customer_group_detail'][0]['dropdown_customer_group'][0]['customer'];
-
-
+        $customer = 'N/A';
+        if(count($itemResource[0]['pm_customer_group_detail']) != 0){
+            $customer = $itemResource[0]['pm_customer_group_detail'][0]['dropdown_customer_group'][0]['customer'];
+        }
         $msg = '<!DOCTYPE html>
             <html>
                 <head>

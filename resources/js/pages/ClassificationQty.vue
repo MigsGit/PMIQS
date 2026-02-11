@@ -12,7 +12,7 @@
                 </div>
                 <div class="row">
                     <div class="col-6">
-                        
+
                         <h4>
                             <router-link class="btn btn-outline-danger" :to="{ name: 'ProductMaterial' }">
                                 <font-awesome-icon class="nav-icon" icon="fa-solid fa-arrow-left" />
@@ -579,6 +579,7 @@
                 formData.append('approverRemarks', approverRemarks.value)
                 formData.append('approverDecision', approverDecision)
                 axiosSaveData(formData,'api/save_for_approval', (response) =>{
+                    modalPm.SaveApproval.hide();
                     Router.push({ name: 'ProductMaterial'});
                 });
             }
@@ -625,6 +626,7 @@
                 );
             }
         }
+        formData.append('itemsId', selectedItemsId.value);
         axiosSaveData(formData,'api/save_classification_qty', (response) =>{
             Router.push({ name: 'ProductMaterial'});
         });

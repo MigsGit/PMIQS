@@ -277,11 +277,11 @@ class PdfCustomService implements PdfCustomInterface
 
         $ctrMaterial = 1;
         $this->fpdi->Ln(3);
-   
+
         if($data['category'] === "PRO"){
             for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
                  $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptions[$ctrMaterial][$indexMaterial]['description'][0], 0, 0);
-                $this->fpdi->Ln(5);
+                $this->fpdi->Ln(8);
                 // echo json_encode();
                 // exit;
                 $this->buildProductTable($descriptions[$ctrMaterial]);
@@ -292,7 +292,7 @@ class PdfCustomService implements PdfCustomInterface
         if($data['category'] === "RM"){
             for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
                 $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptions[$ctrMaterial][$indexMaterial]['description'][0], 0, 0);
-                $this->fpdi->Ln(5);
+                $this->fpdi->Ln(8);
                 $this->buildRawMatTable($descriptions[$ctrMaterial]);
                 $ctrMaterial++;
                 $this->fpdi->Ln(3);
@@ -343,10 +343,10 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Cell(90, 5, "Approved by:", 0, 1);
         // $this->fpdi->Ln(5);
 
-
         // Add image for approved_by
-        $approvedByImagePath = '../RapidX_E-Signature'.$data['appoved_by1_emp_no'].'.png'; // Replace with actual path
+        $approvedByImagePath = '../RapidX_E-Signature/'.$data['appoved_by1_emp_no'].'.png'; // Replace with actual path
         $approvedByImagePath2 = '../RapidX_E-Signature/'.$data['appoved_by2_emp_no'].'.png'; // Replace with actual path
+
         $this->addSignatureImage($approvedByImagePath, 10, $this->fpdi->GetY(), 20, 10);
         $this->addSignatureImage($approvedByImagePath2, 100, $this->fpdi->GetY(), 20, 10);
 
@@ -354,7 +354,15 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Cell(90, 5, $data['approved_by1'], 0, 0);
         $this->fpdi->Cell(90, 5, $data['approved_by2'], 0, 1);
         // echo json_encode($data);
-        // exit;
+        /**
+         Material Cost 
+         Packaging Cost
+         Freight Cost
+         Allowance Cost
+         Processing Cost
+         *
+         */
+        // exit; PARTS FOR NP635-153-178-026-AG
 
         return $this->fpdi->Output('S');
 
@@ -863,7 +871,7 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->SetLineWidth(0.2);
 
         $this->headerCell($wPartCode, 'Part Code');
-        $this->headerCell($wDesc, 'DESCRIPTION');
+        $this->headerCell($wDesc, 'Description');
         $this->headerCell($wClassification, 'Classification');
         $this->headerCell($wMoq, 'MOQ');
         $this->headerCell($wUom, 'UOM');
@@ -884,7 +892,7 @@ class PdfCustomService implements PdfCustomInterface
             $priceRows = max(1, count($prices));
 
             $subRowHeight = 6;
-            $blockHeight  = max($subRows * $subRowHeight, $priceRows * 12);
+            $blockHeight  = max($subRows * $subRowHeight, $priceRows * 15);
             $actualPriceRowH = $blockHeight / $priceRows;
 
             $x = $this->fpdi->GetX();

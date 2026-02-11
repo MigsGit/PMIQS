@@ -3,12 +3,18 @@ import useFetch from './utils/useFetch';
 export default function useProductMaterial()
 {
     const { axiosFetchData } = useFetch();
+    
     const frmItem = ref({
         controlNo: '',
+        // division: '',
         category: '',
         remarks: '',
+        preparedBy: '',
+        checkedBy: '',
+        notedBy: '',
+        approvedByOne: '',
+        approvedByTwo: '',
     });
-
     const frmSendDispo = ref({
         ControlNo : '',
         subject : '',
