@@ -44,8 +44,6 @@ class ProductMaterialController extends Controller
         $this->emailInterface = $emailInterface;
 
     }
-
-
     public function generateControlNumberByDivision(Request $request){
         try {
              return $this->commonInterface->generateControlNumber($request->division);
@@ -197,7 +195,7 @@ class ProductMaterialController extends Controller
             ->whereNull('deleted_at')
             ->count();
 
-            if(!$isClassificationExists === 0){
+            if($isClassificationExists === 0){
                 return response()->json(['isSuccess' => 'false','msg' => 'Please save the Classification / Qty !'],500);
             }
             //Get the Email Group Format by Items Id
@@ -252,7 +250,7 @@ class ProductMaterialController extends Controller
                     "system_name" => "rapidx_4M",
                 ];
                 DB::commit();
-                $this->emailInterface->sendEmail($emailData);
+                // $this->emailInterface->sendEmail($emailData);
                 return response()->json(['isSuccess' => 'true']);
             }
             if(filled($pmApprovalNext)){ //Update APPROVED and Next PENDING Approval
@@ -322,7 +320,7 @@ class ProductMaterialController extends Controller
                 "system_name" => "rapidx_PMIQS",
             ];
             DB::commit();
-            $this->emailInterface->sendEmail($emailData);
+            // $this->emailInterface->sendEmail($emailData);
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
@@ -347,14 +345,54 @@ class ProductMaterialController extends Controller
                     'created_at' => now()
                 ];
 
-                $this->resourceInterface->create
-                (
+                $this->resourceInterface->create(
                     PmClassification::class,
                     $rowClassificationData,
                 );
             });
 
-            // DB::commit();
+            $pmItem =  $this->resourceInterface->readCustomEloquent(pmItem::class,[],[],[
+                'pm_items_id' =>$itemsId
+            ]);
+            $pmApproval =  $this->resourceInterface->readCustomEloquent(PmApproval::class,[],[],[
+                'pm_items_id' =>$itemsId
+            ]);
+            $pmItemById = $pmItem->first();
+            if($pmItemById['approval_status'] === "DIS"){
+
+                $pmApprovalByItemsIdFirst = $pmApproval->first();
+
+                $this->resourceInterface->updateConditions(PmApproval::class,[
+                    'pm_items_id' => $itemsId
+                ],[
+                    'status' => '-',
+                    'remarks' => '',
+                ]);
+                $pmApprovalByItemsIdFirst->update([
+                    'status' => 'PEN'
+                ]);
+                $this->resourceInterface->updateConditions(pmItem::class,[
+                    'pm_items_id' => $itemsId
+                ],[
+                    'status' => 'FORAPP',
+                    'approval_status' => 'PREPBY',
+                ]);
+            }
+
+            // $this->resourceInterface->updateConditions(PmApproval::class,[
+            //     'pm_items_id' => $itemsId
+            // ],[
+
+            // ]);
+            // $this->resourceInterface->updateConditions(pmItem::class,[
+            //     'pm_items_id' => $itemsId
+            // ],[
+            //     'status' => 'FORDISPO',
+            //     'approval_status' => 'OK',
+            // ]);
+
+
+            DB::commit();
             $currentSession = $this->emailInterface->getEmailByRapidxUserId( session('rapidx_user_id'));
             $to =$currentSession['email'] ?? '';
             $pmApprovalEmailMsg = $this->emailInterface->pmApprovalEmailMsg($itemsId);
@@ -378,7 +416,7 @@ class ProductMaterialController extends Controller
                 "created_by" => session('rapidx_username'),
                 "system_name" => "rapidx_4M",
             ];
-            $this->emailInterface->sendEmail($emailData);
+            // $this->emailInterface->sendEmail($emailData);
             return response()->json(['isSuccess' => 'true']);
         } catch (Exception $e) {
             DB::rollback();
@@ -556,7 +594,6 @@ class ProductMaterialController extends Controller
                 $status = $row['status'];
 
                 $result = "";
-                // $result .= '<center>';
                 $result .= '<div class="btn-group dropstart mt-4">';
                 $result .= "<button  type='button' class='btn btn-secondary dropdown-toggle btn-sm' data-bs-toggle='dropdown' aria-expanded='false'>";
                 $result .= '    Action';
@@ -569,7 +606,6 @@ class ProductMaterialController extends Controller
                 }
                 $result .= '</ul>';
                 $result .= '</div>';
-                // $result .= '</center>';
                 return $result;
             })
             ->addColumn('getStatus',function ($row): string{
@@ -787,7 +823,8 @@ class ProductMaterialController extends Controller
                 ],
                 ['pm_items_id' => $itemsId],
             );
-            $pmItems =  $data->get();
+            $pmItems =  $data
+            ->whereNull('deleted_at')->get();
             $itemCollection = ItemResource::collection($pmItems)->resolve();
             $category = $itemCollection[0]['category'];
             $descriptions = collect($itemCollection[0]['descriptions']);
@@ -849,7 +886,7 @@ class ProductMaterialController extends Controller
                 ];
             })->values()->groupBy('itemNo')->toArray();
 
-           $data = [
+            $data = [
                 'to' => "Yamaichi Electronics Co.",
                 "category"    => $category,
                 'attn' => $attentionName,

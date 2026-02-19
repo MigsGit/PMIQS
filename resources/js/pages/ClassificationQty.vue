@@ -4,15 +4,14 @@
             <div class="col-6 shadow">
                 <div class="row">
                     <div class="col-sm-2">
-                        <button v-show="pmItemStatusParam === 'FORUP'" @click="btnSavePdfEmailFormat" type="submit" style="float: right !important;" class="btn btn-primary"> <font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp; Update Recipients </button>
+                        <button v-show="pmItemStatusParam === 'FORUP' || pmItemStatusParam ==='DIS'" @click="btnSavePdfEmailFormat" type="submit" style="float: right !important;" class="btn btn-primary"> <font-awesome-icon class="nav-icon" icon="fas fa-envelope" />&nbsp; Update Recipients </button>
                     </div>
                     <div class="col-sm-10">
                         <button v-show="isSessionApprover === 'true'" @click="btnForApproval" type="submit" style="float: right !important;" class="btn btn-info"> <font-awesome-icon class="nav-icon" icon="fas fa-thumbs-up" />&nbsp; For Approval </button>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row mt-3">
                     <div class="col-6">
-
                         <h4>
                             <router-link class="btn btn-outline-danger" :to="{ name: 'ProductMaterial' }">
                                 <font-awesome-icon class="nav-icon" icon="fa-solid fa-arrow-left" />
@@ -190,7 +189,7 @@
                         <h4>Classification Details</h4>
                     </div>
                     <div class="col-6 mb-3">
-                        <button v-show="pmItemStatusParam === 'FORUP'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save {{ pmItemStatusParam }} </button>
+                        <button v-show="pmItemStatusParam === 'FORUP' || pmItemStatusParam === 'DIS'" @click="formSaveClassificationQty" type="submit" style="float: right !important;" class="btn btn-success"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;Save </button>
                     </div>
                 </div>
                  <!-- Classification Cards -->
@@ -274,7 +273,7 @@
                             </td>
                             <td>
                                 <!-- <center> -->
-                                    <button v-show="pmItemStatusParam === 'FORUP'" @click="removeRowFromCard(cardIndex, rowIndex)" class="btn btn-danger mt-3">
+                                    <button v-show="pmItemStatusParam === 'FORUP' || pmItemStatusParam === 'DIS'" @click="removeRowFromCard(cardIndex, rowIndex)" class="btn btn-danger mt-3">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 <!-- </center> -->
@@ -282,7 +281,7 @@
                             </tr>
                         </tbody>
                         </table>
-                        <button v-show="pmItemStatusParam === 'FORUP'" @click="addRowClassification(cardIndex,card.rows)" class="btn btn-primary">
+                        <button v-show="pmItemStatusParam === 'FORUP' || pmItemStatusParam === 'DIS'" @click="addRowClassification(cardIndex,card.rows)" class="btn btn-primary">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -601,34 +600,47 @@
       cardSaveClassifications.value[cardIndex].rows.splice(rowIndex, 1);
     };
     const formSaveClassificationQty = async () => {
-        let formData =  new FormData();
-        for (let index = 0; index < cardSaveClassifications.value.length; index++) {
-            const elementCardSaveClassifications = cardSaveClassifications.value[index];
+        Swal.fire({
+            title: 'Confirmation',
+            text: `Please double check your details, the Approval will RESET !`,
+            icon: 'warning',
+            allowOutsideClick: false,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let formData =  new FormData();
+                for (let index = 0; index < cardSaveClassifications.value.length; index++) {
+                    const elementCardSaveClassifications = cardSaveClassifications.value[index];
 
-            for (let index = 0; index < elementCardSaveClassifications.rows.length; index++) {
-                const elementRowSaveDescription = elementCardSaveClassifications.rows[index];
+                    for (let index = 0; index < elementCardSaveClassifications.rows.length; index++) {
+                        const elementRowSaveDescription = elementCardSaveClassifications.rows[index];
 
-                const descriptionsId = elementRowSaveDescription.descriptionsId;
-                const classification = elementRowSaveDescription.classification;
-                const qty = elementRowSaveDescription.qty;
-                const uom = elementRowSaveDescription.uom;
-                const unitPrice = elementRowSaveDescription.unitPrice;
-                const remarks = elementRowSaveDescription.remarks;
-                [
-                    ["descriptionsId[]", descriptionsId],
-                    ["classification[]", classification],
-                    ["qty[]", qty],
-                    ["uom[]", uom],
-                    ["unitPrice[]", unitPrice],
-                    ["remarks[]", remarks],
-                ].forEach(([key, value]) =>
-                    formData.append(key, value)
-                );
+                        const descriptionsId = elementRowSaveDescription.descriptionsId;
+                        const classification = elementRowSaveDescription.classification;
+                        const qty = elementRowSaveDescription.qty;
+                        const uom = elementRowSaveDescription.uom;
+                        const unitPrice = elementRowSaveDescription.unitPrice;
+                        const remarks = elementRowSaveDescription.remarks;
+                        [
+                            ["descriptionsId[]", descriptionsId],
+                            ["classification[]", classification],
+                            ["qty[]", qty],
+                            ["uom[]", uom],
+                            ["unitPrice[]", unitPrice],
+                            ["remarks[]", remarks],
+                        ].forEach(([key, value]) =>
+                            formData.append(key, value)
+                        );
+                    }
+                }
+                formData.append('itemsId', selectedItemsId.value);
+                    axiosSaveData(formData,'api/save_classification_qty', (response) =>{
+                    Router.push({ name: 'ProductMaterial'});
+                });
             }
-        }
-        formData.append('itemsId', selectedItemsId.value);
-        axiosSaveData(formData,'api/save_classification_qty', (response) =>{
-            Router.push({ name: 'ProductMaterial'});
         });
     }
     const formSavePdfEmailFormat = async () => {

@@ -133,7 +133,7 @@
                 </div>
                 <!--  -->
                 <div class="col-12">
-                    <button v-show="pmItemStatus==='FORUP' || !isModalView" @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items {{ isModalView }}</button>
+                    <button v-show="pmItemStatus==='FORUP' || pmItemStatus==='DIS' || !isModalView" @click="addRowSaveItem"  type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Items {{ isModalView }}</button>
                     <br><br>
                 </div>
                 <div class="col-12">
@@ -158,7 +158,7 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="col-12">
-                                                <button v-show="pmItemStatus==='FORUP' || !isModalView" @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
+                                                <button v-show="pmItemStatus==='FORUP' || pmItemStatus==='DIS' || !isModalView" @click="addRowSaveDescription(indexItem,rowSaveItem.itemNo)" type="button" class="btn btn-primary btn-sm" style="float: right !important;"><i class="fas fa-plus"></i> Add Descriptions</button>
                                                 <br><br>
 
                                             </div>
@@ -212,7 +212,7 @@
                                                         </td>
 
                                                         <td>
-                                                            <button v-show="pmItemStatus==='FORUP' ||  !isModalView"   @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
+                                                            <button v-show="pmItemStatus==='FORUP' || pmItemStatus==='DIS' ||  !isModalView"   @click="removeRowSaveDescription(indexItem, indexDescription)" class="btn btn-danger btn-sm" type="button" data-item-process="add">
                                                                 <li class="fa fa-trash"></li>
                                                             </button>
                                                         </td>
@@ -350,7 +350,7 @@
         </template>
         <template #footer>
             <button type="button" id= "closeBtn" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-            <button v-show="pmVar.status === 'FORUP' || !isModalView" @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;     Save</button>
+            <button v-show="pmVar.status === 'FORUP' || pmItemStatus ==='DIS'  || !isModalView" @click="formSaveItem" type="submit" class="btn btn-success btn-sm"><font-awesome-icon class="nav-icon" icon="fas fa-save" />&nbsp;    Save</button>
         </template>
     </ModalComponent>
     <ModalComponent icon="fa-download" modalDialog="modal-dialog modal-md" title="View Product /Material Reference" ref="modalViewPmRef">
@@ -494,7 +494,7 @@
                                         </td>
                                         <td>
 
-                                            <button v-show="pmItemStatus==='FORUP' ||  !isModalView" @click="removeFrmPdfEmailFormatRows(index)" class="btn btn-outline-danger btn-sm" type="button" data-item-process="add">
+                                            <button v-show="pmItemStatus==='FORUP' || pmItemStatus==='DIS' ||  !isModalView" @click="removeFrmPdfEmailFormatRows(index)" class="btn btn-outline-danger btn-sm" type="button" data-item-process="add">
                                                 <font-awesome-icon class="nav-icon" icon="fas fa-trash" />
                                             </button>
 
@@ -635,7 +635,7 @@
                         let itemsId = this.getAttribute('items-id')
                         let pmItemCurrentStatus = this.getAttribute('pm-item-status')
                         pmItemStatus.value = pmItemCurrentStatus;
-                        
+
                         let itemParams = {
                             itemsId : itemsId
                         }
@@ -786,7 +786,7 @@
         isModalView.value = false;
         modalPm.Quotations.show();
         // console.log(selectedItemsId.value=1);
-        
+
     }
     const addRowSaveItem = () => {
         const newItemNo = rowSaveItems.value.length + 1;

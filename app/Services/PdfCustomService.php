@@ -274,24 +274,27 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Ln(5);
         $this->fpdi->MultiCell(190, 5, "We are pleased to submit quotation for TR405-1040 and TR407-1040 tray:");
         $descriptions = $data['descriptions'];
-
         $ctrMaterial = 1;
         $this->fpdi->Ln(3);
 
         if($data['category'] === "PRO"){
+
             for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
-                 $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptions[$ctrMaterial][$indexMaterial]['description'][0], 0, 0);
+                $descriptionTitle = $descriptions[$ctrMaterialDescription][0]['description'][0];
+                $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptionTitle, 0, 0);
                 $this->fpdi->Ln(8);
-                // echo json_encode();
-                // exit;
                 $this->buildProductTable($descriptions[$ctrMaterial]);
                 $ctrMaterial++;
                 $this->fpdi->Ln(10);
             }
+
         }
         if($data['category'] === "RM"){
+
             for ($indexMaterial=0; $indexMaterial < count($descriptions); $indexMaterial++) {
-                $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptions[$ctrMaterial][$indexMaterial]['description'][0], 0, 0);
+
+                $descriptionTitle = $descriptions[$ctrMaterial][0]['description'][0];
+                $this->fpdi->Cell(100, 5, $ctrMaterial.'. '.$descriptionTitle, 0, 0);
                 $this->fpdi->Ln(8);
                 $this->buildRawMatTable($descriptions[$ctrMaterial]);
                 $ctrMaterial++;
@@ -355,7 +358,7 @@ class PdfCustomService implements PdfCustomInterface
         $this->fpdi->Cell(90, 5, $data['approved_by2'], 0, 1);
         // echo json_encode($data);
         /**
-         Material Cost 
+         Material Cost
          Packaging Cost
          Freight Cost
          Allowance Cost
@@ -378,6 +381,7 @@ class PdfCustomService implements PdfCustomInterface
     }
 
     private function buildRawMatTable(array $products) {
+
         // Column width strategy (proportional - adjusted for Remarks)
         $wPartCode = $this->usableWidth * 0.12;
         $wDesc     = $this->usableWidth * 0.15;

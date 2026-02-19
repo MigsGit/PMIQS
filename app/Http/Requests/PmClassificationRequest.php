@@ -28,7 +28,7 @@ class PmClassificationRequest extends FormRequest
             'classification.0' => ['required'],
             'qty.0' => ['required', 'integer', 'min:0'],
             'uom.0' => ['required'],
-            'unitPrice.0' => ['required', 'integer', 'min:0'],
+            'unitPrice.0' => ['required' , 'min:0'],
         ];
     }
     public function messages()
